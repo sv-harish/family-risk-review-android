@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt)
@@ -9,12 +8,21 @@ plugins {
 
 android {
     namespace = "com.familyriskreview.android"
-    compileSdk = libs.versions.compileSdk.get().toInt()
+    compileSdk =
+        libs.versions.compileSdk
+            .get()
+            .toInt()
 
     defaultConfig {
         applicationId = "com.familyriskreview.android"
-        minSdk = libs.versions.minSdk.get().toInt()
-        targetSdk = libs.versions.targetSdk.get().toInt()
+        minSdk =
+            libs.versions.minSdk
+                .get()
+                .toInt()
+        targetSdk =
+            libs.versions.targetSdk
+                .get()
+                .toInt()
         versionCode = 1
         versionName = "0.1.0-phase0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -66,12 +74,14 @@ kotlin {
 
 dependencies {
     implementation(project(":core:model"))
+    implementation(project(":core:data"))
+    // Hilt @Module classes in these modules must be on the app classpath.
     implementation(project(":core:database"))
     implementation(project(":core:datastore"))
+    implementation(project(":core:sync"))
     implementation(project(":core:designsystem"))
     implementation(project(":core:ui"))
     implementation(project(":core:calculation"))
-    implementation(project(":core:sync"))
     implementation(project(":feature:dashboard"))
     implementation(project(":feature:review"))
     implementation(project(":feature:summary"))
@@ -82,6 +92,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.savedstate)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.window)
     implementation(libs.androidx.navigation.compose)
@@ -123,6 +134,6 @@ dependencies {
 
 tasks.register("verifyPhase0") {
     group = "verification"
-    description = "Phase 0 smoke verification: assemble debug and run unit tests."
+    description = "Phase 0.5 smoke verification: assemble debug and run unit tests."
     dependsOn("assembleDebug", "testDebugUnitTest")
 }

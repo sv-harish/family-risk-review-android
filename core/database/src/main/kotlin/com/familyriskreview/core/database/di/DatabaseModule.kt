@@ -17,33 +17,29 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
-
     @Provides
     @Singleton
     fun provideDatabase(
         @ApplicationContext context: Context,
-    ): FamilyRiskReviewDatabase =
-        Room.databaseBuilder(
+    ): FamilyRiskReviewDatabase = Room
+        .databaseBuilder(
             context,
             FamilyRiskReviewDatabase::class.java,
             FamilyRiskReviewDatabase.NAME,
         )
-            // Safe migrations required from schema v1 onward.
-            // fallbackToDestructiveMigration is intentionally omitted for production builds.
-            .build()
+        // Safe migrations required from schema v1 onward.
+        // fallbackToDestructiveMigration is intentionally omitted for production builds.
+        .build()
 
     @Provides
     fun provideReviewDao(db: FamilyRiskReviewDatabase): ReviewDao = db.reviewDao()
 
     @Provides
-    fun provideHouseholdMemberDao(db: FamilyRiskReviewDatabase): HouseholdMemberDao =
-        db.householdMemberDao()
+    fun provideHouseholdMemberDao(db: FamilyRiskReviewDatabase): HouseholdMemberDao = db.householdMemberDao()
 
     @Provides
-    fun provideResponsibilityDao(db: FamilyRiskReviewDatabase): ResponsibilityDao =
-        db.responsibilityDao()
+    fun provideResponsibilityDao(db: FamilyRiskReviewDatabase): ResponsibilityDao = db.responsibilityDao()
 
     @Provides
-    fun provideAdvisorReferenceDao(db: FamilyRiskReviewDatabase): AdvisorReferenceDao =
-        db.advisorReferenceDao()
+    fun provideAdvisorReferenceDao(db: FamilyRiskReviewDatabase): AdvisorReferenceDao = db.advisorReferenceDao()
 }

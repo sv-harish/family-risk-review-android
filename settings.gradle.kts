@@ -31,6 +31,7 @@ include(":core:designsystem")
 include(":core:ui")
 include(":core:calculation")
 include(":core:sync")
+include(":core:data")
 
 include(":feature:dashboard")
 include(":feature:review")

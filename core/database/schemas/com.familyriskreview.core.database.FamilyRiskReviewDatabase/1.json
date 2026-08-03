@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "d73874893eacd011f2937dfec00cdb96",
+    "identityHash": "476edd7d986080a26a55d905a531a73a",
     "entities": [
       {
         "tableName": "reviews",
@@ -59,14 +59,12 @@
           {
             "fieldPath": "completedAtEpochMs",
             "columnName": "completedAtEpochMs",
-            "affinity": "INTEGER",
-            "notNull": false
+            "affinity": "INTEGER"
           },
           {
             "fieldPath": "focusedIncomeContributorId",
             "columnName": "focusedIncomeContributorId",
-            "affinity": "TEXT",
-            "notNull": false
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "assumptionVersion",
@@ -101,8 +99,7 @@
           {
             "fieldPath": "serverUpdatedAtEpochMs",
             "columnName": "serverUpdatedAtEpochMs",
-            "affinity": "INTEGER",
-            "notNull": false
+            "affinity": "INTEGER"
           }
         ],
         "primaryKey": {
@@ -139,8 +136,7 @@
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_reviews_updatedAtEpochMs` ON `${TABLE_NAME}` (`updatedAtEpochMs`)"
           }
-        ],
-        "foreignKeys": []
+        ]
       },
       {
         "tableName": "household_members",
@@ -167,8 +163,7 @@
           {
             "fieldPath": "age",
             "columnName": "age",
-            "affinity": "INTEGER",
-            "notNull": false
+            "affinity": "INTEGER"
           },
           {
             "fieldPath": "contributionStatus",
@@ -185,8 +180,7 @@
           {
             "fieldPath": "displayLabel",
             "columnName": "displayLabel",
-            "affinity": "TEXT",
-            "notNull": false
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "sortOrder",
@@ -228,7 +222,7 @@
       },
       {
         "tableName": "responsibilities",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `reviewId` TEXT NOT NULL, `catalogue` TEXT NOT NULL, `customLabel` TEXT, `priority` TEXT, `timingKind` TEXT, `yearsUntilRequired` INTEGER, `durationYears` INTEGER, `milestoneLabel` TEXT, `customTimingNote` TEXT, `currentAmountRupees` INTEGER, `monthlyAmountRupees` INTEGER, `futureIndicativeAmountRupees` INTEGER, `inflationRateUsed` REAL, `assumptionVersion` TEXT, `calculationVersion` TEXT, `isSelected` INTEGER NOT NULL, `sortOrder` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`reviewId`) REFERENCES `reviews`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `reviewId` TEXT NOT NULL, `catalogue` TEXT NOT NULL, `customLabel` TEXT, `priority` TEXT, `timingKind` TEXT, `yearsUntilRequired` INTEGER, `durationYears` INTEGER, `milestoneLabel` TEXT, `customTimingNote` TEXT, `currentAmountRupees` INTEGER, `monthlyAmountRupees` INTEGER, `futureIndicativeAmountRupees` INTEGER, `explicitInflationBps` INTEGER, `derivedSourceCurrentAmountRupees` INTEGER, `derivedSourceMonthlyAmountRupees` INTEGER, `derivedSourceYears` INTEGER, `derivedSourceDurationYears` INTEGER, `derivedInflationRateBps` INTEGER, `derivedExpectedNetReturnBps` INTEGER, `derivedAssumptionVersion` TEXT, `derivedCalculationVersion` TEXT, `assumptionVersion` TEXT, `calculationVersion` TEXT, `isSelected` INTEGER NOT NULL, `sortOrder` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`reviewId`) REFERENCES `reviews`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -251,80 +245,107 @@
           {
             "fieldPath": "customLabel",
             "columnName": "customLabel",
-            "affinity": "TEXT",
-            "notNull": false
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "priority",
             "columnName": "priority",
-            "affinity": "TEXT",
-            "notNull": false
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "timingKind",
             "columnName": "timingKind",
-            "affinity": "TEXT",
-            "notNull": false
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "yearsUntilRequired",
             "columnName": "yearsUntilRequired",
-            "affinity": "INTEGER",
-            "notNull": false
+            "affinity": "INTEGER"
           },
           {
             "fieldPath": "durationYears",
             "columnName": "durationYears",
-            "affinity": "INTEGER",
-            "notNull": false
+            "affinity": "INTEGER"
           },
           {
             "fieldPath": "milestoneLabel",
             "columnName": "milestoneLabel",
-            "affinity": "TEXT",
-            "notNull": false
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "customTimingNote",
             "columnName": "customTimingNote",
-            "affinity": "TEXT",
-            "notNull": false
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "currentAmountRupees",
             "columnName": "currentAmountRupees",
-            "affinity": "INTEGER",
-            "notNull": false
+            "affinity": "INTEGER"
           },
           {
             "fieldPath": "monthlyAmountRupees",
             "columnName": "monthlyAmountRupees",
-            "affinity": "INTEGER",
-            "notNull": false
+            "affinity": "INTEGER"
           },
           {
             "fieldPath": "futureIndicativeAmountRupees",
             "columnName": "futureIndicativeAmountRupees",
-            "affinity": "INTEGER",
-            "notNull": false
+            "affinity": "INTEGER"
           },
           {
-            "fieldPath": "inflationRateUsed",
-            "columnName": "inflationRateUsed",
-            "affinity": "REAL",
-            "notNull": false
+            "fieldPath": "explicitInflationBps",
+            "columnName": "explicitInflationBps",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "derivedSourceCurrentAmountRupees",
+            "columnName": "derivedSourceCurrentAmountRupees",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "derivedSourceMonthlyAmountRupees",
+            "columnName": "derivedSourceMonthlyAmountRupees",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "derivedSourceYears",
+            "columnName": "derivedSourceYears",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "derivedSourceDurationYears",
+            "columnName": "derivedSourceDurationYears",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "derivedInflationRateBps",
+            "columnName": "derivedInflationRateBps",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "derivedExpectedNetReturnBps",
+            "columnName": "derivedExpectedNetReturnBps",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "derivedAssumptionVersion",
+            "columnName": "derivedAssumptionVersion",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "derivedCalculationVersion",
+            "columnName": "derivedCalculationVersion",
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "assumptionVersion",
             "columnName": "assumptionVersion",
-            "affinity": "TEXT",
-            "notNull": false
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "calculationVersion",
             "columnName": "calculationVersion",
-            "affinity": "TEXT",
-            "notNull": false
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "isSelected",
@@ -383,20 +404,17 @@
           {
             "fieldPath": "customerInitialsOrNickname",
             "columnName": "customerInitialsOrNickname",
-            "affinity": "TEXT",
-            "notNull": false
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "crmReference",
             "columnName": "crmReference",
-            "affinity": "TEXT",
-            "notNull": false
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "privateNote",
             "columnName": "privateNote",
-            "affinity": "TEXT",
-            "notNull": false
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "includeInCustomerSummary",
@@ -411,7 +429,6 @@
             "reviewId"
           ]
         },
-        "indices": [],
         "foreignKeys": [
           {
             "table": "reviews",
@@ -427,10 +444,9 @@
         ]
       }
     ],
-    "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd73874893eacd011f2937dfec00cdb96')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '476edd7d986080a26a55d905a531a73a')"
     ]
   }
 }

@@ -7,7 +7,6 @@ package com.familyriskreview.core.calculation
  * unless cursor mapping is fully implemented. Prefer format-on-blur.
  */
 object IndianCurrencyFormatter {
-
     fun formatRupees(amountRupees: Long): String {
         val negative = amountRupees < 0
         val absolute = kotlin.math.abs(amountRupees)
@@ -24,18 +23,24 @@ object IndianCurrencyFormatter {
         if (digits.length <= 3) return digits
         val lastThree = digits.takeLast(3)
         val remaining = digits.dropLast(3)
-        val pairs = remaining.reversed().chunked(2).joinToString(",") { it.reversed() }.reversed()
+        val pairs =
+            remaining
+                .reversed()
+                .chunked(2)
+                .joinToString(",") { it.reversed() }
+                .reversed()
         // chunked approach above can leave leading order odd; rebuild carefully:
-        val rebuiltPairs = buildString {
-            var index = remaining.length
-            val parts = mutableListOf<String>()
-            while (index > 0) {
-                val start = (index - 2).coerceAtLeast(0)
-                parts.add(0, remaining.substring(start, index))
-                index = start
+        val rebuiltPairs =
+            buildString {
+                var index = remaining.length
+                val parts = mutableListOf<String>()
+                while (index > 0) {
+                    val start = (index - 2).coerceAtLeast(0)
+                    parts.add(0, remaining.substring(start, index))
+                    index = start
+                }
+                append(parts.joinToString(","))
             }
-            append(parts.joinToString(","))
-        }
         return "$rebuiltPairs,$lastThree"
     }
 
@@ -44,13 +49,14 @@ object IndianCurrencyFormatter {
      * Returns null when the input is empty or not a valid integer rupee amount.
      */
     fun parseRupees(raw: String): Long? {
-        val cleaned = raw
-            .trim()
-            .removePrefix("₹")
-            .removePrefix("Rs.")
-            .removePrefix("Rs")
-            .replace(",", "")
-            .replace(" ", "")
+        val cleaned =
+            raw
+                .trim()
+                .removePrefix("₹")
+                .removePrefix("Rs.")
+                .removePrefix("Rs")
+                .replace(",", "")
+                .replace(" ", "")
         if (cleaned.isEmpty()) return null
         return cleaned.toLongOrNull()
     }

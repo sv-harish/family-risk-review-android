@@ -12,11 +12,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FamilyRiskReview">
 
+        <!--
+          Do not declare android:configChanges for orientation/screen/keyboard/locale.
+          UI and editing state must survive expected Activity recreation through
+          saved state and persisted domain state, not by preventing configuration changes.
+        -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|keyboard|locale"
             android:windowSoftInputMode="adjustResize"
             android:theme="@style/Theme.FamilyRiskReview">
             <intent-filter>

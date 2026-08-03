@@ -1,39 +1,47 @@
 # QA status — Family Risk Review
 
-## Phase 0
+## Phase 0.5 gates (local)
 
-| Area | Status | Notes |
-|------|--------|-------|
-| Project compiles | **Passed** | `./gradlew assembleDebug` — APK built |
-| Unit: currency formatting | **Passed** | `IndianCurrencyFormatterTest` (3) |
-| Unit: future value / recurring / gross | **Passed** | `ResponsibilityCalculatorTest` (4) |
-| Unit: advisor identity wording | **Passed** | `AdvisorIdentityTest` (1) |
-| Unit: fake sync | **Passed** | `FakeSyncClientTest` (2) |
-| Unit: navigation routes | **Passed** | `NavigationRoutesTest` (1) |
-| Unit: review entity smoke | **Passed** | `ReviewEntitySmokeTest` (1) |
-| Database insert/update/migration | Not yet | Phase 1 / Phase 6 |
-| Compose UI tests | Not yet | Phase 3+ |
-| Emulator / device input tests | **Not run** | No emulator system image in this environment |
-| PDF visual inspection EN/TA/HI | Not started | Phase 7 |
-| Accessibility audit | Not started | Phase 8 |
+| Gate | Status |
+|------|--------|
+| `./gradlew spotlessCheck` | **Passed** |
+| `./gradlew lintDebug` | **Passed** (0 errors; warnings present — see unresolved) |
+| `./gradlew test` | **Passed** |
+| `./gradlew assembleDebug` | **Passed** |
+| `./gradlew :app:verifyPhase0` | **Passed** |
 
-## Test run (Phase 0 bootstrap)
+## Test inventory
 
-```
-./gradlew assembleDebug test
-```
+| Kind | Count | Notes |
+|------|------:|-------|
+| JVM unit tests | 36 | model, calculation, mappers, sync, nav, summary mapping |
+| Robolectric unit tests | 4 | DAO, repository, DataStore (`@Config(sdk=[34])`) |
+| Instrumentation tests executed | 0 | Not run in this environment |
+| Instrumentation tests compiled | present stubs only | — |
 
-Result: **BUILD SUCCESSFUL** — 12 unique unit tests, 0 failures  
-(Android library modules also execute debug+release unit-test variants.)
+**Unique tests executed:** 40 (0 failures)
+
+### Representative test names
+
+- `ResponsibilityCalculatorTest` (education/marriage/loan/recurring/derived/scenario/overflow…)
+- `IndianCurrencyFormatterTest`
+- `ReviewNumberGeneratorTest`
+- `EntityMapperRoundTripTest`
+- `ReviewDaoRobolectricTest`
+- `ReviewRepositoryRobolectricTest`
+- `UserPreferencesDataSourceTest`
+- `CustomerSummaryMapperTest`
+- `FakeSyncClientTest`
+- `NavigationRoutesTest`
+
+## Unresolved warnings / gaps
+
+- Android Lint reports informational/warning findings (including dependency target-api notes); no lint errors.
+- kotlinx-datetime `Instant` deprecation warnings toward `kotlin.time.Instant` (migrate in a later hardening pass).
+- Fonts / Dareus One logo / advisor portrait still placeholders.
+- Emulator IME / device recreation QA not run.
+- GitHub Actions CI status must be confirmed green on the PR before merge claim.
 
 ## Honesty rule
 
-Do not claim device testing without running it. Do not claim a test passed merely because it compiled.
-
-## Known Phase 0 gaps
-
-- Font files (Manrope, Inter, Noto Sans Tamil/Devanagari) not yet bundled — system sans placeholders
-- Dareus One logo and advisor portrait are labelled placeholders pending asset check-in (`assets/`)
-- Room schema JSON exported at `core/database/schemas/.../1.json`
-- Supabase sync is a stub behind `SyncClient`
-- Spotless/ktlint may flag style issues; CI continues on Spotless failure for now
+Do not claim device testing without running it. Do not claim PR verification passed until GitHub Actions completes successfully.

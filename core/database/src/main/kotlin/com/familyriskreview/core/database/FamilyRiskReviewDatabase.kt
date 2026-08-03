@@ -15,8 +15,18 @@ import com.familyriskreview.core.database.entity.ReviewEntity
 /**
  * Local source of truth for Family Risk Review.
  *
- * Schema version 1 is the first public schema. From this point forward,
- * use safe Room migrations — never destructive migration in production.
+ * ## Schema policy (Phase 0.5)
+ *
+ * Schema version 1 is **provisional / pre-release**. The application has not
+ * shipped a persistence-compatible public build. During Phase 1, schema v1 may
+ * be corrected directly without migration debt.
+ *
+ * **Schema-freeze milestone:** the first intentionally distributed
+ * persistence-compatible build (declared in docs/DECISIONS.md). From that
+ * build onward, safe Room migrations are mandatory and destructive migration
+ * is forbidden in production.
+ *
+ * Continue exporting schemas to `schemas/` and checking them into source control.
  */
 @Database(
     entities = [
@@ -31,12 +41,17 @@ import com.familyriskreview.core.database.entity.ReviewEntity
 @TypeConverters(DatabaseConverters::class)
 abstract class FamilyRiskReviewDatabase : RoomDatabase() {
     abstract fun reviewDao(): ReviewDao
+
     abstract fun householdMemberDao(): HouseholdMemberDao
+
     abstract fun responsibilityDao(): ResponsibilityDao
+
     abstract fun advisorReferenceDao(): AdvisorReferenceDao
 
     companion object {
+        /** Provisional pre-release schema. May be corrected in Phase 1 before freeze. */
         const val VERSION: Int = 1
         const val NAME: String = "family_risk_review.db"
+        const val SCHEMA_STATUS: String = "PROVISIONAL_PRE_RELEASE"
     }
 }

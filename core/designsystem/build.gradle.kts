@@ -1,15 +1,21 @@
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
 
 android {
     namespace = "com.familyriskreview.core.designsystem"
-    compileSdk = libs.versions.compileSdk.get().toInt()
+    compileSdk =
+        libs.versions.compileSdk
+            .get()
+            .toInt()
 
     defaultConfig {
-        minSdk = libs.versions.minSdk.get().toInt()
+        minSdk =
+            libs.versions.minSdk
+                .get()
+                .toInt()
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
 
@@ -21,6 +27,9 @@ android {
 
     buildFeatures {
         compose = true
+    }
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
     }
 }
 
@@ -37,11 +46,10 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.material.icons)
-
-    coreLibraryDesugaring(libs.desugar.jdk.libs)
-
     debugImplementation(libs.androidx.compose.ui.tooling)
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)
+    testImplementation(libs.kotlinx.coroutines.test)
 }

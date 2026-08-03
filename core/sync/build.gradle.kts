@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
@@ -8,10 +7,16 @@ plugins {
 
 android {
     namespace = "com.familyriskreview.core.sync"
-    compileSdk = libs.versions.compileSdk.get().toInt()
+    compileSdk =
+        libs.versions.compileSdk
+            .get()
+            .toInt()
 
     defaultConfig {
-        minSdk = libs.versions.minSdk.get().toInt()
+        minSdk =
+            libs.versions.minSdk
+                .get()
+                .toInt()
         consumerProguardFiles("consumer-rules.pro")
         buildConfigField("boolean", "SYNC_ENABLED_DEFAULT", "false")
     }
@@ -33,7 +38,6 @@ kotlin {
 
 dependencies {
     implementation(project(":core:model"))
-    implementation(project(":core:database"))
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)

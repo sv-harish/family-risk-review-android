@@ -9,56 +9,63 @@ Native Android tablet application for advisor-led household risk awareness sessi
 
 ## Status
 
-**Phase 0 — Bootstrap** (current)
+**Phase 0.5 — Hardened bootstrap** (current)
 
-Greenfield repository foundation: modular architecture, design-system tokens, Room/DataStore shells, navigation shell, calculation stubs, CI, and documentation.
+Greenfield foundation with upgraded toolchain (API 36), `core:data` repository boundary, corrected calculation semantics, enforced CI gates, and provisional Room schema policy.
 
-Customer journey screens and polished visual storytelling begin in later phases. Do not treat Phase 0 shells as the finished product.
+## Toolchain matrix
 
-## Requirements
+| Item | Version |
+|------|---------|
+| AGP | 9.3.1 |
+| Gradle | 9.5.1 |
+| Kotlin | 2.4.10 |
+| KSP | 2.3.11 |
+| Compose BOM | 2026.06.00 |
+| compileSdk / targetSdk | 36 / 36 |
+| minSdk | 26 |
+| JDK (toolchain) | 17 |
+| Hilt | 2.60.1 |
+| Navigation Compose | 2.9.8 |
+| Room | 2.8.4 |
+| DataStore | 1.2.1 |
+| WorkManager | 2.11.2 |
+| Lifecycle | 2.10.0 |
+| Activity Compose | 1.12.4 |
+| Coroutines | 1.10.2 |
+| Serialization | 1.11.0 |
+| Datetime | 0.7.1 |
 
-- Android Studio Ladybug+ / JDK 17+
-- Android SDK Platform 35
-- Gradle Wrapper (included)
+Notes:
+
+- AGP 9 uses **built-in Kotlin** for Android modules (`org.jetbrains.kotlin.android` is not applied).
+- Some AndroidX artifacts newer than the matrix require `compileSdk 37+`; they were pinned to keep **compileSdk/targetSdk 36** as specified.
+- Robolectric instrumented-style unit tests use `@Config(sdk = [34])` because Robolectric’s API 36 sandbox requires JDK 21.
 
 ## Modules
 
 | Module | Responsibility |
 |--------|----------------|
-| `:app` | Application entry, splash, root navigation |
-| `:core:model` | Domain models (pure JVM) |
-| `:core:calculation` | Future-value / recurring / gross responsibility math |
-| `:core:database` | Room source of truth |
-| `:core:datastore` | Preferences (language defaults, assumptions, motion) |
-| `:core:designsystem` | Colour tokens, typography, shared components |
-| `:core:ui` | Adaptive layouts, route constants |
-| `:core:sync` | SyncClient interface + fake / Supabase stubs |
-| `:feature:dashboard` | Advisor workspace |
-| `:feature:review` | Customer review flow |
-| `:feature:summary` | Awareness summary + handoff |
-| `:feature:settings` | Assumptions, motion, sync settings |
+| `:app` | Application entry, splash, root navigation, DI aggregation |
+| `:core:model` | Pure domain models |
+| `:core:calculation` | Deterministic financial math |
+| `:core:database` | Room entities/DAOs only |
+| `:core:datastore` | Preference persistence only |
+| `:core:sync` | SyncClient + Fake / Supabase stub |
+| `:core:data` | Repositories coordinating storage + sync |
+| `:core:designsystem` | Tokens, theme, shared components |
+| `:core:ui` | Adaptive layouts, type-safe routes |
+| `:feature:*` | UI features depending on repositories/domain — not DAOs |
 
 ## Build
 
 ```bash
-./gradlew assembleDebug
+./gradlew spotlessCheck
+./gradlew lintDebug
 ./gradlew test
+./gradlew assembleDebug
 ./gradlew :app:verifyPhase0
 ```
-
-Set SDK path in `local.properties` (not committed):
-
-```
-sdk.dir=/path/to/Android/Sdk
-```
-
-## Languages
-
-English, Tamil (`ta`), Hindi (`hi`). All customer-facing text must come from string resources.
-
-## Secrets
-
-Never commit Supabase keys, keystores, or `.env` files. See `docs/ARCHITECTURE.md` and `.env.example`.
 
 ## Documentation
 

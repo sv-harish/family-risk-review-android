@@ -1,69 +1,72 @@
 # Architecture — Family Risk Review
 
-## Stack
+## Stack (Phase 0.5)
 
-| Concern | Choice | Version (Phase 0) |
-|---------|--------|-------------------|
-| Language | Kotlin | 2.0.21 |
-| UI | Jetpack Compose + Material 3 | Compose BOM 2024.12.01 |
-| Min / compile / target SDK | 26 / 35 / 35 | — |
-| AGP | 8.7.3 | — |
-| Gradle | 8.11.1 | — |
-| Navigation | Navigation Compose | 2.8.5 |
-| DI | Hilt | 2.53.1 |
-| Local DB | Room | 2.6.1 |
-| Preferences | DataStore | 1.1.1 |
-| Async work | WorkManager (queued sync) | 2.10.0 |
-| Serialization | Kotlinx Serialization | 1.7.3 |
-| Time | Kotlinx Datetime | 0.6.1 |
+| Concern | Choice | Version |
+|---------|--------|---------|
+| Language | Kotlin (AGP built-in for Android modules) | 2.4.10 |
+| UI | Jetpack Compose + Material 3 | Compose BOM 2026.06.00 |
+| Min / compile / target SDK | 26 / 36 / 36 | — |
+| AGP | 9.3.1 | — |
+| Gradle | 9.5.1 | — |
+| Navigation | Type-safe Navigation Compose | 2.9.8 |
+| DI | Hilt | 2.60.1 |
+| Local DB | Room (provisional schema v1) | 2.8.4 |
+| Preferences | DataStore | 1.2.1 |
+| Async work | WorkManager (queued sync) | 2.11.2 |
 
 ## Module graph
 
 ```
 app
- ├─ feature:dashboard
- ├─ feature:review
- ├─ feature:summary
- ├─ feature:settings
- ├─ core:ui
- ├─ core:designsystem
- ├─ core:database
- ├─ core:datastore
- ├─ core:calculation
- ├─ core:sync
- └─ core:model
-
-feature:* → core:ui, core:designsystem, core:model (+ domain deps as needed)
-core:database → core:model
-core:datastore → core:model
-core:calculation → core:model
-core:sync → core:model, core:database
-core:ui → core:designsystem, core:model
+ ├─ feature:*  → core:data, core:ui, core:designsystem, core:model (+ calculation where needed)
+ ├─ core:data  → core:database, core:datastore, core:sync, core:model, core:calculation
+ ├─ core:database → core:model
+ ├─ core:datastore → core:model
+ ├─ core:sync → core:model
+ ├─ core:calculation → core:model
+ ├─ core:ui → core:designsystem, core:model
+ └─ core:designsystem
 ```
+
+**Rule:** feature modules must not depend on Room DAOs/entities, DataStore implementation types, Supabase clients, or WorkManager internals. They use repository contracts from `:core:data`.
+
+The `app` module additionally depends on `:core:database`, `:core:datastore`, and `:core:sync` so Hilt `@Module` classes are on the application classpath.
 
 ## Layering
 
-- **UI** — Compose screens, immutable UI state, explicit events; temporary text-edit state kept separate from persisted domain state.
-- **Domain / calculation** — pure Kotlin in `:core:model` and `:core:calculation`. No Room entities in UI; no calculations in composables.
-- **Data** — Room is source of truth; DataStore for app preferences; SyncClient behind an interface.
+- **UI** — Compose screens; immutable UI state; temporary edit state separate from persisted domain state.
+- **Domain / calculation** — pure Kotlin in `:core:model` and `:core:calculation`.
+- **Data** — repositories in `:core:data` coordinate Room, DataStore, and SyncClient.
 
-## Local-first
+## Activity recreation
 
-Room stores reviews, members, responsibilities, assumptions metadata, advisor references, notes, status, calculation version, sync state. Soft delete for audited deletion. Safe migrations from schema v1 — no production destructive migration.
+Do **not** declare broad `android:configChanges` on `MainActivity`.
+
+> UI and editing state must survive expected Activity recreation through saved state and persisted domain state, not by preventing configuration changes.
+
+## Review creation sequence
+
+```
+Select Quick/Guided on Welcome
+→ ReviewRepository.createReview(mode, language)
+→ persist Review (step = HOUSEHOLD_SUPPORT_MAP)
+→ navigate to Review(reviewId)
+```
+
+Splash and Welcome are app-shell destinations only — never persisted as `ReviewStep`.
+
+## Local-first & schema policy
+
+Room is the local source of truth. Schema v1 is **provisional** until the schema-freeze milestone (first intentionally distributed persistence-compatible build). See `docs/DECISIONS.md`.
 
 ## Sync
 
-`SyncClient` interface with:
+`SyncClient` with `FakeSyncClient` default and `SupabaseSyncClient` stub (`FRR_SUPABASE_URL` / `FRR_SUPABASE_ANON_KEY`).
 
-- `FakeSyncClient` — default when credentials absent
-- `SupabaseSyncClient` — stub; configure via `FRR_SUPABASE_URL` / `FRR_SUPABASE_ANON_KEY` env vars
+## Android 16 / API 36 notes relevant to this app
 
-Requirements for later phases: WorkManager queue, idempotent ops, revision / updated-at conflict protection, no silent overwrite of newer server records.
-
-## Navigation shell (Phase 0)
-
-`splash → dashboard → welcome → review/{id} → summary/{id}` plus `settings`.
-
-## Secrets
-
-Do not commit secrets. Use environment variables or a local `secrets.properties` excluded by `.gitignore`. See `.env.example`.
+- Edge-to-edge / predictive back behaviours continue to evolve; the app already uses edge-to-edge and should validate back handling on API 36 tablets during Phase 8.
+- Orientation/locale recreation is intentionally allowed; input fields (Phase 2) must use saved state.
+- Large-screen / multi-window resizing remains a first-class concern for 10–13" tablets.
+- Prefer compileSdk/targetSdk 36 together so runtime behaviour matches the tested platform level.

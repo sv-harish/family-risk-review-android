@@ -30,8 +30,14 @@ interface ReviewDao {
     suspend fun update(entity: ReviewEntity)
 
     @Query("UPDATE reviews SET status = 'DELETED', updatedAtEpochMs = :updatedAt, revision = revision + 1 WHERE id = :id")
-    suspend fun softDelete(id: String, updatedAt: Long)
+    suspend fun softDelete(
+        id: String,
+        updatedAt: Long,
+    )
 
     @Query("UPDATE reviews SET status = 'ARCHIVED', updatedAtEpochMs = :updatedAt, revision = revision + 1 WHERE id = :id")
-    suspend fun archive(id: String, updatedAt: Long)
+    suspend fun archive(
+        id: String,
+        updatedAt: Long,
+    )
 }

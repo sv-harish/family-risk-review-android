@@ -13,9 +13,13 @@ import com.familyriskreview.core.model.SyncState
  */
 interface SyncClient {
     suspend fun enqueueUpsert(reviewId: String)
+
     suspend fun enqueueDelete(reviewId: String)
+
     suspend fun pushPending(): SyncResult
+
     suspend fun pullRemote(): SyncResult
+
     fun isConfigured(): Boolean
 }
 
@@ -45,8 +49,7 @@ class FakeSyncClient : SyncClient {
         return SyncResult(SyncState.SYNCED, message = "Fake sync completed")
     }
 
-    override suspend fun pullRemote(): SyncResult =
-        SyncResult(SyncState.SYNCED, message = "Fake pull — no remote changes")
+    override suspend fun pullRemote(): SyncResult = SyncResult(SyncState.SYNCED, message = "Fake pull — no remote changes")
 
     override fun isConfigured(): Boolean = true
 
@@ -62,22 +65,20 @@ class SupabaseSyncClient(
     private val supabaseAnonKey: String?,
 ) : SyncClient {
     override suspend fun enqueueUpsert(reviewId: String) = Unit
+
     override suspend fun enqueueDelete(reviewId: String) = Unit
 
-    override suspend fun pushPending(): SyncResult =
-        if (!isConfigured()) {
-            SyncResult(SyncState.LOCAL_ONLY, message = "Supabase not configured")
-        } else {
-            SyncResult(SyncState.PENDING, message = "Supabase sync not yet implemented")
-        }
+    override suspend fun pushPending(): SyncResult = if (!isConfigured()) {
+        SyncResult(SyncState.LOCAL_ONLY, message = "Supabase not configured")
+    } else {
+        SyncResult(SyncState.PENDING, message = "Supabase sync not yet implemented")
+    }
 
-    override suspend fun pullRemote(): SyncResult =
-        if (!isConfigured()) {
-            SyncResult(SyncState.LOCAL_ONLY, message = "Supabase not configured")
-        } else {
-            SyncResult(SyncState.PENDING, message = "Supabase sync not yet implemented")
-        }
+    override suspend fun pullRemote(): SyncResult = if (!isConfigured()) {
+        SyncResult(SyncState.LOCAL_ONLY, message = "Supabase not configured")
+    } else {
+        SyncResult(SyncState.PENDING, message = "Supabase sync not yet implemented")
+    }
 
-    override fun isConfigured(): Boolean =
-        !supabaseUrl.isNullOrBlank() && !supabaseAnonKey.isNullOrBlank()
+    override fun isConfigured(): Boolean = !supabaseUrl.isNullOrBlank() && !supabaseAnonKey.isNullOrBlank()
 }

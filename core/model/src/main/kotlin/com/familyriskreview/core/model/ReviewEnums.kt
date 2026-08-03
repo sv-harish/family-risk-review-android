@@ -44,12 +44,13 @@ enum class SyncState {
 }
 
 /**
- * Customer journey step. Phase 0 defines the route map; Phase 3+ implements screens.
+ * Persisted customer-journey steps for an in-progress review.
+ *
+ * App-shell destinations (Splash, Welcome) are NOT review progress and must not
+ * appear here. A Review is created only after Quick/Guided mode is selected.
  */
 @Serializable
 enum class ReviewStep {
-    SPLASH,
-    WELCOME,
     HOUSEHOLD_SUPPORT_MAP,
     RESPONSIBILITIES,
     PRIORITISATION,

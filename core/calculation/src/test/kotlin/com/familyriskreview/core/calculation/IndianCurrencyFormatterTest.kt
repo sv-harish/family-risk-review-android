@@ -4,7 +4,6 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 class IndianCurrencyFormatterTest {
-
     @Test
     fun formatsLakhs() {
         assertThat(IndianCurrencyFormatter.formatRupees(500_000)).isEqualTo("₹5,00,000")

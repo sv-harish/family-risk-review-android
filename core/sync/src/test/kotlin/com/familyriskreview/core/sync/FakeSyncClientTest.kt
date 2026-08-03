@@ -5,7 +5,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
 class FakeSyncClientTest {
-
     @Test
     fun enqueueAndPushClearsPending() = runTest {
         val client = FakeSyncClient()

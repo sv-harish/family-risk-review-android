@@ -8,6 +8,9 @@ import kotlinx.serialization.Serializable
  *
  * Customer PII is intentionally excluded. Advisor-only references must not
  * automatically appear in the customer-facing summary.
+ *
+ * A Review is created only after Quick or Guided mode is selected.
+ * Splash / Welcome are app-shell destinations, not [currentStep] values.
  */
 @Serializable
 data class Review(
@@ -22,7 +25,7 @@ data class Review(
     val completedAt: Instant? = null,
     val focusedIncomeContributorId: String? = null,
     val assumptionVersion: String = CalculationAssumptions.CURRENT_VERSION,
-    val calculationVersion: String = "1.0.0",
+    val calculationVersion: String = "1.1.0",
     val syncState: SyncState = SyncState.LOCAL_ONLY,
     val revision: Long = 1L,
     val customerAcknowledged: Boolean = false,
@@ -52,3 +55,16 @@ object AdvisorIdentity {
     // TODO(production): Verify final formal credential wording before public release.
     // Supplied wording is intentionally preserved until product/legal confirmation.
 }
+
+/**
+ * Customer-summary projection that excludes advisor-only fields unless
+ * [AdvisorReference.includeInCustomerSummary] is explicitly true for initials only.
+ */
+@Serializable
+data class CustomerSummaryProjection(
+    val reviewId: String,
+    val reviewNumber: String,
+    val mode: ReviewMode,
+    val language: AppLanguage,
+    val customerDisplayLabel: String? = null,
+)

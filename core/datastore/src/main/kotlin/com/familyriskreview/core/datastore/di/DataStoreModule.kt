@@ -16,21 +16,17 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DataStoreModule {
-
     @Provides
     @Singleton
     fun providePreferencesDataStore(
         @ApplicationContext context: Context,
-    ): DataStore<Preferences> =
-        PreferenceDataStoreFactory.create(
-            produceFile = { context.preferencesDataStoreFile(USER_PREFERENCES_FILE) },
-        )
+    ): DataStore<Preferences> = PreferenceDataStoreFactory.create(
+        produceFile = { context.preferencesDataStoreFile(USER_PREFERENCES_FILE) },
+    )
 
     @Provides
     @Singleton
-    fun provideUserPreferencesDataSource(
-        dataStore: DataStore<Preferences>,
-    ): UserPreferencesDataSource = UserPreferencesDataSource(dataStore)
+    fun provideUserPreferencesDataSource(dataStore: DataStore<Preferences>): UserPreferencesDataSource = UserPreferencesDataSource(dataStore)
 
     private const val USER_PREFERENCES_FILE = "family_risk_review_preferences"
 }

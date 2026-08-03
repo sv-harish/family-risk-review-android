@@ -6,10 +6,14 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
 
     steps:
       - name: Checkout
@@ -21,6 +25,9 @@ jobs:
           distribution: temurin
           java-version: "17"
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
@@ -29,20 +36,27 @@ jobs:
 
       - name: Spotless check
         run: ./gradlew spotlessCheck --stacktrace
-        continue-on-error: true
+
+      - name: Android lint
+        run: ./gradlew lintDebug --stacktrace
+
+      - name: Unit tests
+        run: ./gradlew test --stacktrace
 
       - name: Assemble debug
         run: ./gradlew assembleDebug --stacktrace
 
-      - name: Unit tests
-        run: ./gradlew test --stacktrace
+      - name: Phase 0.5 verification
+        run: ./gradlew :app:verifyPhase0 --stacktrace
 
       - name: Upload reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-reports
+          name: build-reports
           path: |
             **/build/reports/**
             **/build/test-results/**
+            **/build/outputs/lint-results-*.xml
+            **/build/outputs/lint-results-*.html
           if-no-files-found: ignore

@@ -1,16 +1,37 @@
 package com.familyriskreview.core.ui.navigation
 
+import kotlinx.serialization.Serializable
+
 /**
- * Top-level navigation destinations for the Phase 0 shell.
- * Feature modules own their internal nested graphs from Phase 3 onward.
+ * Type-safe Navigation Compose destinations.
+ *
+ * Architecture rule: UI and editing state must survive expected Activity
+ * recreation through saved state and persisted domain state, not by
+ * preventing configuration changes.
+ *
+ * Splash and Welcome are app-shell destinations — they are never persisted
+ * as [com.familyriskreview.core.model.ReviewStep].
  */
 object FrrRoutes {
-    const val SPLASH = "splash"
-    const val DASHBOARD = "dashboard"
-    const val REVIEW = "review/{reviewId}"
-    const val SUMMARY = "summary/{reviewId}"
-    const val SETTINGS = "settings"
+    @Serializable
+    data object Splash
 
-    fun review(reviewId: String): String = "review/$reviewId"
-    fun summary(reviewId: String): String = "summary/$reviewId"
+    @Serializable
+    data object Dashboard
+
+    @Serializable
+    data object Welcome
+
+    @Serializable
+    data class Review(
+        val reviewId: String,
+    )
+
+    @Serializable
+    data class Summary(
+        val reviewId: String,
+    )
+
+    @Serializable
+    data object Settings
 }

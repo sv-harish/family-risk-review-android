@@ -1,17 +1,33 @@
 # Calculation method — Family Risk Review
 
-**Calculation version:** `1.0.0`  
-**Assumption version:** `1.0.0`
+**Calculation version:** `1.1.0`  
+**Assumption version:** `1.1.0`
 
-## Defaults
+## Rate representation
 
-| Assumption | Annual rate |
-|------------|-------------|
-| Education inflation | 8% |
-| Marriage support inflation | 6% |
-| Essential expense inflation | 6% |
+Financial rates are stored as integer **basis points** (`AnnualRateBps`), not unrestricted doubles.
 
-Assumptions are stored versioned and editable from settings / calculation details. Never hard-code rates in composables.
+| Example | Basis points | Percent |
+|---------|--------------|---------|
+| Education default | 800 | 8% |
+| Marriage default | 600 | 6% |
+| Expense / recurring support default | 600 | 6% |
+
+Validated bounds: `0 … 5000` bps (0% … 50%).
+
+Arithmetic uses `BigDecimal` (DECIMAL64) with **half-up** rounding to whole rupees.
+
+## Defaults by responsibility
+
+| Catalogue | Default inflation |
+|-----------|-------------------|
+| Child higher education | Education (8%) |
+| Marriage support | Marriage (6%) |
+| Essential living expenses | Expense (6%) |
+| Parent / spouse / special-needs / care replacement | Recurring support (6%) |
+| Home loan / other loans | **None (0%)** |
+| Buying/completing house | Expense (6%) |
+| Custom / Other | **Explicit required** — never silently guessed |
 
 ## One-time responsibilities
 
@@ -19,32 +35,50 @@ Assumptions are stored versioned and editable from settings / calculation detail
 futureValue = currentCost × (1 + inflationRate)^years
 ```
 
-Store: current cost, years, inflation rate, future value, assumption version, calculation version.
+## Recurring support (v1.1.0 — selected method)
 
-## Recurring support (v1.0.0)
+**Beginning-of-year cash-flow model** (not mid-year):
 
-Indicative total = sum over each year `y` in `0 .. durationYears-1` of:
+For each year index `y` in `0 until durationYears`:
 
 ```
-monthlyAmount × 12 × (1 + inflationRate)^y
+yearOutlay = monthlyAmount × 12 × (1 + inflation)^y
 ```
 
-Optional discounting (detailed-gap later): divide each year’s outlay by `(1 + expectedNetReturn)^y` when a net-return assumption is supplied.
+Optional discounting when net return `r` is supplied:
 
-Do not multiply monthly expenses by an unexplained duration without documenting the method.
+```
+discounted = yearOutlay / (1 + r)^y
+```
 
-## Indicative Gross Responsibility Value
+Sum years, round half-up to whole rupees.
 
-Sum of indicative values for selected responsibilities with priority **Must continue**.
+Payment timing for awareness flow: beginning-of-year annualised monthly outlay. Mid-year timing is **not** used in v1.1.0.
 
-Adjustable and postponed items are shown separately and excluded from the primary figure.
+## Derived (stored) indicative values
 
-This is **not** recommended life cover, final protection gap, or guaranteed corpus.
+A stored future indicative amount may be reused only when `DerivedValueMetadata` still matches:
+
+* source current / monthly amounts
+* years / duration
+* inflation bps
+* optional net-return bps
+* assumption version
+* calculation version
+
+Otherwise recalculate.
 
 ## Scenarios
 
-Ranges only when representing documented Lower-cost / Base / Higher-cost scenarios — never ± arbitrary percentage.
+```kotlin
+data class CalculationScenario(
+    val kind: ScenarioKind,
+    val assumptions: CalculationAssumptions,
+)
+```
 
-## Future detailed-gap inputs (not in initial awareness flow)
+Lower / Base / Higher results are generated only when each scenario has documented assumption differences. If only Base is approved, do not imply a meaningful range.
 
-Existing dedicated savings, existing insurance, surviving household income, asset income, liabilities, support duration, expected net return, inflation, emergency costs. Domain models should remain extensible without shipping these questions in v1 awareness unless explicitly enabled.
+## Indicative Gross Responsibility Value
+
+Sum of indicative values for selected **Must continue** responsibilities. Not recommended life cover.

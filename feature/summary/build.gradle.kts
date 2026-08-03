@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
@@ -8,10 +7,16 @@ plugins {
 
 android {
     namespace = "com.familyriskreview.feature.summary"
-    compileSdk = libs.versions.compileSdk.get().toInt()
+    compileSdk =
+        libs.versions.compileSdk
+            .get()
+            .toInt()
 
     defaultConfig {
-        minSdk = libs.versions.minSdk.get().toInt()
+        minSdk =
+            libs.versions.minSdk
+                .get()
+                .toInt()
         consumerProguardFiles("consumer-rules.pro")
     }
 
@@ -35,8 +40,7 @@ dependencies {
     implementation(project(":core:designsystem"))
     implementation(project(":core:ui"))
     implementation(project(":core:calculation"))
-    implementation(project(":core:database"))
-
+    implementation(project(":core:data"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
@@ -52,4 +56,5 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)
+    testImplementation(libs.kotlinx.coroutines.test)
 }

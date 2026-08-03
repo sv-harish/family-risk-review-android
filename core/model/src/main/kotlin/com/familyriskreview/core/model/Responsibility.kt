@@ -18,6 +18,23 @@ enum class ResponsibilityCatalogue {
     OTHER,
 }
 
+fun ResponsibilityCatalogue.defaultInflationKind(): InflationAssumptionKind = when (this) {
+    ResponsibilityCatalogue.CHILD_HIGHER_EDUCATION -> InflationAssumptionKind.EDUCATION
+    ResponsibilityCatalogue.CHILD_MARRIAGE_SUPPORT -> InflationAssumptionKind.MARRIAGE
+    ResponsibilityCatalogue.ESSENTIAL_FAMILY_LIVING_EXPENSES -> InflationAssumptionKind.EXPENSE
+    ResponsibilityCatalogue.PARENT_SUPPORT,
+    ResponsibilityCatalogue.SPOUSE_OR_PARTNER_SUPPORT,
+    ResponsibilityCatalogue.SPECIAL_NEEDS_DEPENDANT_SUPPORT,
+    ResponsibilityCatalogue.CHILDCARE_REPLACEMENT,
+    ResponsibilityCatalogue.HOUSEHOLD_CARE_REPLACEMENT,
+    -> InflationAssumptionKind.RECURRING_SUPPORT
+    ResponsibilityCatalogue.HOME_LOAN_REPAYMENT,
+    ResponsibilityCatalogue.OTHER_OUTSTANDING_LOANS,
+    -> InflationAssumptionKind.NONE
+    ResponsibilityCatalogue.BUYING_OR_COMPLETING_HOUSE -> InflationAssumptionKind.EXPENSE
+    ResponsibilityCatalogue.OTHER -> InflationAssumptionKind.EXPLICIT
+}
+
 @Serializable
 enum class ResponsibilityPriority {
     /** Included in the primary Indicative Gross Responsibility Value. */
@@ -50,14 +67,17 @@ data class ResponsibilityTiming(
 )
 
 /**
- * Monetary amounts are stored as minor units (paise) or major units consistently.
- * Phase 0 stores amounts as [Long] major rupee units (whole rupees) for simplicity.
+ * Monetary amounts are stored as whole rupees (Long).
  * Formatted display strings are never the source of truth.
  */
 @Serializable
 data class MoneyAmount(
     val amountRupees: Long,
-)
+) {
+    init {
+        require(amountRupees >= 0) { "amountRupees must be non-negative" }
+    }
+}
 
 @Serializable
 data class Responsibility(
@@ -70,7 +90,8 @@ data class Responsibility(
     val currentAmount: MoneyAmount? = null,
     val monthlyAmount: MoneyAmount? = null,
     val futureIndicativeAmount: MoneyAmount? = null,
-    val inflationRateUsed: Double? = null,
+    val derivedMetadata: DerivedValueMetadata? = null,
+    val explicitInflationBps: Int? = null,
     val assumptionVersion: String? = null,
     val calculationVersion: String? = null,
     val isSelected: Boolean = false,
