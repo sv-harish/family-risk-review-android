@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="welcome_brand">Family Risk Review</string>
+    <string name="welcome_supporting_line">See what your household income is expected to protect.</string>
+    <string name="welcome_guided_by">Guided by</string>
+    <string name="welcome_intro">This short review helps you identify which household responsibilities depend on income, when money may be required, and what may happen if that income does not continue as expected.</string>
+    <string name="welcome_begin_quick">Begin Quick Review</string>
+    <string name="welcome_begin_guided">Begin Guided Review</string>
+    <string name="welcome_back_dashboard">Back to dashboard</string>
+    <string name="welcome_phase0_note">Language selector and full customer journey screens arrive in Phase 3.</string>
+    <string name="review_placeholder_title">Review in progress</string>
+    <string name="review_placeholder_body">Review %1$s — household mapping and responsibility capture begin in Phase 3.</string>
+    <string name="review_placeholder_continue">Continue to summary shell</string>
+</resources>

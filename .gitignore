@@ -1,0 +1,38 @@
+
+*.aab
+*.ap_
+*.apk
+bin/
+**/build/
+/build/
+/captures/
+# CI / tooling caches
+*.class
+.cxx/
+*.dex
+.DS_Store
+.env
+.env.*
+!.env.example
+.externalNativeBuild/
+gen/
+google-services.json
+.gradle/
+*.hprof
+/.idea/
+*.iml
+**/*.jks
+**/*.keystore
+**/keystore.properties
+.kotlin/
+/local.properties
+*.log
+.navigation/
+*.orig
+# OS
+out/
+# Secrets — never commit
+**/secrets.properties
+.spotless/
+supabase.env
+Thumbs.db

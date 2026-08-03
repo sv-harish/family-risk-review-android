@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="summary_title">जागरूकता सारांश</string>
+    <string name="summary_core_insight">आपकी ज़िम्मेदारियों की निर्धारित तिथियाँ हैं। उन्हें निधि देने वाली अपेक्षित आय की अवधि सुनिश्चित नहीं है।</string>
+    <string name="summary_review_id">समीक्षा: %1$s</string>
+    <string name="summary_advisor_handoff">नियंत्रण %1$s को वापस जा रहा है</string>
+    <string name="summary_finish_session">सत्र समाप्त करें</string>
+    <string name="summary_back_dashboard">डैशबोर्ड पर वापस जाएँ</string>
+    <string name="summary_phase0_note">पूर्ण सारांश, PDF और सलाहकार क्रियाएँ Phase 6–7 में आएंगी।</string>
+</resources>

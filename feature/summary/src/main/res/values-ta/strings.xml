@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="summary_title">விழிப்புணர்வு சுருக்கம்</string>
+    <string name="summary_core_insight">உங்கள் பொறுப்புகளுக்கு திட்டமிட்ட தேதிகள் உள்ளன. அவற்றை நிதியளிக்க எதிர்பார்க்கப்படும் வருமானத்திற்கு உத்தரவாதமான காலம் இல்லை.</string>
+    <string name="summary_review_id">மதிப்பாய்வு: %1$s</string>
+    <string name="summary_advisor_handoff">கட்டுப்பாடு %1$s-க்குத் திரும்புகிறது</string>
+    <string name="summary_finish_session">அமர்வை முடி</string>
+    <string name="summary_back_dashboard">டாஷ்போர்டுக்குத் திரும்பு</string>
+    <string name="summary_phase0_note">முழு சுருக்கம், PDF மற்றும் ஆலோசகர் செயல்கள் Phase 6–7-இல் வரும்.</string>
+</resources>

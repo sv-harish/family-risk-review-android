@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Design-system string resources reserved for shared components. -->
+    <string name="frr_designsystem_placeholder" translatable="false">Family Risk Review</string>
+</resources>

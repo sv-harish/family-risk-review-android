@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">सेटिंग्स</string>
+    <string name="settings_body">भाषा डिफ़ॉल्ट, गणना मान्यताएँ, कम गति और सिंक कॉन्फ़िगरेशन यहाँ संपादित होंगे। Dareus One ब्रांडिंग सेटिंग्स में नहीं दिखेगी।</string>
+    <string name="settings_back">वापस</string>
+</resources>

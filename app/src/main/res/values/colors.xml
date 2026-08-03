@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="frr_midnight_blue">#122033</color>
+    <color name="frr_slate_navy">#1B2D42</color>
+    <color name="frr_teal_blue">#2D9CDB</color>
+    <color name="frr_soft_aqua">#56C6D6</color>
+    <color name="frr_muted_gold">#D6A85F</color>
+    <color name="frr_soft_sand">#F5EBDD</color>
+    <color name="frr_cloud_white">#F8FAFC</color>
+    <color name="frr_warm_mist">#EEF2F6</color>
+    <color name="frr_charcoal_text">#243244</color>
+    <color name="ic_launcher_background">#122033</color>
+</resources>

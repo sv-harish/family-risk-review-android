@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Family Risk Review</string>
+    <string name="splash_tagline">உங்கள் குடும்ப வருமானம் எதைப் பாதுகாக்க வேண்டும் என்பதைப் பாருங்கள்.</string>
+    <string name="splash_built_by">Built by Dareus One</string>
+    <string name="splash_dareus_placeholder">[Dareus One logo placeholder]</string>
+    <string name="splash_a11y">Family Risk Review தொடக்கத் திரை. Built by Dareus One.</string>
+</resources>
