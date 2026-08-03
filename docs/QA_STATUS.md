@@ -45,3 +45,12 @@
 ## Honesty rule
 
 Do not claim device testing without running it. Do not claim PR verification passed until GitHub Actions completes successfully.
+
+## CI status (Phase 0.5)
+
+GitHub Actions **passed** on branch `cursor/phase-0-bootstrap-1a7a`:
+
+- push run: success — https://github.com/sv-harish/family-risk-review-android/actions/runs/30860418524
+- pull_request run: success — https://github.com/sv-harish/family-risk-review-android/actions/runs/30860421324
+
+**PR #1 is ready to merge** from a Phase 0.5 foundation perspective.
