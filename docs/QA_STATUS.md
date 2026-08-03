@@ -52,4 +52,9 @@ Do not claim device testing without running it. Do not claim PR verification pas
 
 ## CI status
 
-Phase 0.5 (PR #1) GitHub Actions passed historically. Phase 1 CI status will be recorded after the Phase 1 PR run completes.
+Phase 1 GitHub Actions **passed** on branch `cursor/phase-1-domain-engine-1a7a`:
+
+- push run: success — https://github.com/sv-harish/family-risk-review-android/actions/runs/30862405323
+- pull_request run: success — https://github.com/sv-harish/family-risk-review-android/actions/runs/30862410867
+
+**PR #2 is ready to merge** from a Phase 1 foundation perspective.
