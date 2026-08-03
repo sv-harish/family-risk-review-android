@@ -82,3 +82,20 @@ Lower / Base / Higher results are generated only when each scenario has document
 ## Indicative Gross Responsibility Value
 
 Sum of indicative values for selected **Must continue** responsibilities. Not recommended life cover.
+
+Aggregate totals use checked `Long` addition (`Math.addExact`) — overflow fails loudly rather than wrapping.
+
+## Calculation snapshots
+
+Persisted `CalculationSnapshot` rows capture:
+
+* review id + revision at snapshot time
+* assumption version + calculation version (`ResponsibilityCalculator.CALCULATION_VERSION`)
+* scenario kind
+* assumptions JSON
+* must-continue / adjustable / postponed totals
+* per-responsibility indicative lines JSON
+* generated-at timestamp
+
+The review’s `summaryStale` flag is cleared when a snapshot is saved and set again whenever calculation inputs change.
+

@@ -215,9 +215,12 @@ object ResponsibilityCalculator {
         assumptions: CalculationAssumptions = CalculationAssumptions.Default,
         scenarioKind: ScenarioKind = ScenarioKind.BASE,
     ): GrossResponsibilityResult {
-        fun sumFor(priority: ResponsibilityPriority): Long = responsibilities
-            .filter { it.isSelected && it.priority == priority }
-            .sumOf { indicativeAmount(it, assumptions) }
+        fun sumFor(priority: ResponsibilityPriority): Long = checkedSum(
+            responsibilities
+                .asSequence()
+                .filter { it.isSelected && it.priority == priority }
+                .map { indicativeAmount(it, assumptions) },
+        )
 
         return GrossResponsibilityResult(
             mustContinueTotalRupees = sumFor(ResponsibilityPriority.MUST_CONTINUE),
@@ -227,6 +230,15 @@ object ResponsibilityCalculator {
             calculationVersion = CALCULATION_VERSION,
             scenarioKind = scenarioKind,
         )
+    }
+
+    /** Checked Long addition — never silently overflow aggregate totals. */
+    fun checkedSum(values: Sequence<Long>): Long {
+        var total = 0L
+        for (value in values) {
+            total = Math.addExact(total, value)
+        }
+        return total
     }
 
     /**

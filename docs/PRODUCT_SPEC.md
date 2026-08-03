@@ -31,12 +31,12 @@ Household Support Map with Self, Spouse/partner, Child, Parent, Other dependant.
 
 ## Data minimisation
 
-No customer name, phone, email, address, Aadhaar, PAN, medical history, policy, premium, or insurer fields. Optional advisor-only reference (initials, CRM id, private note) must not auto-appear in customer summary.
+No customer name, phone, email, address, Aadhaar, PAN, medical history, policy, premium, or insurer fields. Optional advisor-only reference (initials, CRM id, private note) **never** appears in customer summaries/PDFs.
 
 ## Review modes
 
-- **Quick Review** — target 5–8 minutes
-- **Guided Review** — target 10–15 minutes
+- **Quick Review** — target 5–8 minutes; max 3 must-continue responsibilities
+- **Guided Review** — target 10–15 minutes; same stages, fuller detail
 
 ## Customer journey (order)
 
@@ -53,6 +53,12 @@ No customer name, phone, email, address, Aadhaar, PAN, medical history, policy, 
 11. Build Over Time vs Protect From Today  
 12. Final awareness summary  
 13. Advisor handoff  
+
+Splash/Welcome are shell destinations only. A Review is created after Quick/Guided selection and starts at Household Support Map.
+
+## Lifecycle
+
+Reviews support incomplete resume, archive/restore (restore returns to prior status), and soft delete (tombstone retained; children kept). Aggregate writes use revision-based optimistic concurrency.
 
 ## Financial output (v1)
 

@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 
 /**
  * Advisor-only reference data.
- * Must not automatically appear in customer summaries/PDFs.
+ * Must never appear in customer summaries/PDFs.
  */
 @Entity(
     tableName = "advisor_references",
@@ -24,5 +24,4 @@ data class AdvisorReferenceEntity(
     val customerInitialsOrNickname: String?,
     val crmReference: String?,
     val privateNote: String?,
-    val includeInCustomerSummary: Boolean,
 )

@@ -277,6 +277,13 @@ class ResponsibilityCalculatorTest {
         assertThat(result.adjustableTotalRupees).isEqualTo(500_000)
     }
 
+    @Test
+    fun checkedSum_throwsOnOverflow() {
+        assertThrows(ArithmeticException::class.java) {
+            ResponsibilityCalculator.checkedSum(sequenceOf(Long.MAX_VALUE, 1L))
+        }
+    }
+
     private fun baseEducation() = Responsibility(
         id = "edu",
         reviewId = "r1",

@@ -11,10 +11,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.familyriskreview.android.splash.SplashRoute
-import com.familyriskreview.core.data.repository.ReviewRepository
 import com.familyriskreview.core.data.repository.UserPreferencesRepository
+import com.familyriskreview.core.data.usecase.CreateReviewUseCase
 import com.familyriskreview.core.model.AppLanguage
 import com.familyriskreview.core.model.ReviewMode
+import com.familyriskreview.core.model.result.DomainResult
 import com.familyriskreview.core.ui.navigation.FrrRoutes
 import com.familyriskreview.feature.dashboard.DashboardRoute
 import com.familyriskreview.feature.review.ReviewPlaceholderRoute
@@ -31,7 +32,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ShellViewModel @Inject constructor(
-    private val reviewRepository: ReviewRepository,
+    private val createReview: CreateReviewUseCase,
     private val preferencesRepository: UserPreferencesRepository,
 ) : ViewModel() {
 
@@ -41,7 +42,10 @@ class ShellViewModel @Inject constructor(
 
     suspend fun startReview(mode: ReviewMode): String {
         val language = preferencesRepository.preferences.first().defaultLanguage
-        return reviewRepository.createReview(mode = mode, language = language).id
+        return when (val result = createReview(mode = mode, language = language)) {
+            is DomainResult.Success -> result.value.id
+            is DomainResult.Failure -> error("Unable to create review: ${result.error}")
+        }
     }
 }
 

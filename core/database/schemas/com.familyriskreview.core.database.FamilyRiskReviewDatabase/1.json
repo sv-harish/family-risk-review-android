@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "476edd7d986080a26a55d905a531a73a",
+    "identityHash": "7e64d6ca6bb9bb773f9f1e4c4ceaf8f3",
     "entities": [
       {
         "tableName": "reviews",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `reviewNumber` TEXT NOT NULL, `mode` TEXT NOT NULL, `language` TEXT NOT NULL, `status` TEXT NOT NULL, `currentStep` TEXT NOT NULL, `createdAtEpochMs` INTEGER NOT NULL, `updatedAtEpochMs` INTEGER NOT NULL, `completedAtEpochMs` INTEGER, `focusedIncomeContributorId` TEXT, `assumptionVersion` TEXT NOT NULL, `calculationVersion` TEXT NOT NULL, `syncState` TEXT NOT NULL, `revision` INTEGER NOT NULL, `customerAcknowledged` INTEGER NOT NULL, `serverUpdatedAtEpochMs` INTEGER, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `reviewNumber` TEXT NOT NULL, `mode` TEXT NOT NULL, `language` TEXT NOT NULL, `status` TEXT NOT NULL, `currentStep` TEXT NOT NULL, `createdAtEpochMs` INTEGER NOT NULL, `updatedAtEpochMs` INTEGER NOT NULL, `completedAtEpochMs` INTEGER, `focusedIncomeContributorId` TEXT, `assumptionVersion` TEXT NOT NULL, `calculationVersion` TEXT NOT NULL, `syncState` TEXT NOT NULL, `revision` INTEGER NOT NULL, `customerAcknowledged` INTEGER NOT NULL, `serverUpdatedAtEpochMs` INTEGER, `statusBeforeArchive` TEXT, `summaryStale` INTEGER NOT NULL, `assumptionsJson` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -100,6 +100,23 @@
             "fieldPath": "serverUpdatedAtEpochMs",
             "columnName": "serverUpdatedAtEpochMs",
             "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "statusBeforeArchive",
+            "columnName": "statusBeforeArchive",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "summaryStale",
+            "columnName": "summaryStale",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "assumptionsJson",
+            "columnName": "assumptionsJson",
+            "affinity": "TEXT",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -393,7 +410,7 @@
       },
       {
         "tableName": "advisor_references",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`reviewId` TEXT NOT NULL, `customerInitialsOrNickname` TEXT, `crmReference` TEXT, `privateNote` TEXT, `includeInCustomerSummary` INTEGER NOT NULL, PRIMARY KEY(`reviewId`), FOREIGN KEY(`reviewId`) REFERENCES `reviews`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`reviewId` TEXT NOT NULL, `customerInitialsOrNickname` TEXT, `crmReference` TEXT, `privateNote` TEXT, PRIMARY KEY(`reviewId`), FOREIGN KEY(`reviewId`) REFERENCES `reviews`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "reviewId",
@@ -415,12 +432,6 @@
             "fieldPath": "privateNote",
             "columnName": "privateNote",
             "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "includeInCustomerSummary",
-            "columnName": "includeInCustomerSummary",
-            "affinity": "INTEGER",
-            "notNull": true
           }
         ],
         "primaryKey": {
@@ -442,11 +453,129 @@
             ]
           }
         ]
+      },
+      {
+        "tableName": "calculation_snapshots",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `reviewId` TEXT NOT NULL, `reviewRevision` INTEGER NOT NULL, `assumptionVersion` TEXT NOT NULL, `calculationVersion` TEXT NOT NULL, `scenarioKind` TEXT NOT NULL, `assumptionsJson` TEXT NOT NULL, `mustContinueTotalRupees` INTEGER NOT NULL, `adjustableTotalRupees` INTEGER NOT NULL, `postponedTotalRupees` INTEGER NOT NULL, `perResponsibilityJson` TEXT NOT NULL, `generatedAtEpochMs` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`reviewId`) REFERENCES `reviews`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reviewId",
+            "columnName": "reviewId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reviewRevision",
+            "columnName": "reviewRevision",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "assumptionVersion",
+            "columnName": "assumptionVersion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "calculationVersion",
+            "columnName": "calculationVersion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "scenarioKind",
+            "columnName": "scenarioKind",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "assumptionsJson",
+            "columnName": "assumptionsJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mustContinueTotalRupees",
+            "columnName": "mustContinueTotalRupees",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "adjustableTotalRupees",
+            "columnName": "adjustableTotalRupees",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "postponedTotalRupees",
+            "columnName": "postponedTotalRupees",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "perResponsibilityJson",
+            "columnName": "perResponsibilityJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "generatedAtEpochMs",
+            "columnName": "generatedAtEpochMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_calculation_snapshots_reviewId",
+            "unique": false,
+            "columnNames": [
+              "reviewId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_calculation_snapshots_reviewId` ON `${TABLE_NAME}` (`reviewId`)"
+          },
+          {
+            "name": "index_calculation_snapshots_reviewId_reviewRevision",
+            "unique": false,
+            "columnNames": [
+              "reviewId",
+              "reviewRevision"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_calculation_snapshots_reviewId_reviewRevision` ON `${TABLE_NAME}` (`reviewId`, `reviewRevision`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "reviews",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "reviewId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '476edd7d986080a26a55d905a531a73a')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7e64d6ca6bb9bb773f9f1e4c4ceaf8f3')"
     ]
   }
 }

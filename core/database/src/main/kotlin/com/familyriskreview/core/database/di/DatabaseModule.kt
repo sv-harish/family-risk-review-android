@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.familyriskreview.core.database.FamilyRiskReviewDatabase
 import com.familyriskreview.core.database.dao.AdvisorReferenceDao
+import com.familyriskreview.core.database.dao.CalculationSnapshotDao
 import com.familyriskreview.core.database.dao.HouseholdMemberDao
 import com.familyriskreview.core.database.dao.ResponsibilityDao
 import com.familyriskreview.core.database.dao.ReviewDao
@@ -21,15 +22,20 @@ object DatabaseModule {
     @Singleton
     fun provideDatabase(
         @ApplicationContext context: Context,
-    ): FamilyRiskReviewDatabase = Room
-        .databaseBuilder(
-            context,
-            FamilyRiskReviewDatabase::class.java,
-            FamilyRiskReviewDatabase.NAME,
-        )
-        // Safe migrations required from schema v1 onward.
-        // fallbackToDestructiveMigration is intentionally omitted for production builds.
-        .build()
+    ): FamilyRiskReviewDatabase {
+        val builder =
+            Room.databaseBuilder(
+                context,
+                FamilyRiskReviewDatabase::class.java,
+                FamilyRiskReviewDatabase.NAME,
+            )
+        // Provisional pre-release: allow wipe while schema v1 is still being corrected.
+        // After schema-freeze, remove this and ship mandatory migrations only.
+        if (FamilyRiskReviewDatabase.SCHEMA_STATUS == "PROVISIONAL_PRE_RELEASE") {
+            builder.fallbackToDestructiveMigration(dropAllTables = true)
+        }
+        return builder.build()
+    }
 
     @Provides
     fun provideReviewDao(db: FamilyRiskReviewDatabase): ReviewDao = db.reviewDao()
@@ -42,4 +48,7 @@ object DatabaseModule {
 
     @Provides
     fun provideAdvisorReferenceDao(db: FamilyRiskReviewDatabase): AdvisorReferenceDao = db.advisorReferenceDao()
+
+    @Provides
+    fun provideCalculationSnapshotDao(db: FamilyRiskReviewDatabase): CalculationSnapshotDao = db.calculationSnapshotDao()
 }

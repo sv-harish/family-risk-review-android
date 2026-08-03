@@ -2,6 +2,7 @@ package com.familyriskreview.core.data
 
 import com.familyriskreview.core.model.AdvisorReference
 import com.familyriskreview.core.model.AppLanguage
+import com.familyriskreview.core.model.CalculationAssumptions
 import com.familyriskreview.core.model.Review
 import com.familyriskreview.core.model.ReviewMode
 import com.familyriskreview.core.model.ReviewStatus
@@ -21,34 +22,21 @@ class CustomerSummaryMapperTest {
             currentStep = ReviewStep.AWARENESS_SUMMARY,
             createdAt = Instant.fromEpochMilliseconds(1),
             updatedAt = Instant.fromEpochMilliseconds(1),
+            assumptionsJson = CalculationAssumptions.Default.toJson(),
         )
 
     @Test
-    fun excludesAdvisorOnlyFieldsByDefault() {
+    fun neverProjectsAdvisorOnlyFields() {
         val ref =
             AdvisorReference(
                 reviewId = "id-1",
                 customerInitialsOrNickname = "RK",
                 crmReference = "CRM",
                 privateNote = "secret",
-                includeInCustomerSummary = false,
             )
         val projection = CustomerSummaryMapper.project(review, ref)
-        assertThat(projection.customerDisplayLabel).isNull()
         assertThat(projection.reviewNumber).isEqualTo("FRR-1")
-    }
-
-    @Test
-    fun includesInitialsOnlyWhenOptedIn() {
-        val ref =
-            AdvisorReference(
-                reviewId = "id-1",
-                customerInitialsOrNickname = "RK",
-                crmReference = "CRM",
-                privateNote = "secret",
-                includeInCustomerSummary = true,
-            )
-        val projection = CustomerSummaryMapper.project(review, ref)
-        assertThat(projection.customerDisplayLabel).isEqualTo("RK")
+        // No customerDisplayLabel field exists — advisor data cannot leak.
+        assertThat(projection.reviewId).isEqualTo("id-1")
     }
 }

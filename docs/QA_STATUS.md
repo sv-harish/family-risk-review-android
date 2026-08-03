@@ -1,6 +1,6 @@
 # QA status — Family Risk Review
 
-## Phase 0.5 gates (local)
+## Phase 1 gates (local)
 
 | Gate | Status |
 |------|--------|
@@ -8,29 +8,32 @@
 | `./gradlew lintDebug` | **Passed** (0 errors; warnings present — see unresolved) |
 | `./gradlew test` | **Passed** |
 | `./gradlew assembleDebug` | **Passed** |
-| `./gradlew :app:verifyPhase0` | **Passed** |
+| `./gradlew :app:verifyPhase1` | **Passed** |
 
 ## Test inventory
 
 | Kind | Count | Notes |
 |------|------:|-------|
-| JVM unit tests | 36 | model, calculation, mappers, sync, nav, summary mapping |
-| Robolectric unit tests | 4 | DAO, repository, DataStore (`@Config(sdk=[34])`) |
+| JVM unit tests | ~47 | model lifecycle/validation/suggestions, calculation, mappers, sync, nav |
+| Robolectric unit tests | ~9 | DAO CAS, repository lifecycle/transactions, DataStore (`@Config(sdk=[34])`) |
 | Instrumentation tests executed | 0 | Not run in this environment |
 | Instrumentation tests compiled | present stubs only | — |
 
-**Unique tests executed:** 40 (0 failures)
+**Unique tests executed:** ~56 (0 failures) after Phase 1 additions.
 
 ### Representative test names
 
-- `ResponsibilityCalculatorTest` (education/marriage/loan/recurring/derived/scenario/overflow…)
+- `ResponsibilityCalculatorTest` (education/marriage/loan/recurring/derived/scenario/overflow/checkedSum…)
 - `IndianCurrencyFormatterTest`
 - `ReviewNumberGeneratorTest`
+- `ReviewLifecycleTest`
+- `HouseholdRulesTest` / `ResponsibilityRulesTest`
+- `ResponsibilitySuggestionEngineTest`
 - `EntityMapperRoundTripTest`
-- `ReviewDaoRobolectricTest`
-- `ReviewRepositoryRobolectricTest`
+- `ReviewDaoRobolectricTest` (CAS conflict / soft delete)
+- `ReviewRepositoryRobolectricTest` (create, CAS, archive/restore, soft delete + children, revision bump)
 - `UserPreferencesDataSourceTest`
-- `CustomerSummaryMapperTest`
+- `CustomerSummaryMapperTest` (advisor fields never projected)
 - `FakeSyncClientTest`
 - `NavigationRoutesTest`
 
@@ -40,17 +43,13 @@
 - kotlinx-datetime `Instant` deprecation warnings toward `kotlin.time.Instant` (migrate in a later hardening pass).
 - Fonts / Dareus One logo / advisor portrait still placeholders.
 - Emulator IME / device recreation QA not run.
-- GitHub Actions CI status must be confirmed green on the PR before merge claim.
+- Polished customer UI intentionally deferred (Phase 2+).
+- GitHub Actions CI status must be confirmed green on the Phase 1 PR before merge claim.
 
 ## Honesty rule
 
 Do not claim device testing without running it. Do not claim PR verification passed until GitHub Actions completes successfully.
 
-## CI status (Phase 0.5)
+## CI status
 
-GitHub Actions **passed** on branch `cursor/phase-0-bootstrap-1a7a`:
-
-- push run: success — https://github.com/sv-harish/family-risk-review-android/actions/runs/30860418524
-- pull_request run: success — https://github.com/sv-harish/family-risk-review-android/actions/runs/30860421324
-
-**PR #1 is ready to merge** from a Phase 0.5 foundation perspective.
+Phase 0.5 (PR #1) GitHub Actions passed historically. Phase 1 CI status will be recorded after the Phase 1 PR run completes.

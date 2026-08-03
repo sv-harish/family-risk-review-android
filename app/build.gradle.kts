@@ -134,6 +134,12 @@ dependencies {
 
 tasks.register("verifyPhase0") {
     group = "verification"
-    description = "Phase 0.5 smoke verification: assemble debug and run unit tests."
+    description = "Legacy Phase 0.5 smoke verification alias."
+    dependsOn("verifyPhase1")
+}
+
+tasks.register("verifyPhase1") {
+    group = "verification"
+    description = "Phase 1 smoke verification: assemble debug and run unit tests."
     dependsOn("assembleDebug", "testDebugUnitTest")
 }

@@ -10,6 +10,7 @@ import com.familyriskreview.core.model.ResponsibilityPriority
 import com.familyriskreview.core.model.ReviewMode
 import com.familyriskreview.core.model.ReviewStatus
 import com.familyriskreview.core.model.ReviewStep
+import com.familyriskreview.core.model.ScenarioKind
 import com.familyriskreview.core.model.SyncState
 import com.familyriskreview.core.model.TimingKind
 
@@ -18,9 +19,9 @@ class DatabaseConverters {
 
     @TypeConverter fun toReviewMode(value: String): ReviewMode = ReviewMode.valueOf(value)
 
-    @TypeConverter fun fromReviewStatus(value: ReviewStatus): String = value.name
+    @TypeConverter fun fromReviewStatus(value: ReviewStatus?): String? = value?.name
 
-    @TypeConverter fun toReviewStatus(value: String): ReviewStatus = ReviewStatus.valueOf(value)
+    @TypeConverter fun toReviewStatus(value: String?): ReviewStatus? = value?.let { ReviewStatus.valueOf(it) }
 
     @TypeConverter fun fromReviewStep(value: ReviewStep): String = value.name
 
@@ -57,4 +58,8 @@ class DatabaseConverters {
     @TypeConverter fun fromTimingKind(value: TimingKind?): String? = value?.name
 
     @TypeConverter fun toTimingKind(value: String?): TimingKind? = value?.let { TimingKind.valueOf(it) }
+
+    @TypeConverter fun fromScenarioKind(value: ScenarioKind): String = value.name
+
+    @TypeConverter fun toScenarioKind(value: String): ScenarioKind = ScenarioKind.valueOf(value)
 }

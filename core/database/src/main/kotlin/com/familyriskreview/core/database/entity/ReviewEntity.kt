@@ -34,4 +34,10 @@ data class ReviewEntity(
     val revision: Long,
     val customerAcknowledged: Boolean,
     val serverUpdatedAtEpochMs: Long? = null,
+    /** Prior status captured at archive time for restore. */
+    val statusBeforeArchive: ReviewStatus? = null,
+    /** True when calculation inputs changed since last snapshot. */
+    val summaryStale: Boolean = true,
+    /** Serialised CalculationAssumptions bound to this review. */
+    val assumptionsJson: String,
 )

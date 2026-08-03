@@ -4,6 +4,7 @@ import com.familyriskreview.core.database.mapper.toDomain
 import com.familyriskreview.core.database.mapper.toEntity
 import com.familyriskreview.core.model.AdvisorReference
 import com.familyriskreview.core.model.AppLanguage
+import com.familyriskreview.core.model.CalculationAssumptions
 import com.familyriskreview.core.model.ContributionStatus
 import com.familyriskreview.core.model.DependencyStatus
 import com.familyriskreview.core.model.DerivedValueMetadata
@@ -39,6 +40,8 @@ class EntityMapperRoundTripTest {
                 updatedAt = Instant.fromEpochMilliseconds(20),
                 syncState = SyncState.LOCAL_ONLY,
                 revision = 3,
+                summaryStale = true,
+                assumptionsJson = CalculationAssumptions.Default.toJson(),
             )
         assertThat(original.toEntity().toDomain()).isEqualTo(original)
     }
@@ -87,14 +90,13 @@ class EntityMapperRoundTripTest {
     }
 
     @Test
-    fun advisorReferenceRoundTrip() {
+    fun advisorReferenceRoundTrip_excludesCustomerLeakFields() {
         val ref =
             AdvisorReference(
                 reviewId = "id-1",
                 customerInitialsOrNickname = "RK",
                 crmReference = "CRM-9",
                 privateNote = "private",
-                includeInCustomerSummary = false,
             )
         assertThat(ref.toEntity().toDomain()).isEqualTo(ref)
     }

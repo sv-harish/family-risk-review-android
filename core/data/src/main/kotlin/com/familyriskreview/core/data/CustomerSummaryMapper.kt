@@ -6,24 +6,19 @@ import com.familyriskreview.core.model.Review
 
 /**
  * Maps domain state to customer-facing summary fields.
- * Advisor-only CRM references and private notes are never included.
- * Initials/nickname appear only when explicitly opted in.
+ *
+ * Advisor-only fields (initials/nickname, CRM reference, private notes) are
+ * never projected into customer summaries or PDFs.
  */
 object CustomerSummaryMapper {
+    @Suppress("UNUSED_PARAMETER")
     fun project(
         review: Review,
         advisorReference: AdvisorReference?,
-    ): CustomerSummaryProjection {
-        val label =
-            advisorReference
-                ?.takeIf { it.includeInCustomerSummary }
-                ?.customerInitialsOrNickname
-        return CustomerSummaryProjection(
-            reviewId = review.id,
-            reviewNumber = review.reviewNumber,
-            mode = review.mode,
-            language = review.language,
-            customerDisplayLabel = label,
-        )
-    }
+    ): CustomerSummaryProjection = CustomerSummaryProjection(
+        reviewId = review.id,
+        reviewNumber = review.reviewNumber,
+        mode = review.mode,
+        language = review.language,
+    )
 }

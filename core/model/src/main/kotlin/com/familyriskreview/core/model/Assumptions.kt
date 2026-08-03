@@ -1,6 +1,8 @@
 package com.familyriskreview.core.model
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 /**
  * Versioned calculation assumptions using validated basis-point rates.
@@ -15,11 +17,21 @@ data class CalculationAssumptions(
     val recurringSupportInflation: AnnualRateBps = AnnualRateBps.RECURRING_SUPPORT_DEFAULT,
     val expectedNetReturn: AnnualRateBps? = null,
 ) {
+    fun toJson(): String = AssumptionsJson.encodeToString(this)
+
     companion object {
         const val CURRENT_VERSION: String = "1.1.0"
         val Default: CalculationAssumptions = CalculationAssumptions()
+
+        fun fromJson(json: String): CalculationAssumptions = AssumptionsJson.decodeFromString(json)
     }
 }
+
+internal val AssumptionsJson =
+    Json {
+        ignoreUnknownKeys = true
+        encodeDefaults = true
+    }
 
 /**
  * Explicit scenario definition. A scenario label alone is never enough —
@@ -62,6 +74,35 @@ data class GrossResponsibilityResult(
     val assumptionVersion: String,
     val calculationVersion: String,
     val scenarioKind: ScenarioKind = ScenarioKind.BASE,
+)
+
+/**
+ * Persisted calculation snapshot for a review aggregate revision.
+ * Summary is stale when [reviewRevision] no longer matches the review, or
+ * when assumption/calculation versions diverge.
+ */
+@Serializable
+data class CalculationSnapshot(
+    val id: String,
+    val reviewId: String,
+    val reviewRevision: Long,
+    val assumptionVersion: String,
+    val calculationVersion: String,
+    val scenarioKind: ScenarioKind,
+    val assumptionsJson: String,
+    val mustContinueTotalRupees: Long,
+    val adjustableTotalRupees: Long,
+    val postponedTotalRupees: Long,
+    val perResponsibilityJson: String,
+    val generatedAtEpochMs: Long,
+)
+
+@Serializable
+data class ResponsibilityIndicativeLine(
+    val responsibilityId: String,
+    val catalogue: ResponsibilityCatalogue,
+    val priority: ResponsibilityPriority?,
+    val indicativeAmountRupees: Long,
 )
 
 /**

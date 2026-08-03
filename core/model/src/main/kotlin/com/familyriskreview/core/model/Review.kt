@@ -6,11 +6,15 @@ import kotlinx.serialization.Serializable
 /**
  * Root aggregate for a Family Risk Review session.
  *
- * Customer PII is intentionally excluded. Advisor-only references must not
- * automatically appear in the customer-facing summary.
+ * Customer PII is intentionally excluded. Advisor-only references must never
+ * appear in the customer-facing summary.
  *
  * A Review is created only after Quick or Guided mode is selected.
  * Splash / Welcome are app-shell destinations, not [currentStep] values.
+ *
+ * [revision] is the optimistic-concurrency token for the aggregate. Child
+ * mutations must bump it transactionally with [updatedAt], sync pending, and
+ * [summaryStale]=true when calculation inputs change.
  */
 @Serializable
 data class Review(
@@ -25,14 +29,21 @@ data class Review(
     val completedAt: Instant? = null,
     val focusedIncomeContributorId: String? = null,
     val assumptionVersion: String = CalculationAssumptions.CURRENT_VERSION,
-    val calculationVersion: String = "1.1.0",
+    /** Authoritative value is [com.familyriskreview.core.calculation.ResponsibilityCalculator.CALCULATION_VERSION]. */
+    val calculationVersion: String = CalculationAssumptions.CURRENT_VERSION,
     val syncState: SyncState = SyncState.LOCAL_ONLY,
     val revision: Long = 1L,
     val customerAcknowledged: Boolean = false,
+    /** Prior meaningful status captured when archiving (IN_PROGRESS or COMPLETED). */
+    val statusBeforeArchive: ReviewStatus? = null,
+    /** True when inputs changed since the last persisted calculation snapshot. */
+    val summaryStale: Boolean = true,
+    /** Serialised [CalculationAssumptions] snapshot bound to this review. */
+    val assumptionsJson: String = CalculationAssumptions.Default.toJson(),
 )
 
 /**
- * Advisor-only metadata. Never auto-include in customer PDFs/summaries.
+ * Advisor-only metadata. Never included in customer PDFs/summaries.
  */
 @Serializable
 data class AdvisorReference(
@@ -40,7 +51,6 @@ data class AdvisorReference(
     val customerInitialsOrNickname: String? = null,
     val crmReference: String? = null,
     val privateNote: String? = null,
-    val includeInCustomerSummary: Boolean = false,
 )
 
 /**
@@ -57,8 +67,7 @@ object AdvisorIdentity {
 }
 
 /**
- * Customer-summary projection that excludes advisor-only fields unless
- * [AdvisorReference.includeInCustomerSummary] is explicitly true for initials only.
+ * Customer-summary projection. Advisor-only fields are never projected here.
  */
 @Serializable
 data class CustomerSummaryProjection(
@@ -66,5 +75,4 @@ data class CustomerSummaryProjection(
     val reviewNumber: String,
     val mode: ReviewMode,
     val language: AppLanguage,
-    val customerDisplayLabel: String? = null,
 )

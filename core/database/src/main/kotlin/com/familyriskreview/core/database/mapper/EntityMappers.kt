@@ -1,10 +1,13 @@
 package com.familyriskreview.core.database.mapper
 
 import com.familyriskreview.core.database.entity.AdvisorReferenceEntity
+import com.familyriskreview.core.database.entity.CalculationSnapshotEntity
 import com.familyriskreview.core.database.entity.HouseholdMemberEntity
 import com.familyriskreview.core.database.entity.ResponsibilityEntity
 import com.familyriskreview.core.database.entity.ReviewEntity
 import com.familyriskreview.core.model.AdvisorReference
+import com.familyriskreview.core.model.CalculationAssumptions
+import com.familyriskreview.core.model.CalculationSnapshot
 import com.familyriskreview.core.model.DerivedValueMetadata
 import com.familyriskreview.core.model.HouseholdMember
 import com.familyriskreview.core.model.MoneyAmount
@@ -29,6 +32,9 @@ fun ReviewEntity.toDomain(): Review = Review(
     syncState = syncState,
     revision = revision,
     customerAcknowledged = customerAcknowledged,
+    statusBeforeArchive = statusBeforeArchive,
+    summaryStale = summaryStale,
+    assumptionsJson = assumptionsJson,
 )
 
 fun Review.toEntity(serverUpdatedAtEpochMs: Long? = null): ReviewEntity = ReviewEntity(
@@ -48,6 +54,9 @@ fun Review.toEntity(serverUpdatedAtEpochMs: Long? = null): ReviewEntity = Review
     revision = revision,
     customerAcknowledged = customerAcknowledged,
     serverUpdatedAtEpochMs = serverUpdatedAtEpochMs,
+    statusBeforeArchive = statusBeforeArchive,
+    summaryStale = summaryStale,
+    assumptionsJson = assumptionsJson.ifBlank { CalculationAssumptions.Default.toJson() },
 )
 
 fun HouseholdMemberEntity.toDomain(): HouseholdMember = HouseholdMember(
@@ -149,7 +158,6 @@ fun AdvisorReferenceEntity.toDomain(): AdvisorReference = AdvisorReference(
     customerInitialsOrNickname = customerInitialsOrNickname,
     crmReference = crmReference,
     privateNote = privateNote,
-    includeInCustomerSummary = includeInCustomerSummary,
 )
 
 fun AdvisorReference.toEntity(): AdvisorReferenceEntity = AdvisorReferenceEntity(
@@ -157,5 +165,34 @@ fun AdvisorReference.toEntity(): AdvisorReferenceEntity = AdvisorReferenceEntity
     customerInitialsOrNickname = customerInitialsOrNickname,
     crmReference = crmReference,
     privateNote = privateNote,
-    includeInCustomerSummary = includeInCustomerSummary,
+)
+
+fun CalculationSnapshotEntity.toDomain(): CalculationSnapshot = CalculationSnapshot(
+    id = id,
+    reviewId = reviewId,
+    reviewRevision = reviewRevision,
+    assumptionVersion = assumptionVersion,
+    calculationVersion = calculationVersion,
+    scenarioKind = scenarioKind,
+    assumptionsJson = assumptionsJson,
+    mustContinueTotalRupees = mustContinueTotalRupees,
+    adjustableTotalRupees = adjustableTotalRupees,
+    postponedTotalRupees = postponedTotalRupees,
+    perResponsibilityJson = perResponsibilityJson,
+    generatedAtEpochMs = generatedAtEpochMs,
+)
+
+fun CalculationSnapshot.toEntity(): CalculationSnapshotEntity = CalculationSnapshotEntity(
+    id = id,
+    reviewId = reviewId,
+    reviewRevision = reviewRevision,
+    assumptionVersion = assumptionVersion,
+    calculationVersion = calculationVersion,
+    scenarioKind = scenarioKind,
+    assumptionsJson = assumptionsJson,
+    mustContinueTotalRupees = mustContinueTotalRupees,
+    adjustableTotalRupees = adjustableTotalRupees,
+    postponedTotalRupees = postponedTotalRupees,
+    perResponsibilityJson = perResponsibilityJson,
+    generatedAtEpochMs = generatedAtEpochMs,
 )

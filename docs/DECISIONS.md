@@ -54,6 +54,26 @@
 
 ## ADR-012 — Provisional Room schema v1
 
-**Status:** Accepted  
-**Decision:** Schema v1 is pre-release and may be corrected directly in Phase 1.  
+**Status:** Accepted (amended Phase 1)  
+**Decision:** Schema v1 is pre-release and may be corrected directly in Phase 1. Phase 1 corrected review aggregate fields (`statusBeforeArchive`, `summaryStale`, `assumptionsJson`), removed customer-summary opt-in from advisor references, and added `calculation_snapshots`. Destructive fallback remains enabled only while `SCHEMA_STATUS == PROVISIONAL_PRE_RELEASE`.  
 **Schema-freeze milestone:** first intentionally distributed persistence-compatible build (to be declared when shipping). Migrations become mandatory thereafter; no production destructive migration after freeze.
+
+## ADR-013 — Injectable system services
+
+**Status:** Accepted  
+**Decision:** Repositories and use cases depend on `Clock`, `IdGenerator`, and `ReviewNumberProvider`. Production bindings use system time / UUID / SecureRandom; tests inject fakes. Repositories must not call `System.currentTimeMillis`, `UUID.randomUUID`, or `SecureRandom` directly.
+
+## ADR-014 — Aggregate CAS revision + transactional child writes
+
+**Status:** Accepted  
+**Decision:** Review `revision` is the optimistic concurrency token. Child mutations run in a Room transaction that upserts/deletes the child and CAS-bumps parent revision, `updatedAt`, sync pending, and `summaryStale`.
+
+## ADR-015 — Advisor data never in customer summary
+
+**Status:** Accepted  
+**Decision:** Remove `includeInCustomerSummary`. Advisor initials/CRM/notes are advisor-only; `CustomerSummaryMapper` never projects them.
+
+## ADR-016 — Quick vs Guided scope
+
+**Status:** Accepted  
+**Decision:** Same ordered `ReviewStep` list for both modes. Quick enforces `MAX_MUST_CONTINUE = 3`; Guided has no hard must-continue cap in v1.
