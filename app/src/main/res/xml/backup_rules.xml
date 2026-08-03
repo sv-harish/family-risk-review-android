@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- Local review data should not silently backup to cloud without explicit product decision. -->
+    <exclude domain="database" path="family_risk_review.db" />
+    <exclude domain="sharedpref" path="family_risk_review_preferences.preferences_pb" />
+</full-backup-content>

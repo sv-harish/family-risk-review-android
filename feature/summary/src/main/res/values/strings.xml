@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="summary_title">Awareness summary</string>
+    <string name="summary_core_insight">Your responsibilities have planned dates. The income expected to fund them does not have a guaranteed duration.</string>
+    <string name="summary_review_id">Review: %1$s</string>
+    <string name="summary_advisor_handoff">Returning control to %1$s</string>
+    <string name="summary_finish_session">Finish Session</string>
+    <string name="summary_back_dashboard">Back to dashboard</string>
+    <string name="summary_phase0_note">Full summary, PDF and advisor actions arrive in Phases 6–7.</string>
+</resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dashboard_title">Family Risk Review</string>
+    <string name="dashboard_subtitle">सलाहकार कार्यक्षेत्र</string>
+    <string name="dashboard_start_new_review">नई समीक्षा शुरू करें</string>
+    <string name="dashboard_settings">सेटिंग्स</string>
+    <string name="dashboard_phase0_note">Phase 0 shell — पूरी सूची Phase 6 में आएगी।</string>
+</resources>

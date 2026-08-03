@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">அமைப்புகள்</string>
+    <string name="settings_body">மொழி இயல்புநிலைகள், கணக்கீட்டு அனுமானங்கள், குறைக்கப்பட்ட இயக்கம் மற்றும் ஒத்திசைவு அமைப்புகள் இங்கே மாற்றப்படும். Dareus One பிராண்டிங் அமைப்புகளில் தோன்றாது.</string>
+    <string name="settings_back">பின்செல்</string>
+</resources>

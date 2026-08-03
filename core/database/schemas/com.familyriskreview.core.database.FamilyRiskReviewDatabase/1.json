@@ -1,0 +1,452 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "476edd7d986080a26a55d905a531a73a",
+    "entities": [
+      {
+        "tableName": "reviews",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `reviewNumber` TEXT NOT NULL, `mode` TEXT NOT NULL, `language` TEXT NOT NULL, `status` TEXT NOT NULL, `currentStep` TEXT NOT NULL, `createdAtEpochMs` INTEGER NOT NULL, `updatedAtEpochMs` INTEGER NOT NULL, `completedAtEpochMs` INTEGER, `focusedIncomeContributorId` TEXT, `assumptionVersion` TEXT NOT NULL, `calculationVersion` TEXT NOT NULL, `syncState` TEXT NOT NULL, `revision` INTEGER NOT NULL, `customerAcknowledged` INTEGER NOT NULL, `serverUpdatedAtEpochMs` INTEGER, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reviewNumber",
+            "columnName": "reviewNumber",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mode",
+            "columnName": "mode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "language",
+            "columnName": "language",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "currentStep",
+            "columnName": "currentStep",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAtEpochMs",
+            "columnName": "createdAtEpochMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAtEpochMs",
+            "columnName": "updatedAtEpochMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "completedAtEpochMs",
+            "columnName": "completedAtEpochMs",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "focusedIncomeContributorId",
+            "columnName": "focusedIncomeContributorId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "assumptionVersion",
+            "columnName": "assumptionVersion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "calculationVersion",
+            "columnName": "calculationVersion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "syncState",
+            "columnName": "syncState",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "revision",
+            "columnName": "revision",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "customerAcknowledged",
+            "columnName": "customerAcknowledged",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "serverUpdatedAtEpochMs",
+            "columnName": "serverUpdatedAtEpochMs",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_reviews_reviewNumber",
+            "unique": true,
+            "columnNames": [
+              "reviewNumber"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_reviews_reviewNumber` ON `${TABLE_NAME}` (`reviewNumber`)"
+          },
+          {
+            "name": "index_reviews_status",
+            "unique": false,
+            "columnNames": [
+              "status"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_reviews_status` ON `${TABLE_NAME}` (`status`)"
+          },
+          {
+            "name": "index_reviews_updatedAtEpochMs",
+            "unique": false,
+            "columnNames": [
+              "updatedAtEpochMs"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_reviews_updatedAtEpochMs` ON `${TABLE_NAME}` (`updatedAtEpochMs`)"
+          }
+        ]
+      },
+      {
+        "tableName": "household_members",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `reviewId` TEXT NOT NULL, `relationship` TEXT NOT NULL, `age` INTEGER, `contributionStatus` TEXT NOT NULL, `dependencyStatus` TEXT NOT NULL, `displayLabel` TEXT, `sortOrder` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`reviewId`) REFERENCES `reviews`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reviewId",
+            "columnName": "reviewId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "relationship",
+            "columnName": "relationship",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "age",
+            "columnName": "age",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "contributionStatus",
+            "columnName": "contributionStatus",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dependencyStatus",
+            "columnName": "dependencyStatus",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "displayLabel",
+            "columnName": "displayLabel",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sortOrder",
+            "columnName": "sortOrder",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_household_members_reviewId",
+            "unique": false,
+            "columnNames": [
+              "reviewId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_household_members_reviewId` ON `${TABLE_NAME}` (`reviewId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "reviews",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "reviewId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "responsibilities",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `reviewId` TEXT NOT NULL, `catalogue` TEXT NOT NULL, `customLabel` TEXT, `priority` TEXT, `timingKind` TEXT, `yearsUntilRequired` INTEGER, `durationYears` INTEGER, `milestoneLabel` TEXT, `customTimingNote` TEXT, `currentAmountRupees` INTEGER, `monthlyAmountRupees` INTEGER, `futureIndicativeAmountRupees` INTEGER, `explicitInflationBps` INTEGER, `derivedSourceCurrentAmountRupees` INTEGER, `derivedSourceMonthlyAmountRupees` INTEGER, `derivedSourceYears` INTEGER, `derivedSourceDurationYears` INTEGER, `derivedInflationRateBps` INTEGER, `derivedExpectedNetReturnBps` INTEGER, `derivedAssumptionVersion` TEXT, `derivedCalculationVersion` TEXT, `assumptionVersion` TEXT, `calculationVersion` TEXT, `isSelected` INTEGER NOT NULL, `sortOrder` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`reviewId`) REFERENCES `reviews`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reviewId",
+            "columnName": "reviewId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "catalogue",
+            "columnName": "catalogue",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "customLabel",
+            "columnName": "customLabel",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "priority",
+            "columnName": "priority",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "timingKind",
+            "columnName": "timingKind",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "yearsUntilRequired",
+            "columnName": "yearsUntilRequired",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "durationYears",
+            "columnName": "durationYears",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "milestoneLabel",
+            "columnName": "milestoneLabel",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "customTimingNote",
+            "columnName": "customTimingNote",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "currentAmountRupees",
+            "columnName": "currentAmountRupees",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "monthlyAmountRupees",
+            "columnName": "monthlyAmountRupees",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "futureIndicativeAmountRupees",
+            "columnName": "futureIndicativeAmountRupees",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "explicitInflationBps",
+            "columnName": "explicitInflationBps",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "derivedSourceCurrentAmountRupees",
+            "columnName": "derivedSourceCurrentAmountRupees",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "derivedSourceMonthlyAmountRupees",
+            "columnName": "derivedSourceMonthlyAmountRupees",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "derivedSourceYears",
+            "columnName": "derivedSourceYears",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "derivedSourceDurationYears",
+            "columnName": "derivedSourceDurationYears",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "derivedInflationRateBps",
+            "columnName": "derivedInflationRateBps",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "derivedExpectedNetReturnBps",
+            "columnName": "derivedExpectedNetReturnBps",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "derivedAssumptionVersion",
+            "columnName": "derivedAssumptionVersion",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "derivedCalculationVersion",
+            "columnName": "derivedCalculationVersion",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "assumptionVersion",
+            "columnName": "assumptionVersion",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "calculationVersion",
+            "columnName": "calculationVersion",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "isSelected",
+            "columnName": "isSelected",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sortOrder",
+            "columnName": "sortOrder",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_responsibilities_reviewId",
+            "unique": false,
+            "columnNames": [
+              "reviewId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_responsibilities_reviewId` ON `${TABLE_NAME}` (`reviewId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "reviews",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "reviewId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "advisor_references",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`reviewId` TEXT NOT NULL, `customerInitialsOrNickname` TEXT, `crmReference` TEXT, `privateNote` TEXT, `includeInCustomerSummary` INTEGER NOT NULL, PRIMARY KEY(`reviewId`), FOREIGN KEY(`reviewId`) REFERENCES `reviews`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "reviewId",
+            "columnName": "reviewId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "customerInitialsOrNickname",
+            "columnName": "customerInitialsOrNickname",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "crmReference",
+            "columnName": "crmReference",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "privateNote",
+            "columnName": "privateNote",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "includeInCustomerSummary",
+            "columnName": "includeInCustomerSummary",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "reviewId"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "reviews",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "reviewId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '476edd7d986080a26a55d905a531a73a')"
+    ]
+  }
+}

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Settings</string>
+    <string name="settings_body">Language defaults, calculation assumptions, reduced motion and sync configuration will be editable here. Dareus One branding does not appear in settings.</string>
+    <string name="settings_back">Back</string>
+</resources>

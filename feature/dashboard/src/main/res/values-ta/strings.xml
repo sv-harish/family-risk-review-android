@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dashboard_title">Family Risk Review</string>
+    <string name="dashboard_subtitle">ஆலோசகர் பணியிடம்</string>
+    <string name="dashboard_start_new_review">புதிய மதிப்பாய்வைத் தொடங்கு</string>
+    <string name="dashboard_settings">அமைப்புகள்</string>
+    <string name="dashboard_phase0_note">Phase 0 shell — முழு பட்டியல் Phase 6-இல் வரும்.</string>
+</resources>
