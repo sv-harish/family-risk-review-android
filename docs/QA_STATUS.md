@@ -46,6 +46,9 @@ Do not claim device testing without running it. Do not claim PR verification pas
 
 ## CI status
 
-Local gates **passed**. GitHub Actions status recorded after the Phase 1.3 push is green.
+Phase 1.3 GitHub Actions **passed** on branch `cursor/phase-1-domain-engine-1a7a` (head `eb4e804`):
+
+- push run: success — https://github.com/sv-harish/family-risk-review-android/actions/runs/30867272829
+- pull_request run: success — https://github.com/sv-harish/family-risk-review-android/actions/runs/30867274892
 
 **PR #2 remains a draft** until Phase 1.3 final review is complete.
