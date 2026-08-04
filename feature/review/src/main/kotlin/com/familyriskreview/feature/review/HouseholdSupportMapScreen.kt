@@ -26,9 +26,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.ExposedDropdownMenu
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -305,11 +305,18 @@ private fun HouseholdMemberEditor(
             dependency = it; persist(nextDependency = it)
         }
         if (member.id != focusedId && isIncomeContributor(contribution)) {
-            FrrSecondaryButton(stringResource(R.string.household_set_focus), { onSetFocus(member.id) }, Modifier.fillMaxWidth())
+            FrrSecondaryButton(
+                text = stringResource(R.string.household_set_focus),
+                onClick = { onSetFocus(member.id) },
+                modifier = Modifier.fillMaxWidth(),
+            )
         } else if (member.id == focusedId) {
             Text(text = stringResource(R.string.household_is_focus), style = FrrTypography.bodyMedium, color = colors.primaryAction)
         }
-        FrrTextAction(stringResource(R.string.household_remove)) { onRemove(member.id) }
+        FrrTextAction(
+            text = stringResource(R.string.household_remove),
+            onClick = { onRemove(member.id) },
+        )
     }
 }
 
@@ -323,16 +330,33 @@ private fun <T> EnumDropdown(
     onSelected: (T) -> Unit,
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
-    ExposedDropdownMenuBox(expanded, { expanded = it }) {
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+    ) {
         OutlinedTextField(
-            value = optionLabel(selected), onValueChange = {}, readOnly = true,
+            value = optionLabel(selected),
+            onValueChange = {},
+            readOnly = true,
             label = { Text(label) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-            modifier = Modifier.menuAnchor().fillMaxWidth(),
+            modifier =
+                Modifier
+                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                    .fillMaxWidth(),
         )
-        ExposedDropdownMenu(expanded, { expanded = false }) {
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
             options.forEach { option ->
-                DropdownMenuItem(text = { Text(optionLabel(option)) }, onClick = { onSelected(option); expanded = false })
+                DropdownMenuItem(
+                    text = { Text(optionLabel(option)) },
+                    onClick = {
+                        onSelected(option)
+                        expanded = false
+                    },
+                )
             }
         }
     }
