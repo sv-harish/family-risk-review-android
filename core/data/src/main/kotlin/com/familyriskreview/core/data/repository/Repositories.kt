@@ -16,7 +16,11 @@ import com.familyriskreview.core.model.UserPreferences
 import com.familyriskreview.core.model.result.DomainResult
 import kotlinx.coroutines.flow.Flow
 
-interface ReviewRepository {
+/**
+ * Feature-facing **read** contract for reviews.
+ * Lifecycle mutations are not on this surface — use public use cases instead.
+ */
+interface ReviewReader {
     fun observeActiveReviews(): Flow<List<Review>>
 
     fun observeByStatus(status: ReviewStatus): Flow<List<Review>>
@@ -26,11 +30,23 @@ interface ReviewRepository {
     fun observeReview(id: String): Flow<Review?>
 
     suspend fun getReview(id: String): Review?
+}
 
+/**
+ * Lifecycle / step mutation surface for `:core:data` use cases only.
+ * Kotlin `internal` keeps this inaccessible to feature-module source.
+ */
+internal interface ReviewMutationWriter {
     suspend fun createReview(
         mode: ReviewMode,
         language: AppLanguage,
         assumptions: CalculationAssumptions = CalculationAssumptions.Default,
+    ): DomainResult<Review>
+
+    suspend fun advanceStep(
+        reviewId: String,
+        expectedRevision: Long,
+        step: ReviewStep,
     ): DomainResult<Review>
 
     suspend fun archiveReview(
@@ -58,19 +74,6 @@ interface ReviewRepository {
         id: String,
         expectedRevision: Long,
         customerAcknowledged: Boolean,
-    ): DomainResult<Review>
-}
-
-/**
- * Internal write surface for use cases in `:core:data` only.
- * Not exposed on the feature-facing [ReviewRepository] API so callers cannot
- * bypass progression gates or arbitrarily mutate protected aggregate fields.
- */
-interface ReviewInternalWriter {
-    suspend fun advanceStep(
-        reviewId: String,
-        expectedRevision: Long,
-        step: ReviewStep,
     ): DomainResult<Review>
 }
 

@@ -106,15 +106,25 @@
 ## ADR-022 — Deterministic scenario sets
 
 **Status:** Accepted  
-**Decision:** `ScenarioRules.validateAndOrder` enforces unique scenario kinds, Quick Base-only (or empty), Guided Lower/Base/Higher, and always returns Lower → Base → Higher order. Empty list means the standard Base result only — missing scenarios are never invented. `CalculateReviewSummaryUseCase` keeps one canonical Base in `Result.base`; Lower/Higher appear in `Result.scenarios` without duplicating Base.
+**Decision:** `ScenarioRules.validateAndOrder` enforces unique scenario kinds, Quick Base-only (or empty), Guided Lower/Base/Higher, and always returns Lower → Base → Higher order. Empty list means the standard Base result only — missing scenarios are never invented. `CalculateReviewSummaryUseCase` keeps one canonical Base in `Result.base`; Lower/Higher appear in `Result.scenarios` without duplicating Base. Every supplied scenario assumption set must use `version in CalculationAssumptions.SUPPORTED_VERSIONS` (never silently rewritten).
 
 ## ADR-023 — Typed calculation failures and domain limits
 
 **Status:** Accepted  
 **Decision:** Known calculator `IllegalArgumentException` / `IllegalStateException` / `ArithmeticException` are mapped at the use-case boundary via `CalculationFailureMapper` to `DomainError.Calculation` with stable codes. Programming defects are not caught indiscriminately. `DomainLimits` bounds one-time/monthly amounts and year horizons and are enforced in domain validation before calculation.
 
-## ADR-024 — Feature-facing persistence cannot bypass lifecycle
+## ADR-024 — Public read versus internal mutation boundaries
 
-**Status:** Accepted  
-**Decision:** `ReviewRepository` no longer exposes `updateReviewCas` or `advanceStep`. Step advances go through `AdvanceReviewStepUseCase` → `ReviewInternalWriter` (bound in `:core:data` DI). Features must use use cases; they cannot arbitrarily set status, clear summary-stale, change calculation version, or jump steps via the public repository API.
+**Status:** Accepted (Phase 1.3)  
+**Decision:** Feature modules receive `ReviewReader` (reads only) and public use cases for mutations. Lifecycle mutation is `internal interface ReviewMutationWriter` in `:core:data` (create / advance / complete / archive / restore / reopen / delete). Hilt binds the writer with an `internal` `@Binds` method; mutation-using use cases use `@Inject internal constructor`. Features cannot compile against the writer or call `completeReview` / `advanceStep` on a public repository API. `CompleteReviewUseCase` is the only public completion path and enforces fresh-summary audit before writing.
+
+## ADR-025 — Effective Base assumption provenance
+
+**Status:** Accepted (Phase 1.3)  
+**Decision:** `CalculateReviewSummaryUseCase` computes one authoritative `effectiveBaseAssumptions` (explicit Base scenario assumptions, else review assumptions) and uses that same set for canonical Base totals, per-responsibility Base amounts, snapshot `assumptionVersion`, and snapshot `assumptionsJson`. Never calculate with one set and persist another.
+
+## ADR-026 — Mode-specific quantification policy
+
+**Status:** Accepted (Phase 1.3)  
+**Decision:** `ResponsibilityRules.mayRemainNonQuantified` — Quick allows `NOT_YET_QUANTIFIED` only for adjustable / postponed; must-continue must be quantified and calculable. Guided never allows non-quantified selected items (`RESP_GUIDED_REQUIRES_QUANTIFICATION`). `validateDraftDetails` permits incomplete mid-edit persistence; `validateDetails` / progression / calculation enforce the mode policy.
 

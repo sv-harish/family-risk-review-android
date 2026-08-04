@@ -1,5 +1,6 @@
 package com.familyriskreview.core.model.validation
 
+import com.familyriskreview.core.model.CalculationAssumptions
 import com.familyriskreview.core.model.CalculationScenario
 import com.familyriskreview.core.model.ReviewMode
 import com.familyriskreview.core.model.ScenarioKind
@@ -14,6 +15,7 @@ import com.familyriskreview.core.model.result.ValidationIssue
  * Empty list → Base-only path handled by the use case (no invented scenarios).
  * Explicit list must have unique kinds; Quick permits Base only; Guided may
  * supply Lower / Base / Higher. Ordered output is always Lower → Base → Higher.
+ * Every supplied scenario assumption set must use a supported assumption version.
  */
 object ScenarioRules {
     private val CANONICAL_ORDER =
@@ -25,6 +27,23 @@ object ScenarioRules {
     ): DomainResult<List<CalculationScenario>> {
         if (scenarios.isEmpty()) {
             return DomainResult.success(emptyList())
+        }
+        for (scenario in scenarios) {
+            if (scenario.assumptions.version !in CalculationAssumptions.SUPPORTED_VERSIONS) {
+                return DomainResult.failure(
+                    DomainError.Validation(
+                        listOf(
+                            ValidationIssue(
+                                code = "SCENARIO_UNSUPPORTED_ASSUMPTION_VERSION",
+                                message =
+                                "Scenario ${scenario.kind} uses unsupported assumption " +
+                                    "version '${scenario.assumptions.version}'",
+                                field = "assumptions.version",
+                            ),
+                        ),
+                    ),
+                )
+            }
         }
         val policy = ReviewModePolicy.forMode(mode)
         val kinds = scenarios.map { it.kind }

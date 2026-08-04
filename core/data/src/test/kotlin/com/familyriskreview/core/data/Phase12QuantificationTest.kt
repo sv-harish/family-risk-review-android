@@ -64,13 +64,11 @@ class Phase12QuantificationTest {
     }
 
     @Test
-    fun repositoryApi_doesNotExposeUpdateReviewCas() {
-        val methods = com.familyriskreview.core.data.repository.ReviewRepository::class.java.methods.map { it.name }
+    fun reviewReaderApi_exposesReadsOnly() {
+        val methods =
+            com.familyriskreview.core.data.repository.ReviewReader::class.java.methods.map { it.name }
         assertThat(methods).doesNotContain("updateReviewCas")
         assertThat(methods).doesNotContain("advanceStep")
-        val internal =
-            com.familyriskreview.core.data.repository.ReviewInternalWriter::class.java.methods.map { it.name }
-        assertThat(internal).contains("advanceStep")
-        assertThat(internal).doesNotContain("updateReviewCas")
+        assertThat(methods).doesNotContain("completeReview")
     }
 }

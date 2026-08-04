@@ -3,7 +3,7 @@ package com.familyriskreview.core.data
 import com.familyriskreview.core.calculation.ResponsibilityCalculator
 import com.familyriskreview.core.data.repository.CalculationSnapshotRepository
 import com.familyriskreview.core.data.repository.ResponsibilityRepository
-import com.familyriskreview.core.data.repository.ReviewRepository
+import com.familyriskreview.core.data.repository.ReviewReader
 import com.familyriskreview.core.data.usecase.CalculateReviewSummaryUseCase
 import com.familyriskreview.core.model.AppLanguage
 import com.familyriskreview.core.model.CalculationAssumptions
@@ -77,7 +77,7 @@ class CalculateReviewSummaryFailureTest {
         )
         val useCase =
             CalculateReviewSummaryUseCase(
-                reviewRepository = FixedReviewRepository(review),
+                reviewReader = FixedReviewReader(review),
                 responsibilityRepository =
                 FixedResponsibilityRepository(listOf(loan("a"), loan("b"))),
                 snapshotRepository = NoOpSnapshotRepository(review),
@@ -97,9 +97,9 @@ class CalculateReviewSummaryFailureTest {
         assertThat((error as DomainError.Calculation).code).isEqualTo("CALC_AGGREGATE_OVERFLOW")
     }
 
-    private class FixedReviewRepository(
+    private class FixedReviewReader(
         private val review: Review,
-    ) : ReviewRepository {
+    ) : ReviewReader {
         override fun observeActiveReviews(): Flow<List<Review>> = flowOf(listOf(review))
 
         override fun observeByStatus(status: ReviewStatus): Flow<List<Review>> = flowOf(emptyList())
@@ -109,38 +109,6 @@ class CalculateReviewSummaryFailureTest {
         override fun observeReview(id: String): Flow<Review?> = flowOf(review)
 
         override suspend fun getReview(id: String): Review? = review
-
-        override suspend fun createReview(
-            mode: ReviewMode,
-            language: AppLanguage,
-            assumptions: CalculationAssumptions,
-        ): DomainResult<Review> = error("unused")
-
-        override suspend fun archiveReview(
-            id: String,
-            expectedRevision: Long,
-        ): DomainResult<Review> = error("unused")
-
-        override suspend fun restoreReview(
-            id: String,
-            expectedRevision: Long,
-        ): DomainResult<Review> = error("unused")
-
-        override suspend fun reopenReview(
-            id: String,
-            expectedRevision: Long,
-        ): DomainResult<Review> = error("unused")
-
-        override suspend fun softDeleteReview(
-            id: String,
-            expectedRevision: Long,
-        ): DomainResult<Review> = error("unused")
-
-        override suspend fun completeReview(
-            id: String,
-            expectedRevision: Long,
-            customerAcknowledged: Boolean,
-        ): DomainResult<Review> = error("unused")
     }
 
     private class FixedResponsibilityRepository(

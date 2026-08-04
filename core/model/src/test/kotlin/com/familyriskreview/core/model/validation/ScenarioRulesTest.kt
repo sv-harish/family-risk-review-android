@@ -112,4 +112,30 @@ class ScenarioRulesTest {
             .containsExactly(ScenarioKind.LOWER_COST, ScenarioKind.HIGHER_COST)
             .inOrder()
     }
+
+    @Test
+    fun unsupportedBaseAssumptionVersion_rejected() {
+        val bad =
+            CalculationScenario(
+                ScenarioKind.BASE,
+                CalculationAssumptions.Default.copy(version = "0.0.1"),
+            )
+        val result = ScenarioRules.validateAndOrder(ReviewMode.GUIDED, listOf(bad))
+        assertThat(
+            ((result as DomainResult.Failure).error as DomainError.Validation)
+                .issues
+                .any { it.code == "SCENARIO_UNSUPPORTED_ASSUMPTION_VERSION" },
+        ).isTrue()
+    }
+
+    @Test
+    fun unsupportedLowerAssumptionVersion_rejected() {
+        val bad =
+            CalculationScenario(
+                ScenarioKind.LOWER_COST,
+                CalculationAssumptions.Default.copy(version = "9.9.9"),
+            )
+        val result = ScenarioRules.validateAndOrder(ReviewMode.GUIDED, listOf(bad, base))
+        assertThat(result).isInstanceOf(DomainResult.Failure::class.java)
+    }
 }

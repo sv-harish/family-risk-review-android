@@ -47,8 +47,8 @@ constructor(
     private val clock: Clock,
     private val idGenerator: IdGenerator,
     private val reviewNumberProvider: ReviewNumberProvider,
-) : ReviewRepository,
-    ReviewInternalWriter {
+) : ReviewReader,
+    ReviewMutationWriter {
     override fun observeActiveReviews(): Flow<List<Review>> = reviewDao.observeAllActive().map { list -> list.map { it.toDomain() } }
 
     override fun observeByStatus(status: ReviewStatus): Flow<List<Review>> = reviewDao.observeByStatus(status).map { list -> list.map { it.toDomain() } }

@@ -173,12 +173,73 @@ class ResponsibilityRulesTest {
                 reviewId = "r1",
                 catalogue = ResponsibilityCatalogue.PARENT_SUPPORT,
                 isSelected = true,
-                priority = ResponsibilityPriority.MUST_CONTINUE,
+                priority = ResponsibilityPriority.IMPORTANT_BUT_ADJUSTABLE,
                 timing = ResponsibilityTiming(TimingKind.AS_LONG_AS_REQUIRED),
                 quantificationStatus = QuantificationStatus.NOT_YET_QUANTIFIED,
             )
-        val result = ResponsibilityRules.validateDetails(item, ReviewMode.GUIDED)
+        val result = ResponsibilityRules.validateDetails(item, ReviewMode.QUICK)
         assertThat(result.isValid).isTrue()
+    }
+
+    @Test
+    fun guidedNonQuantified_rejected() {
+        val item =
+            Responsibility(
+                id = "1",
+                reviewId = "r1",
+                catalogue = ResponsibilityCatalogue.PARENT_SUPPORT,
+                isSelected = true,
+                priority = ResponsibilityPriority.IMPORTANT_BUT_ADJUSTABLE,
+                quantificationStatus = QuantificationStatus.NOT_YET_QUANTIFIED,
+            )
+        val result = ResponsibilityRules.validateDetails(item, ReviewMode.GUIDED)
+        assertThat(result.errors.any { it.code == "RESP_GUIDED_REQUIRES_QUANTIFICATION" }).isTrue()
+    }
+
+    @Test
+    fun quickMustContinueNonQuantified_rejected() {
+        val item =
+            Responsibility(
+                id = "1",
+                reviewId = "r1",
+                catalogue = ResponsibilityCatalogue.ESSENTIAL_FAMILY_LIVING_EXPENSES,
+                isSelected = true,
+                priority = ResponsibilityPriority.MUST_CONTINUE,
+                quantificationStatus = QuantificationStatus.NOT_YET_QUANTIFIED,
+            )
+        val result = ResponsibilityRules.validateDetails(item, ReviewMode.QUICK)
+        assertThat(
+            result.errors.any { it.code == "RESP_MUST_CONTINUE_REQUIRES_QUANTIFICATION" },
+        ).isTrue()
+    }
+
+    @Test
+    fun quickPostponedNonQuantified_accepted() {
+        val item =
+            Responsibility(
+                id = "1",
+                reviewId = "r1",
+                catalogue = ResponsibilityCatalogue.CHILD_MARRIAGE_SUPPORT,
+                isSelected = true,
+                priority = ResponsibilityPriority.CAN_BE_POSTPONED_OR_REDUCED,
+                quantificationStatus = QuantificationStatus.NOT_YET_QUANTIFIED,
+            )
+        assertThat(ResponsibilityRules.validateDetails(item, ReviewMode.QUICK).isValid).isTrue()
+    }
+
+    @Test
+    fun draftDetails_allowsIncompleteGuidedItem() {
+        val item =
+            Responsibility(
+                id = "1",
+                reviewId = "r1",
+                catalogue = ResponsibilityCatalogue.PARENT_SUPPORT,
+                isSelected = true,
+                priority = ResponsibilityPriority.MUST_CONTINUE,
+                quantificationStatus = QuantificationStatus.NOT_YET_QUANTIFIED,
+            )
+        assertThat(ResponsibilityRules.validateDraftDetails(item, ReviewMode.GUIDED).isValid).isTrue()
+        assertThat(ResponsibilityRules.validateDetails(item, ReviewMode.GUIDED).isValid).isFalse()
     }
 
     @Test

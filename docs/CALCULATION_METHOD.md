@@ -88,7 +88,18 @@ Lower / Base / Higher results are generated only when each scenario has document
 * Non-quantified items appear in summary lines with a **null** indicative amount.
 * They are **excluded** from numeric totals (never silently ₹0).
 * Quick Review lightweight (adjustable/postponed) items without complete inputs must be `NOT_YET_QUANTIFIED`.
+* Quick must-continue and all Guided selected items must be quantified before progression/calculation.
+* Draft saves may persist incomplete items; progression gates enforce the mode policy.
 * `optionalIndicativeAmount` returns null for non-quantified items and does not throw.
+
+## Effective Base assumptions
+
+When calculating a summary, one authoritative assumption set is used for Base:
+
+* explicit Base scenario assumptions when supplied;
+* otherwise the review’s stored assumptions.
+
+That same set is written to the snapshot (`assumptionVersion` + `assumptionsJson`) and used for Base totals and per-responsibility Base lines.
 
 ## Domain limits (enforced before calculation)
 

@@ -69,11 +69,11 @@ object ResponsibilityRules {
     }
 
     /**
-     * Detail completeness for a single responsibility, honouring mode policy.
+     * Detail completeness for progression and calculation.
      *
-     * Quick Review lightweight (adjustable/postponed) items may omit full details
-     * only when [QuantificationStatus.NOT_YET_QUANTIFIED]. Marking them QUANTIFIED
-     * without complete inputs is an error.
+     * Distinguishes deliberate non-quantified lightweight Quick items from
+     * must-continue / Guided items that must be quantified and calculable.
+     * For mid-edit draft persistence use [validateDraftDetails] instead.
      */
     fun validateDetails(
         responsibility: Responsibility,
@@ -86,7 +86,26 @@ object ResponsibilityRules {
         val needsFullDetails = requiresFullDetails(responsibility, policy)
 
         if (responsibility.isNonQuantified()) {
-            // Deliberate non-quantified: allowed for must-continue and lightweight alike.
+            if (!mayRemainNonQuantified(mode, responsibility.priority)) {
+                val code =
+                    if (mode == ReviewMode.GUIDED) {
+                        "RESP_GUIDED_REQUIRES_QUANTIFICATION"
+                    } else {
+                        "RESP_MUST_CONTINUE_REQUIRES_QUANTIFICATION"
+                    }
+                result +=
+                    ValidationResult.error(
+                        code = code,
+                        message =
+                        when (mode) {
+                            ReviewMode.GUIDED ->
+                                "Guided Review requires all selected responsibilities to be quantified"
+                            ReviewMode.QUICK ->
+                                "Quick Review must-continue responsibilities must be quantified and calculable"
+                        },
+                        field = "quantificationStatus",
+                    )
+            }
             return result
         }
 
@@ -111,6 +130,39 @@ object ResponsibilityRules {
         // Must-continue / Guided full-detail path.
         result += validateQuantifiedCompleteness(responsibility)
         return result
+    }
+
+    /**
+     * Draft-save validation: selection integrity only.
+     * Incomplete / non-quantified drafts may be persisted while the advisor is editing;
+     * [validateDetails] / [validateForCalculation] enforce readiness to advance or calculate.
+     */
+    fun validateDraftDetails(
+        responsibility: Responsibility,
+        mode: ReviewMode,
+    ): ValidationResult {
+        if (!responsibility.isSelected) return ValidationResult.Ok
+        return validateSelection(responsibility)
+    }
+
+    /**
+     * Whether [QuantificationStatus.NOT_YET_QUANTIFIED] is permitted for progression/calculation.
+     * Quick lightweight priorities may remain non-quantified; Guided never may.
+     */
+    fun mayRemainNonQuantified(
+        mode: ReviewMode,
+        priority: ResponsibilityPriority?,
+    ): Boolean = when (mode) {
+        ReviewMode.GUIDED -> false
+        ReviewMode.QUICK ->
+            when (priority) {
+                ResponsibilityPriority.IMPORTANT_BUT_ADJUSTABLE,
+                ResponsibilityPriority.CAN_BE_POSTPONED_OR_REDUCED,
+                -> true
+                ResponsibilityPriority.MUST_CONTINUE,
+                null,
+                -> false
+            }
     }
 
     fun validateForCalculation(

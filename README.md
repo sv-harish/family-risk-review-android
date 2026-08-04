@@ -9,9 +9,11 @@ Native Android tablet application for advisor-led household risk awareness sessi
 
 ## Status
 
-**Phase 1.1 — Correctness hardening** (current, on PR #2)
+**Phase 1.3 — Final domain integrity review** (current, on PR #2)
 
-Phase 1 domain/application/persistence foundation with transactional CAS rollback, progression gates, Quick/Guided policies, calculable timing contracts, and fail-closed assumptions. No polished customer UI.
+Phase 1 domain/application/persistence foundation with transactional CAS rollback, progression gates, Quick/Guided policies, calculable timing contracts, fail-closed assumptions, effective Base assumption audit, mode-specific quantification, and public-read / internal-mutation boundaries. No polished customer UI.
+
+After approval and merge of PR #2, status becomes **Phase 1 complete**.
 
 ## Toolchain matrix
 

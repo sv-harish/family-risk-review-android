@@ -10,8 +10,8 @@ import com.familyriskreview.core.data.repository.DefaultReviewRepository
 import com.familyriskreview.core.data.repository.DefaultUserPreferencesRepository
 import com.familyriskreview.core.data.repository.HouseholdRepository
 import com.familyriskreview.core.data.repository.ResponsibilityRepository
-import com.familyriskreview.core.data.repository.ReviewInternalWriter
-import com.familyriskreview.core.data.repository.ReviewRepository
+import com.familyriskreview.core.data.repository.ReviewMutationWriter
+import com.familyriskreview.core.data.repository.ReviewReader
 import com.familyriskreview.core.data.repository.UserPreferencesRepository
 import com.familyriskreview.core.data.service.DefaultReviewNumberProvider
 import com.familyriskreview.core.data.service.SystemClock
@@ -29,10 +29,10 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 abstract class DataModule {
     @Binds @Singleton
-    abstract fun bindReviewRepository(impl: DefaultReviewRepository): ReviewRepository
+    abstract fun bindReviewReader(impl: DefaultReviewRepository): ReviewReader
 
     @Binds @Singleton
-    abstract fun bindReviewInternalWriter(impl: DefaultReviewRepository): ReviewInternalWriter
+    internal abstract fun bindReviewMutationWriter(impl: DefaultReviewRepository): ReviewMutationWriter
 
     @Binds @Singleton
     abstract fun bindHouseholdRepository(impl: DefaultHouseholdRepository): HouseholdRepository

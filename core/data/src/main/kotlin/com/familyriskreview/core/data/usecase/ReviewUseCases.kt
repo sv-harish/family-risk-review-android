@@ -5,8 +5,8 @@ import com.familyriskreview.core.data.repository.AdvisorReferenceRepository
 import com.familyriskreview.core.data.repository.CalculationSnapshotRepository
 import com.familyriskreview.core.data.repository.HouseholdRepository
 import com.familyriskreview.core.data.repository.ResponsibilityRepository
-import com.familyriskreview.core.data.repository.ReviewInternalWriter
-import com.familyriskreview.core.data.repository.ReviewRepository
+import com.familyriskreview.core.data.repository.ReviewMutationWriter
+import com.familyriskreview.core.data.repository.ReviewReader
 import com.familyriskreview.core.model.AdvisorReference
 import com.familyriskreview.core.model.AppLanguage
 import com.familyriskreview.core.model.CalculationAssumptions
@@ -39,24 +39,24 @@ import javax.inject.Inject
 
 class CreateReviewUseCase
 @Inject
-constructor(
-    private val reviewRepository: ReviewRepository,
+internal constructor(
+    private val reviewWriter: ReviewMutationWriter,
 ) {
     suspend operator fun invoke(
         mode: ReviewMode,
         language: AppLanguage,
         assumptions: CalculationAssumptions = CalculationAssumptions.Default,
-    ): DomainResult<Review> = reviewRepository.createReview(mode, language, assumptions)
+    ): DomainResult<Review> = reviewWriter.createReview(mode, language, assumptions)
 }
 
 class ResumeReviewUseCase
 @Inject
 constructor(
-    private val reviewRepository: ReviewRepository,
+    private val reviewReader: ReviewReader,
 ) {
     suspend operator fun invoke(reviewId: String): DomainResult<Review> {
         val review =
-            reviewRepository.getReview(reviewId)
+            reviewReader.getReview(reviewId)
                 ?: return DomainResult.failure(DomainError.NotFound("Review $reviewId not found"))
         return when (review.status) {
             ReviewStatus.IN_PROGRESS -> DomainResult.success(review)
@@ -73,9 +73,9 @@ constructor(
 
 class AdvanceReviewStepUseCase
 @Inject
-constructor(
-    private val reviewRepository: ReviewRepository,
-    private val reviewWriter: ReviewInternalWriter,
+internal constructor(
+    private val reviewReader: ReviewReader,
+    private val reviewWriter: ReviewMutationWriter,
     private val householdRepository: HouseholdRepository,
     private val responsibilityRepository: ResponsibilityRepository,
     private val snapshotRepository: CalculationSnapshotRepository,
@@ -86,7 +86,7 @@ constructor(
         forward: Boolean = true,
     ): DomainResult<Review> {
         val review =
-            reviewRepository.getReview(reviewId)
+            reviewReader.getReview(reviewId)
                 ?: return DomainResult.failure(DomainError.NotFound("Review $reviewId not found"))
         if (forward) {
             val members = householdRepository.getMembers(reviewId)
@@ -168,7 +168,7 @@ class PrioritiseResponsibilityUseCase
 @Inject
 constructor(
     private val responsibilityRepository: ResponsibilityRepository,
-    private val reviewRepository: ReviewRepository,
+    private val reviewReader: ReviewReader,
 ) {
     suspend operator fun invoke(
         responsibilityId: String,
@@ -177,7 +177,7 @@ constructor(
         expectedRevision: Long,
     ): DomainResult<Review> {
         val review =
-            reviewRepository.getReview(reviewId)
+            reviewReader.getReview(reviewId)
                 ?: return DomainResult.failure(DomainError.NotFound("Review $reviewId not found"))
         val current =
             responsibilityRepository.getResponsibilities(reviewId).find { it.id == responsibilityId }
@@ -197,22 +197,26 @@ constructor(
     }
 }
 
+/**
+ * Persists responsibility details as a draft. Incomplete / non-quantified items may be
+ * saved while editing; progression and calculation enforce [ResponsibilityRules.validateDetails].
+ */
 class SaveResponsibilityDetailsUseCase
 @Inject
 constructor(
     private val responsibilityRepository: ResponsibilityRepository,
-    private val reviewRepository: ReviewRepository,
+    private val reviewReader: ReviewReader,
 ) {
     suspend operator fun invoke(
         responsibility: Responsibility,
         expectedRevision: Long,
     ): DomainResult<Review> {
         val review =
-            reviewRepository.getReview(responsibility.reviewId)
+            reviewReader.getReview(responsibility.reviewId)
                 ?: return DomainResult.failure(
                     DomainError.NotFound("Review ${responsibility.reviewId} not found"),
                 )
-        val validation = ResponsibilityRules.validateDetails(responsibility, review.mode)
+        val validation = ResponsibilityRules.validateDraftDetails(responsibility, review.mode)
         if (!validation.isValid) {
             return DomainResult.failure(DomainError.Validation(validation.errors))
         }
@@ -234,7 +238,7 @@ constructor(
 class CalculateReviewSummaryUseCase
 @Inject
 constructor(
-    private val reviewRepository: ReviewRepository,
+    private val reviewReader: ReviewReader,
     private val responsibilityRepository: ResponsibilityRepository,
     private val snapshotRepository: CalculationSnapshotRepository,
     private val clock: Clock,
@@ -253,7 +257,7 @@ constructor(
         scenarios: List<CalculationScenario> = emptyList(),
     ): DomainResult<Result> {
         val review =
-            reviewRepository.getReview(reviewId)
+            reviewReader.getReview(reviewId)
                 ?: return DomainResult.failure(DomainError.NotFound("Review $reviewId not found"))
         val orderedScenarios =
             when (val validated = ScenarioRules.validateAndOrder(review.mode, scenarios)) {
@@ -265,23 +269,23 @@ constructor(
         if (!validation.isValid) {
             return DomainResult.failure(DomainError.Validation(validation.errors))
         }
-        val assumptions =
+        val reviewAssumptions =
             when (val parsed = CalculationAssumptions.parseStored(review.assumptionsJson)) {
                 is DomainResult.Success -> parsed.value
                 is DomainResult.Failure -> return parsed
             }
+        val effectiveBaseAssumptions =
+            orderedScenarios
+                .firstOrNull { it.kind == ScenarioKind.BASE }
+                ?.assumptions
+                ?: reviewAssumptions
 
         val computed =
             try {
-                // Canonical Base only — explicit Base scenario assumptions replace review
-                // assumptions; Base never appears again in [scenarios] (no duplicate).
-                val baseAssumptions =
-                    orderedScenarios.find { it.kind == ScenarioKind.BASE }?.assumptions
-                        ?: assumptions
                 val canonicalBase =
                     ResponsibilityCalculator.indicativeGrossResponsibility(
                         responsibilities = responsibilities,
-                        assumptions = baseAssumptions,
+                        assumptions = effectiveBaseAssumptions,
                         scenarioKind = ScenarioKind.BASE,
                     )
                 // Only Lower / Higher in ordered results; empty / Base-only → empty list.
@@ -306,7 +310,7 @@ constructor(
                                 indicativeAmountRupees =
                                 ResponsibilityCalculator.optionalIndicativeAmount(
                                     item,
-                                    baseAssumptions,
+                                    effectiveBaseAssumptions,
                                 ),
                                 quantificationStatus = item.quantificationStatus,
                             )
@@ -327,10 +331,10 @@ constructor(
                 reviewId = reviewId,
                 reviewRevision = expectedRevision + 1,
                 calculationInputRevision = review.calculationInputRevision,
-                assumptionVersion = assumptions.version,
+                assumptionVersion = effectiveBaseAssumptions.version,
                 calculationVersion = ResponsibilityCalculator.CALCULATION_VERSION,
                 scenarioKind = ScenarioKind.BASE,
-                assumptionsJson = assumptions.toJson(),
+                assumptionsJson = effectiveBaseAssumptions.toJson(),
                 mustContinueTotalRupees = canonicalBase.mustContinueTotalRupees,
                 adjustableTotalRupees = canonicalBase.adjustableTotalRupees,
                 postponedTotalRupees = canonicalBase.postponedTotalRupees,
@@ -367,10 +371,15 @@ constructor(
     }
 }
 
+/**
+ * Only public completion path for features. Enforces a fresh summary audit before
+ * delegating to the internal mutation writer.
+ */
 class CompleteReviewUseCase
 @Inject
-constructor(
-    private val reviewRepository: ReviewRepository,
+internal constructor(
+    private val reviewReader: ReviewReader,
+    private val reviewWriter: ReviewMutationWriter,
     private val snapshotRepository: CalculationSnapshotRepository,
 ) {
     suspend operator fun invoke(
@@ -379,59 +388,74 @@ constructor(
         customerAcknowledged: Boolean,
     ): DomainResult<Review> {
         val review =
-            reviewRepository.getReview(reviewId)
+            reviewReader.getReview(reviewId)
                 ?: return DomainResult.failure(DomainError.NotFound("Review $reviewId not found"))
+        if (review.status != ReviewStatus.IN_PROGRESS) {
+            return DomainResult.failure(
+                DomainError.IllegalState("Only in-progress reviews can be completed"),
+            )
+        }
+        val latest = snapshotRepository.getLatest(reviewId)
+        val fresh =
+            ProgressionGates.validateFreshSummary(
+                review = review,
+                latestSnapshot = latest,
+                authoritativeCalculationVersion = ResponsibilityCalculator.CALCULATION_VERSION,
+            )
+        if (!fresh.isValid) {
+            return DomainResult.failure(DomainError.Validation(fresh.errors))
+        }
         if (snapshotRepository.isStale(review, ResponsibilityCalculator.CALCULATION_VERSION)) {
             return DomainResult.failure(
                 DomainError.IllegalState("Summary is stale; recalculate before completing"),
             )
         }
-        return reviewRepository.completeReview(reviewId, expectedRevision, customerAcknowledged)
+        return reviewWriter.completeReview(reviewId, expectedRevision, customerAcknowledged)
     }
 }
 
 class ArchiveReviewUseCase
 @Inject
-constructor(
-    private val reviewRepository: ReviewRepository,
+internal constructor(
+    private val reviewWriter: ReviewMutationWriter,
 ) {
     suspend operator fun invoke(
         reviewId: String,
         expectedRevision: Long,
-    ): DomainResult<Review> = reviewRepository.archiveReview(reviewId, expectedRevision)
+    ): DomainResult<Review> = reviewWriter.archiveReview(reviewId, expectedRevision)
 }
 
 class RestoreReviewUseCase
 @Inject
-constructor(
-    private val reviewRepository: ReviewRepository,
+internal constructor(
+    private val reviewWriter: ReviewMutationWriter,
 ) {
     suspend operator fun invoke(
         reviewId: String,
         expectedRevision: Long,
-    ): DomainResult<Review> = reviewRepository.restoreReview(reviewId, expectedRevision)
+    ): DomainResult<Review> = reviewWriter.restoreReview(reviewId, expectedRevision)
 }
 
 class ReopenReviewUseCase
 @Inject
-constructor(
-    private val reviewRepository: ReviewRepository,
+internal constructor(
+    private val reviewWriter: ReviewMutationWriter,
 ) {
     suspend operator fun invoke(
         reviewId: String,
         expectedRevision: Long,
-    ): DomainResult<Review> = reviewRepository.reopenReview(reviewId, expectedRevision)
+    ): DomainResult<Review> = reviewWriter.reopenReview(reviewId, expectedRevision)
 }
 
 class DeleteReviewUseCase
 @Inject
-constructor(
-    private val reviewRepository: ReviewRepository,
+internal constructor(
+    private val reviewWriter: ReviewMutationWriter,
 ) {
     suspend operator fun invoke(
         reviewId: String,
         expectedRevision: Long,
-    ): DomainResult<Review> = reviewRepository.softDeleteReview(reviewId, expectedRevision)
+    ): DomainResult<Review> = reviewWriter.softDeleteReview(reviewId, expectedRevision)
 }
 
 class SaveAdvisorReferenceUseCase
@@ -446,11 +470,11 @@ class ValidateHouseholdUseCase
 @Inject
 constructor(
     private val householdRepository: HouseholdRepository,
-    private val reviewRepository: ReviewRepository,
+    private val reviewReader: ReviewReader,
 ) {
     suspend operator fun invoke(reviewId: String): DomainResult<Unit> {
         val review =
-            reviewRepository.getReview(reviewId)
+            reviewReader.getReview(reviewId)
                 ?: return DomainResult.failure(DomainError.NotFound("Review $reviewId not found"))
         val members = householdRepository.getMembers(reviewId)
         val validation =

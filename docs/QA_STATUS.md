@@ -1,66 +1,51 @@
 # QA status — Family Risk Review
 
-## Phase 1.2 gates (local)
+## Phase status
+
+**Phase 1.3 — Final domain integrity review** (current, draft PR #2)
+
+After approval and merge: **Phase 1 complete**.
+
+## Phase 1.3 gates (local)
 
 | Gate | Status |
 |------|--------|
 | `./gradlew spotlessCheck` | **Passed** |
-| `./gradlew lintDebug` | **Passed** (0 errors; warnings present — see unresolved) |
+| `./gradlew lintDebug` | **Passed** (0 errors; warnings present) |
 | `./gradlew test` | **Passed** |
 | `./gradlew assembleDebug` | **Passed** |
 | `./gradlew :app:verifyPhase1` | **Passed** |
 
-## Phase 1.2 final domain corrections
+## Phase 1.3 integrity corrections
 
-On PR #2 (draft) before merge:
-
-1. Quick lightweight items → explicit `QuantificationStatus.NOT_YET_QUANTIFIED`
-2. Null indicative in summary lines; excluded from totals; no silent ₹0; no `indicativeAmount` crash
-3. Catalogue-specific timing via `CatalogueTimingRules` + `ResponsibilityAmountModel` for OTHER
-4. `ScenarioRules` unique kinds + deterministic Lower → Base → Higher order
-5. Quick rejects non-Base / duplicate Base scenarios
-6. One canonical Base in use-case result (no duplicate Base row)
-7. `DomainError.Calculation` via `CalculationFailureMapper`
-8. `DomainLimits` enforced in domain validation
-9. `ReviewRepository` no longer exposes `updateReviewCas` / `advanceStep` (`ReviewInternalWriter` internal)
-10. Regression tests for each correction
+1. Snapshot assumptions match effective Base assumptions used for calculation
+2. Scenario assumption versions validated (`SUPPORTED_VERSIONS`)
+3. Guided cannot bypass details via `NOT_YET_QUANTIFIED`
+4. Quick must-continue must be quantified
+5. Quick lightweight adjustable/postponed non-quantified still supported
+6. Feature modules cannot access `internal ReviewMutationWriter`
+7. Feature modules cannot directly complete a review (`ReviewReader` has no mutations)
+8. Fresh-summary completion enforced through `CompleteReviewUseCase`
+9. Regression tests cover all corrections
+10. README / status docs current
 11. No Phase 2 UI
 
 ## Test inventory
 
 | Kind | Notes |
 |------|-------|
-| JVM unit tests | lifecycle, progression, ScenarioRules, CatalogueTiming, Quantification, DomainLimits, CalculationFailureMapper |
-| Robolectric | CAS rollback, sync-after-commit, lifecycle, focus, repository API |
-| Use-case | `CalculateReviewSummaryFailureTest` (typed overflow failure) |
+| JVM | ScenarioRules version checks; quantification policy; draft vs progression |
+| Use-case | `CalculateReviewSummaryAssumptionAuditTest`; `CalculateReviewSummaryFailureTest` |
+| API integrity | `Phase13ApiIntegrityTest` (reader surface, internal writer source, stale completion) |
+| Robolectric | CAS / lifecycle / progression via use cases |
 | Instrumentation executed | 0 |
-
-### Representative Phase 1.2 tests
-
-- `Phase12QuantificationTest`
-- `ScenarioRulesTest`
-- `CatalogueTimingRulesTest`
-- `CalculationFailureMapperTest` / `CalculateReviewSummaryFailureTest`
-- `ResponsibilityRulesTest` (Quick non-quantified + Guided full details + limits)
-- `ResponsibilityCalculatorTest` (optional indicative null; indicative throws for non-quantified)
-
-## Unresolved warnings / gaps
-
-- Android Lint informational/warning findings; no lint errors.
-- kotlinx-datetime `Instant` deprecation warnings.
-- Fonts / Dareus One logo / advisor portrait still placeholders.
-- Emulator IME / device recreation QA not run.
-- Polished customer UI intentionally deferred (Phase 2+).
 
 ## Honesty rule
 
-Do not claim device testing without running it. Do not claim PR verification passed until GitHub Actions completes successfully on the final PR head.
+Do not claim device testing without running it. Do not claim PR verification passed until GitHub Actions completes successfully on the final exact PR head.
 
 ## CI status
 
-Phase 1.2 GitHub Actions **passed** on branch `cursor/phase-1-domain-engine-1a7a` (head `be9590d`):
+Local gates **passed**. GitHub Actions status recorded after the Phase 1.3 push is green.
 
-- push run: success — https://github.com/sv-harish/family-risk-review-android/actions/runs/30866300686
-- pull_request run: success — https://github.com/sv-harish/family-risk-review-android/actions/runs/30866303130
-
-**PR #2 remains a draft** until Phase 1.2 final review is complete.
+**PR #2 remains a draft** until Phase 1.3 final review is complete.
