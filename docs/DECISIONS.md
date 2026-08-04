@@ -128,3 +128,8 @@
 **Status:** Accepted (Phase 1.3)  
 **Decision:** `ResponsibilityRules.mayRemainNonQuantified` — Quick allows `NOT_YET_QUANTIFIED` only for adjustable / postponed; must-continue must be quantified and calculable. Guided never allows non-quantified selected items (`RESP_GUIDED_REQUIRES_QUANTIFICATION`). `validateDraftDetails` permits incomplete mid-edit persistence; `validateDetails` / progression / calculation enforce the mode policy.
 
+## ADR-027 — Phase 2 product experience boundary
+
+**Status:** Accepted (Phase 2)  
+**Decision:** Phase 2 ships the branded tablet experience through household, responsibility selection, prioritisation and detail entry. It consumes Phase 1 public use cases and `ReviewReader` only. Dareus One branding remains splash-only. Editable text keeps raw `TextFieldValue` state separate from parsed domain values. Visible journey stages group granular `ReviewStep` values into advisor-friendly labels without changing domain step order.
+
