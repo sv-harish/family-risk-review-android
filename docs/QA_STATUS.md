@@ -42,4 +42,9 @@ Do not claim device testing without running it. Do not claim PR verification pas
 
 ## CI status
 
-Pending draft PR push verification.
+Phase 2 GitHub Actions **passed** on branch `cursor/phase-2-product-experience-1a7a` (head `6abc0b8`):
+
+- push run: https://github.com/sv-harish/family-risk-review-android/actions/runs/30874030964
+- pull_request run: https://github.com/sv-harish/family-risk-review-android/actions/runs/30874033022
+
+**PR #3 remains a draft** until Phase 2 review is complete.
