@@ -58,9 +58,9 @@ Do not claim device testing without running it. Do not claim PR verification pas
 
 ## CI status
 
-Phase 1.2 GitHub Actions **passed** on branch `cursor/phase-1-domain-engine-1a7a` (head `ba16db8`):
+Phase 1.2 GitHub Actions **passed** on branch `cursor/phase-1-domain-engine-1a7a` (head `be9590d`):
 
-- push run: success — https://github.com/sv-harish/family-risk-review-android/actions/runs/30866058462
-- pull_request run: success — https://github.com/sv-harish/family-risk-review-android/actions/runs/30866060510
+- push run: success — https://github.com/sv-harish/family-risk-review-android/actions/runs/30866300686
+- pull_request run: success — https://github.com/sv-harish/family-risk-review-android/actions/runs/30866303130
 
 **PR #2 remains a draft** until Phase 1.2 final review is complete.
