@@ -1,8 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="dashboard_title">Family Risk Review</string>
-    <string name="dashboard_subtitle">ஆலோசகர் பணியிடம்</string>
-    <string name="dashboard_start_new_review">புதிய மதிப்பாய்வைத் தொடங்கு</string>
+    <string name="dashboard_subtitle">குடும்ப அபாய உரையாடல்களுக்கான ஆலோசகர் பணியிடம்</string>
+    <string name="dashboard_nav_dashboard">முகப்பு</string>
     <string name="dashboard_settings">அமைப்புகள்</string>
-    <string name="dashboard_phase0_note">Phase 0 shell — முழு பட்டியல் Phase 6-இல் வரும்.</string>
+    <string name="dashboard_start_section">மதிப்பாய்வைத் தொடங்குங்கள்</string>
+    <string name="dashboard_start_quick">விரைவு மதிப்பாய்வைத் தொடங்கு</string>
+    <string name="dashboard_start_guided">வழிகாட்டும் மதிப்பாய்வைத் தொடங்கு</string>
+    <string name="dashboard_quick_difference">விரைவு மதிப்பாய்வு சுமார் 5–8 நிமிடங்களில் அத்தியாவசியங்களில் கவனம் செலுத்துகிறது.</string>
+    <string name="dashboard_guided_difference">வழிகாட்டும் மதிப்பாய்வு ஒவ்வொரு நிலையிலும் முழுமையான விவரத்துடன் சுமார் 10–15 நிமிடங்கள் எடுக்கும்.</string>
+    <string name="dashboard_section_in_progress">நடைபெற்று வருவன</string>
+    <string name="dashboard_section_completed">முடிக்கப்பட்டவை</string>
+    <string name="dashboard_section_archived">காப்பகப்படுத்தப்பட்டவை</string>
+    <string name="dashboard_archived_hint">காப்பகப்படுத்தப்பட்ட மதிப்பாய்வுகள் செயலில் உள்ள பணியிலிருந்து தனியாக வைக்கப்படும்.</string>
+    <string name="dashboard_resume">தொடரவும்</string>
+    <string name="dashboard_open">திற</string>
+    <string name="dashboard_loading">மதிப்பாய்வுகள் ஏற்றப்படுகின்றன…</string>
+    <string name="dashboard_empty_title">இன்னும் மதிப்பாய்வுகள் இல்லை</string>
+    <string name="dashboard_empty_body">உத்தரவாதமில்லாத வருமானத்தைச் சார்ந்த பொறுப்புகளை ஒரு குடும்பம் பார்க்க உதவ, விரைவு அல்லது வழிகாட்டும் மதிப்பாய்வைத் தொடங்குங்கள்.</string>
+    <string name="dashboard_create_error_title">மதிப்பாய்வைத் தொடங்க முடியவில்லை</string>
+    <string name="dashboard_dismiss_error">நிராகரி</string>
+    <string name="dashboard_mode_quick">விரைவு</string>
+    <string name="dashboard_mode_guided">வழிகாட்டும்</string>
+    <string name="dashboard_stage_label">நிலை: %1$s</string>
+    <string name="dashboard_updated_label">கடைசியாக புதுப்பிக்கப்பட்டது: %1$s</string>
+    <string name="dashboard_review_a11y">மதிப்பாய்வு %1$s, %2$s முறை, நிலை %3$s, கடைசியாக புதுப்பிக்கப்பட்டது %4$s</string>
+    <string name="dashboard_stage_household">குடும்ப ஆதரவு வரைபடம்</string>
+    <string name="dashboard_stage_responsibilities">பொறுப்புகள்</string>
+    <string name="dashboard_stage_prioritisation">முன்னுரிமைப்படுத்தல்</string>
+    <string name="dashboard_stage_details">பொறுப்பு விவரங்கள்</string>
+    <string name="dashboard_stage_timeline">பொறுப்பு காலவரிசை</string>
+    <string name="dashboard_stage_income_risk">வருமான அபாய கல்வி</string>
+    <string name="dashboard_stage_key_realization">முக்கிய உணர்தல்</string>
+    <string name="dashboard_stage_gross">மொத்த பொறுப்பு</string>
+    <string name="dashboard_stage_comparison">கல்வி ஒப்பீடு</string>
+    <string name="dashboard_stage_summary">விழிப்புணர்வு சுருக்கம்</string>
+    <string name="dashboard_stage_handoff">ஆலோசகர் ஒப்படைப்பு</string>
 </resources>

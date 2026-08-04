@@ -21,71 +21,82 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.familyriskreview.android.R
-import com.familyriskreview.core.designsystem.theme.FrrColors
+import com.familyriskreview.core.designsystem.theme.FrrMotion
+import com.familyriskreview.core.designsystem.theme.frrColors
 import com.familyriskreview.core.designsystem.theme.FrrTypography
 import kotlinx.coroutines.delay
 
 /**
  * Splash is the only screen that may show Dareus One branding.
- * Duration ≈ 1.5–2 seconds with a subtle entrance animation.
+ * When [reducedMotion] is true, entrance animation and long dwell are skipped.
  */
 @Composable
 fun SplashRoute(
     onFinished: () -> Unit,
     modifier: Modifier = Modifier,
+    reducedMotion: Boolean = false,
 ) {
-    val alpha = remember { Animatable(0f) }
+    val colors = frrColors()
+    val alpha = remember { Animatable(if (reducedMotion) 1f else 0f) }
 
-    LaunchedEffect(Unit) {
-        alpha.animateTo(1f, animationSpec = tween(durationMillis = 500))
-        delay(1200)
-        onFinished()
+    LaunchedEffect(reducedMotion) {
+        if (reducedMotion) {
+            delay(FrrMotion.shortMs.toLong())
+            onFinished()
+        } else {
+            alpha.animateTo(1f, animationSpec = tween(durationMillis = 500))
+            delay(1200)
+            onFinished()
+        }
     }
 
     val brandDescription = stringResource(R.string.splash_a11y)
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(FrrColors.CloudWhite)
-            .semantics { contentDescription = brandDescription },
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(colors.surface)
+                .semantics { contentDescription = brandDescription },
         contentAlignment = Alignment.Center,
     ) {
         Column(
-            modifier = Modifier
-                .alpha(alpha.value)
-                .padding(32.dp),
+            modifier =
+                Modifier
+                    .alpha(alpha.value)
+                    .padding(32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
                 text = stringResource(R.string.app_name),
                 style = FrrTypography.displayMedium,
-                color = FrrColors.MidnightBlue,
+                color = colors.onSurface,
             )
             Spacer(Modifier.height(8.dp))
             Text(
                 text = stringResource(R.string.splash_tagline),
                 style = FrrTypography.bodyLarge,
-                color = FrrColors.SlateNavy,
+                color = colors.secondaryAction,
             )
         }
 
         Column(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 40.dp)
-                .alpha(alpha.value * 0.85f),
+            modifier =
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 40.dp)
+                    .alpha(alpha.value * 0.85f),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             // Placeholder for Dareus One logo — see assets/branding/README.md
             Text(
                 text = stringResource(R.string.splash_built_by),
                 style = FrrTypography.labelMedium,
-                color = FrrColors.CharcoalText.copy(alpha = 0.55f),
+                color = colors.mutedText.copy(alpha = 0.85f),
             )
             Text(
                 text = stringResource(R.string.splash_dareus_placeholder),
                 style = FrrTypography.labelLarge,
-                color = FrrColors.SlateNavy.copy(alpha = 0.7f),
+                color = colors.secondaryAction.copy(alpha = 0.75f),
             )
         }
     }
