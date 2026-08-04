@@ -1,8 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="dashboard_title">Family Risk Review</string>
-    <string name="dashboard_subtitle">सलाहकार कार्यक्षेत्र</string>
-    <string name="dashboard_start_new_review">नई समीक्षा शुरू करें</string>
+    <string name="dashboard_subtitle">घरेलू जोखिम बातचीत के लिए सलाहकार कार्यक्षेत्र</string>
+    <string name="dashboard_nav_dashboard">डैशबोर्ड</string>
     <string name="dashboard_settings">सेटिंग्स</string>
-    <string name="dashboard_phase0_note">Phase 0 shell — पूरी सूची Phase 6 में आएगी।</string>
+    <string name="dashboard_start_section">समीक्षा शुरू करें</string>
+    <string name="dashboard_start_quick">त्वरित समीक्षा शुरू करें</string>
+    <string name="dashboard_start_guided">मार्गदर्शित समीक्षा शुरू करें</string>
+    <string name="dashboard_quick_difference">त्वरित समीक्षा लगभग 5–8 मिनट में आवश्यक बिंदुओं पर केंद्रित रहती है।</string>
+    <string name="dashboard_guided_difference">मार्गदर्शित समीक्षा प्रत्येक चरण में अधिक विस्तार के साथ लगभग 10–15 मिनट लेती है।</string>
+    <string name="dashboard_section_in_progress">प्रगति में</string>
+    <string name="dashboard_section_completed">पूर्ण</string>
+    <string name="dashboard_section_archived">संग्रहीत</string>
+    <string name="dashboard_archived_hint">संग्रहीत समीक्षाएँ सक्रिय कार्य से अलग रखी जाती हैं।</string>
+    <string name="dashboard_resume">फिर से शुरू करें</string>
+    <string name="dashboard_open">खोलें</string>
+    <string name="dashboard_loading">समीक्षाएँ लोड हो रही हैं…</string>
+    <string name="dashboard_empty_title">अभी कोई समीक्षा नहीं</string>
+    <string name="dashboard_empty_body">किसी परिवार को यह समझने में मदद करने के लिए त्वरित या मार्गदर्शित समीक्षा शुरू करें कि कौन-सी जिम्मेदारियाँ ऐसी आय पर निर्भर हैं जिसकी अवधि सुनिश्चित नहीं है।</string>
+    <string name="dashboard_create_error_title">समीक्षा शुरू नहीं हो सकी</string>
+    <string name="dashboard_dismiss_error">खारिज करें</string>
+    <string name="dashboard_mode_quick">त्वरित</string>
+    <string name="dashboard_mode_guided">मार्गदर्शित</string>
+    <string name="dashboard_stage_label">चरण: %1$s</string>
+    <string name="dashboard_updated_label">अंतिम अद्यतन: %1$s</string>
+    <string name="dashboard_review_a11y">समीक्षा %1$s, %2$s मोड, चरण %3$s, अंतिम अद्यतन %4$s</string>
+    <string name="dashboard_stage_household">घरेलू सहायता मानचित्र</string>
+    <string name="dashboard_stage_responsibilities">जिम्मेदारियाँ</string>
+    <string name="dashboard_stage_prioritisation">प्राथमिकता निर्धारण</string>
+    <string name="dashboard_stage_details">जिम्मेदारी विवरण</string>
+    <string name="dashboard_stage_timeline">जिम्मेदारी समयरेखा</string>
+    <string name="dashboard_stage_income_risk">आय-जोखिम शिक्षा</string>
+    <string name="dashboard_stage_key_realization">मुख्य अनुभूति</string>
+    <string name="dashboard_stage_gross">सकल जिम्मेदारी</string>
+    <string name="dashboard_stage_comparison">शैक्षिक तुलना</string>
+    <string name="dashboard_stage_summary">जागरूकता सारांश</string>
+    <string name="dashboard_stage_handoff">सलाहकार हस्तांतरण</string>
+
+    <!-- Phase 2.1: domain / conflict recovery for dashboard shell -->
+    <string name="domain_error_fallback">कुछ गलत हो गया। कृपया फिर प्रयास करें</string>
+    <string name="domain_error_persistence">परिवर्तन सहेजे नहीं जा सके। कृपया फिर प्रयास करें</string>
+    <string name="domain_error_conflict">यह समीक्षा कहीं और अद्यतन की गई</string>
+    <string name="domain_error_not_found">यह समीक्षा नहीं मिली</string>
+    <string name="conflict_title">समीक्षा कहीं और अद्यतन की गई</string>
+    <string name="conflict_body">इस समीक्षा के लिए कोई अन्य परिवर्तन सहेजा गया। आगे बढ़ने से पहले नवीनतम संस्करण फिर से लोड करें।</string>
+    <string name="conflict_reload">नवीनतम फिर से लोड करें</string>
 </resources>

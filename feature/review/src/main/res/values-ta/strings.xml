@@ -4,11 +4,213 @@
     <string name="welcome_supporting_line">உங்கள் குடும்ப வருமானம் எதைப் பாதுகாக்க வேண்டும் என்பதைப் பாருங்கள்.</string>
     <string name="welcome_guided_by">வழிகாட்டுபவர்</string>
     <string name="welcome_intro">இந்தச் சுருக்கமான மதிப்பாய்வு, வருமானத்தைச் சார்ந்த குடும்பப் பொறுப்புகள், பணம் தேவைப்படும் நேரம், மற்றும் அந்த வருமானம் எதிர்பார்த்தபடி தொடராவிட்டால் என்ன நடக்கலாம் என்பதை அறிய உதவுகிறது.</string>
+    <string name="welcome_mode_prompt">மதிப்பாய்வை எவ்வாறு நடத்த விரும்புகிறீர்கள் என்பதைத் தேர்வு செய்யுங்கள்.</string>
     <string name="welcome_begin_quick">விரைவு மதிப்பாய்வைத் தொடங்கு</string>
+    <string name="welcome_quick_hint">சுமார் 5–8 நிமிடங்கள். அத்தியாவசியங்களில் கவனம்; அதிகபட்சம் மூன்று தொடர வேண்டிய பொறுப்புகள்.</string>
     <string name="welcome_begin_guided">வழிகாட்டும் மதிப்பாய்வைத் தொடங்கு</string>
+    <string name="welcome_guided_hint">சுமார் 10–15 நிமிடங்கள். அதே நிலைகள், தேவையான இடங்களில் முழுமையான விவரம்.</string>
     <string name="welcome_back_dashboard">டாஷ்போர்டுக்குத் திரும்பு</string>
-    <string name="welcome_phase0_note">மொழித் தேர்வும் முழு வாடிக்கையாளர் பயணமும் Phase 3-இல் வரும்.</string>
-    <string name="review_placeholder_title">மதிப்பாய்வு நடைபெறுகிறது</string>
-    <string name="review_placeholder_body">மதிப்பாய்வு %1$s — குடும்ப வரைபடம் Phase 3-இல் தொடங்கும்.</string>
-    <string name="review_placeholder_continue">சுருக்கத்திற்குச் செல்</string>
+
+    <string name="review_back_dashboard">சேமித்து டாஷ்போர்டுக்குத் திரும்பு</string>
+    <string name="review_back">பின்செல்</string>
+    <string name="review_continue">தொடர்</string>
+    <string name="review_dismiss_error">மூடு</string>
+    <string name="review_not_found">இந்த மதிப்பாய்வைக் கண்டுபிடிக்க முடியவில்லை.</string>
+
+    <string name="stage_your_family">உங்கள் குடும்பம்</string>
+    <string name="stage_responsibilities">பொறுப்புகள்</string>
+    <string name="stage_priorities">முன்னுரிமைகள்</string>
+    <string name="stage_details">விவரங்கள்</string>
+    <string name="stage_timeline">காலவரிசை</string>
+    <string name="stage_understanding_gap">இடைவெளியைப் புரிந்துகொள்ளுதல்</string>
+    <string name="stage_summary">சுருக்கம்</string>
+    <string name="stage_indicator_a11y">பயண நிலை: %1$s</string>
+
+    <string name="phase2_boundary_title">அடுத்த நிலைகள் விரைவில் வரும்</string>
+    <string name="phase2_boundary_body">இதுவரை உள்ள முன்னேற்றம் சேமிக்கப்பட்டுள்ளது. காலவரிசை, வருமான ஆபத்து கல்வி, மற்றும் சுருக்கம் அடுத்த கட்டத்தில் வரும். நீங்கள் டாஷ்போர்டுக்குத் திரும்பி பின்னர் தொடரலாம்.</string>
+    <string name="phase2_boundary_back_step">முந்தைய படிக்குத் திரும்பு</string>
+    <string name="phase2_boundary_save_return">சேமித்து டாஷ்போர்டுக்குத் திரும்பு</string>
+
+    <string name="household_title">உங்கள் குடும்பம்</string>
+    <string name="household_subtitle">யார் வருமானம் அல்லது பராமரிப்பை வழங்குகிறார்கள், யார் அதைச் சார்ந்துள்ளார்கள் என்பதை வரைபடமாக்குங்கள்.</string>
+    <string name="household_empty_hint">ஆதரவு வரைபடத்தைத் தொடங்க குடும்ப உறுப்பினர்களைச் சேர்க்கவும்.</string>
+    <string name="household_select_prompt">விவரங்களைத் திருத்த வரைபடத்தில் ஒருவரைத் தேர்ந்தெடுக்கவும்.</string>
+    <string name="household_editor_title">உறுப்பினர் விவரங்கள்</string>
+    <string name="household_label">பெயர்ச்சொல் (விருப்பத்தேர்வு)</string>
+    <string name="household_label_hint">முதலெழுத்துகள் அல்லது புனைப்பெயர் பயன்படுத்தவும் — முழு சட்டப் பெயர் வேண்டாம்.</string>
+    <string name="household_age">வயது</string>
+    <string name="household_relationship">உறவு</string>
+    <string name="household_contribution">குடும்ப வருமானம் அல்லது பராமரிப்பு பங்களிப்பு</string>
+    <string name="household_dependency">குடும்ப ஆதரவைச் சார்ந்திருத்தல்</string>
+    <string name="household_set_focus">முதன்மை வருமானப் பங்களிப்பாளராக அமை</string>
+    <string name="household_is_focus">இவர் முதன்மை வருமானப் பங்களிப்பாளர்</string>
+    <string name="household_remove">குடும்பத்திலிருந்து நீக்கு</string>
+    <string name="household_add_self">சுயத்தைச் சேர்</string>
+    <string name="household_add_spouse">துணை / பங்குதாரரைச் சேர்</string>
+    <string name="household_add_child">குழந்தையைச் சேர்</string>
+    <string name="household_add_parent">பெற்றோரைச் சேர்</string>
+    <string name="household_add_other">மற்ற சார்ந்தவரைச் சேர்</string>
+    <string name="household_map_a11y">%1$d பேருடன் குடும்ப ஆதரவு வரைபடம். முதன்மை பங்களிப்பாளர்: %2$s</string>
+    <string name="household_unlabelled">பெயரிடப்படாத உறுப்பினர்</string>
+
+    <string name="relationship_self">சுயம்</string>
+    <string name="relationship_spouse">துணை / பங்குதாரர்</string>
+    <string name="relationship_child">குழந்தை</string>
+    <string name="relationship_parent">பெற்றோர்</string>
+    <string name="relationship_other">மற்ற சார்ந்தவர்</string>
+    <string name="relationship_self_short">சுயம்</string>
+    <string name="relationship_spouse_short">துணை</string>
+    <string name="relationship_child_short">குழந்தை</string>
+    <string name="relationship_parent_short">பெற்றோர்</string>
+    <string name="relationship_other_short">மற்றவை</string>
+
+    <string name="contribution_primary">முதன்மை வருமானம்</string>
+    <string name="contribution_shared">பகிரப்பட்ட வருமானம்</string>
+    <string name="contribution_supplementary">கூடுதல் அல்லது ஒழுங்கற்ற வருமானம்</string>
+    <string name="contribution_caregiver">அத்தியாவசிய ஊதியமில்லா பராமரிப்பாளர்</string>
+    <string name="contribution_none">பங்களிக்காதவர்</string>
+
+    <string name="dependency_full">முழுமையாகச் சார்ந்தவர்</string>
+    <string name="dependency_part">பகுதியாகச் சார்ந்தவர்</string>
+    <string name="dependency_independent">நிதிரீதியாக சுதந்திரமானவர்</string>
+    <string name="dependency_na">பொருந்தாது</string>
+
+    <string name="responsibilities_title">பொறுப்புகள்</string>
+    <string name="responsibilities_subtitle">குடும்ப வருமானத்தைச் சார்ந்த பொறுப்புகளைத் தேர்வு செய்யுங்கள். பரிந்துரைகள் குறிப்புகள் மட்டுமே — எதுவும் தானாகத் தேர்ந்தெடுக்கப்படாது.</string>
+    <string name="responsibilities_selected">தேர்ந்தெடுக்கப்பட்டது</string>
+    <string name="responsibilities_select">தேர்வு</string>
+    <string name="responsibilities_suggested">பரிந்துரை: %1$s</string>
+    <string name="responsibilities_other_label">தனிப்பயன் பொறுப்பு பெயர்</string>
+
+    <string name="catalogue_living">அத்தியாவசிய குடும்ப வாழ்க்கைச் செலவுகள்</string>
+    <string name="catalogue_education">குழந்தை உயர்கல்வி</string>
+    <string name="catalogue_marriage">குழந்தை திருமண ஆதரவு</string>
+    <string name="catalogue_spouse">துணை அல்லது பங்குதாரர் ஆதரவு</string>
+    <string name="catalogue_parent">பெற்றோர் ஆதரவு</string>
+    <string name="catalogue_home_loan">வீட்டுக் கடன் திருப்பிச் செலுத்துதல்</string>
+    <string name="catalogue_other_loans">மற்ற நிலுவைக் கடன்கள்</string>
+    <string name="catalogue_house">வீடு வாங்குதல் அல்லது நிறைவு செய்தல்</string>
+    <string name="catalogue_special">சிறப்புத் தேவை சார்ந்தவர் ஆதரவு</string>
+    <string name="catalogue_childcare">குழந்தைப் பராமரிப்பு மாற்று</string>
+    <string name="catalogue_household_care">குடும்பப் பராமரிப்பு மாற்று</string>
+    <string name="catalogue_other">மற்றவை</string>
+
+    <string name="catalogue_living_explanation">குடும்பத்திற்கு வழக்கமாகத் தொடரும் அன்றாட வாழ்க்கைச் செலவுகள்.</string>
+    <string name="catalogue_education_explanation">குழந்தையின் எதிர்கால உயர்கல்வி ஆதரவு.</string>
+    <string name="catalogue_marriage_explanation">குழந்தையின் எதிர்கால திருமண ஆதரவு.</string>
+    <string name="catalogue_spouse_explanation">துணை அல்லது பங்குதாரருக்கான தொடர் ஆதரவு.</string>
+    <string name="catalogue_parent_explanation">பெற்றோருக்கான தொடர் ஆதரவு.</string>
+    <string name="catalogue_home_loan_explanation">இன்னும் திருப்பிச் செலுத்த வேண்டிய வீட்டுக் கடன் நிலுவை.</string>
+    <string name="catalogue_other_loans_explanation">மற்ற நிலுவையில் உள்ள கடன்கள்.</string>
+    <string name="catalogue_house_explanation">வீடு வாங்க அல்லது நிறைவு செய்ய திட்டங்கள்.</string>
+    <string name="catalogue_special_explanation">சிறப்புத் தேவை உள்ள சார்ந்தவருக்கான ஆதரவு.</string>
+    <string name="catalogue_childcare_explanation">பராமரிப்பாளர் தொடர முடியாவிட்டால் குழந்தைப் பராமரிப்பு மாற்றுச் செலவு.</string>
+    <string name="catalogue_household_care_explanation">குடும்பப் பராமரிப்புப் பணியை மாற்றுவதற்கான செலவு.</string>
+    <string name="catalogue_other_explanation">பட்டியலில் பொருந்தாத தனிப்பயன் பொறுப்பு.</string>
+
+    <string name="priority_title">முன்னுரிமைகள்</string>
+    <string name="priority_subtitle">தேர்ந்தெடுத்த ஒவ்வொரு பொறுப்பையும் அதற்கான இடத்தில் வைக்கத் தட்டவும்.</string>
+    <string name="priority_must">தொடர வேண்டும்</string>
+    <string name="priority_adjustable">முக்கியம் ஆனால் சரிசெய்யக்கூடியது</string>
+    <string name="priority_postponed">ஒத்திவைக்கலாம்</string>
+    <string name="priority_unassigned">இன்னும் வைக்க வேண்டியவை</string>
+    <string name="priority_zone_empty">இந்தப் பகுதியில் இன்னும் பொறுப்புகள் இல்லை.</string>
+    <string name="priority_must_short">தொடர்</string>
+    <string name="priority_adjustable_short">சரிசெய்</string>
+    <string name="priority_postponed_short">ஒத்திவை</string>
+    <string name="priority_quick_max_hint">விரைவு மதிப்பாய்வில் அதிகபட்சம் 3 தொடர வேண்டிய பொறுப்புகள் மட்டுமே.</string>
+
+    <string name="details_title">விவரங்கள்</string>
+    <string name="details_subtitle">தொகைகளையும் நேரத்தையும் பதிவு செய்யுங்கள். வரைவுகளைச் சேமித்து உரையாடும்போது மேம்படுத்தலாம்.</string>
+    <string name="details_none_selected">முதலில் பொறுப்புகளைத் தேர்ந்தெடுத்து, பின்னர் விவரங்களைச் சேர்க்கவும்.</string>
+    <string name="details_monthly_amount">மாதாந்திரத் தொகை (₹)</string>
+    <string name="details_current_amount">தற்போதைய தொகை (₹)</string>
+    <string name="details_outstanding_amount">நிலுவைத் தொகை (₹)</string>
+    <string name="details_duration_years">காலம் (ஆண்டுகள்)</string>
+    <string name="details_years_until">தேவைப்படும் ஆண்டுகள்</string>
+    <string name="details_quantified">அளவிடப்பட்டது</string>
+    <string name="details_not_yet_quantified">இன்னும் அளவிடப்படவில்லை</string>
+    <string name="details_model_one_time">ஒருமுறை</string>
+    <string name="details_model_recurring">தொடர்ச்சியான</string>
+    <string name="details_inflation_percent">பணவீக்கம் (% ஆண்டுக்கு)</string>
+    <string name="details_inflation_hint">தனிப்பயன் பொறுப்புகளுக்கு வெளிப்படையான பணவீக்க விகிதம் தேவை.</string>
+    <string name="details_save_draft">வரைவைச் சேமி</string>
+
+    <!-- Phase 2.1: validation, suggestions, save-state, conflict, a11y -->
+    <string name="household_age_range_error">வயது %1$d முதல் %2$d வரை இருக்க வேண்டும்</string>
+    <string name="validation_household_duplicate_self">ஒரு மதிப்பாய்வில் ஒன்றுக்கு மேற்பட்ட சுய உறுப்பினர் இருக்கக் கூடாது</string>
+    <string name="validation_household_primary_fully_dependent">முழுமையாகச் சார்ந்த உறுப்பினர் முதன்மை வருமானப் பங்களிப்பாளராக இருப்பது அசாதாரணம்</string>
+    <string name="validation_household_focus_non_contributor">முதன்மை வருமானப் பங்களிப்பாளர் பங்களிக்காதவராக இருக்க முடியாது</string>
+    <string name="validation_household_empty">குறைந்தது ஒரு குடும்ப உறுப்பினர் தேவை</string>
+    <string name="validation_household_focus_missing">முதன்மை வருமானப் பங்களிப்பாளர் இந்த மதிப்பாய்வில் இருக்க வேண்டும்</string>
+
+    <string name="validation_resp_custom_label_required">தனிப்பயன் பொறுப்புகளுக்கு ஒரு பெயர் தேவை</string>
+    <string name="validation_resp_none_selected">தொடர்வதற்கு முன் குறைந்தது ஒரு பொறுப்பைத் தேர்ந்தெடுக்க வேண்டும்</string>
+    <string name="validation_resp_priority_required">தேர்ந்தெடுத்த பொறுப்புகளுக்கு முன்னுரிமை தேவை</string>
+    <string name="validation_resp_quick_must_continue_limit">விரைவு மதிப்பாய்வில் அதிகபட்சம் மூன்று தொடர வேண்டிய பொறுப்புகள் மட்டுமே</string>
+    <string name="validation_resp_guided_requires_quantification">வழிகாட்டும் மதிப்பாய்வில் தேர்ந்தெடுத்த அனைத்துப் பொறுப்புகளும் அளவிடப்பட வேண்டும்</string>
+    <string name="validation_resp_must_continue_requires_quantification">தொடர வேண்டிய பொறுப்புகள் அளவிடப்பட்டு கணக்கிடத்தக்கதாக இருக்க வேண்டும்</string>
+    <string name="validation_resp_lightweight_must_be_non_quantified">முழுமையான உள்ளீடுகள் இல்லாத விரைவு மதிப்பாய்வு இலகுவான பொருட்கள் இன்னும் அளவிடப்படவில்லை எனக் குறிக்கப்பட வேண்டும்</string>
+    <string name="validation_resp_explicit_inflation_required">தனிப்பயன் பொறுப்புகளுக்கு வெளிப்படையான பணவீக்க விகிதம் தேவை</string>
+    <string name="validation_resp_timing_required">தேர்ந்தெடுத்த பொறுப்புகளுக்கு நேர அமைப்பு தேவை</string>
+    <string name="validation_resp_timing_not_allowed">இந்த நேர வகை தேர்ந்தெடுத்த பொறுப்புக்கு அனுமதிக்கப்படவில்லை</string>
+    <string name="validation_resp_years_required">தேவைப்படும் ஆண்டுகள் வழங்கப்பட வேண்டும்</string>
+    <string name="validation_resp_duration_required">காலம் நேர்மறை ஆண்டுகளாக இருக்க வேண்டும்</string>
+    <string name="validation_resp_modelling_horizon_required">“தேவைப்படும் வரை”க்கு அறிகுறி மாதிரிக் காலம் தேவை, அல்லது இன்னும் அளவிடப்படவில்லை எனக் குறிக்கப்பட வேண்டும்</string>
+    <string name="validation_resp_milestone_required">மைல்கல் பெயர் தேவை</string>
+    <string name="validation_resp_milestone_horizon_required">மைல்கல் வரை என்பதற்கு கணக்கிடத்தக்க காலம் தேவை, அல்லது இன்னும் அளவிடப்படவில்லை எனக் குறிக்கப்பட வேண்டும்</string>
+    <string name="validation_resp_custom_timing_required">தனிப்பயன் நேரத்திற்கு ஒரு குறிப்பு தேவை</string>
+    <string name="validation_resp_custom_horizon_required">தனிப்பயன் நேரத்திற்கு கணக்கிடத்தக்க காலம் தேவை, அல்லது இன்னும் அளவிடப்படவில்லை எனக் குறிக்கப்பட வேண்டும்</string>
+    <string name="validation_resp_monthly_required">இந்தப் பொறுப்புக்கு மாதாந்திரத் தொகை தேவை</string>
+    <string name="validation_resp_current_not_primary">இந்தப் பொருளுக்கு முதன்மை உள்ளீடாக மாதாந்திரத் தொகையைப் பயன்படுத்துங்கள்</string>
+    <string name="validation_resp_current_required">தற்போதைய அல்லது நிலுவைத் தொகை தேவை</string>
+    <string name="validation_resp_monthly_not_allowed">இந்தப் பட்டியல் பொருளுக்கு மாதாந்திர உள்ளீடு ஏற்கப்படாது</string>
+    <string name="validation_resp_loan_monthly_not_allowed">கடன்களுக்கு நிலுவைத் தொகை பயன்படுத்தப்படுகிறது; மாதாந்திர ஆதரவு அல்ல</string>
+    <string name="validation_resp_ambiguous_amount_model">தொகை மாதிரி உள்ளிட்ட தொகைகளுடன் முரண்படுகிறது</string>
+    <string name="validation_resp_amount_model_required">தனிப்பயன் பொறுப்புகளுக்கு வெளிப்படையான தொகை மாதிரி தேவை</string>
+    <string name="validation_resp_amount_limit">ஒருமுறைத் தொகை ஆதரிக்கப்படும் அதிகபட்சத்தை மீறுகிறது</string>
+    <string name="validation_resp_monthly_limit">மாதாந்திரத் தொகை ஆதரிக்கப்படும் அதிகபட்சத்தை மீறுகிறது</string>
+    <string name="validation_resp_years_limit">தேவைப்படும் ஆண்டுகள் ஆதரிக்கப்படும் வரம்பிற்கு வெளியே உள்ளன</string>
+    <string name="validation_resp_duration_limit">கால ஆண்டுகள் ஆதரிக்கப்படும் வரம்பிற்கு வெளியே உள்ளன</string>
+    <string name="validation_resp_horizon_limit">மாதிரிக் காலம் ஆதரிக்கப்படும் வரம்பிற்கு வெளியே உள்ளது</string>
+
+    <string name="suggestion_always_living">அத்தியாவசிய வாழ்க்கைச் செலவுகள் வழக்கமாகக் குடும்பத்திற்குத் தொடரும்</string>
+    <string name="suggestion_has_child">குடும்பத்தில் குழந்தை உள்ளார் — தொடர்புடைய ஆதரவு பொருந்தலாம்</string>
+    <string name="suggestion_has_spouse">குடும்பத்தில் துணை அல்லது பங்குதாரர் உள்ளார் — தொடர்புடைய ஆதரவு பொருந்தலாம்</string>
+    <string name="suggestion_has_parent">குடும்பத்தில் பெற்றோர் உள்ளார் — பெற்றோர் ஆதரவு பொருந்தலாம்</string>
+    <string name="suggestion_has_other_dependant">குடும்பத்தில் மற்றொரு சார்ந்தவர் உள்ளார் — சிறப்புத் தேவை ஆதரவு பொருந்தலாம்</string>
+    <string name="suggestion_optional_loan">பொருந்தினால் நிலுவைக் கடன் தொடர்ச்சியைப் பரிசீலியுங்கள்</string>
+    <string name="suggestion_optional_house">பொருந்தினால் வீடு வாங்கும் அல்லது நிறைவு செய்யும் திட்டங்களைப் பரிசீலியுங்கள்</string>
+
+    <string name="domain_error_validation">சிறப்பிக்கப்பட்ட விவரங்களை மீண்டும் பாருங்கள்</string>
+    <string name="domain_error_transition">இந்தப் படியை இப்போது முடிக்க முடியாது</string>
+    <string name="domain_error_conflict">இந்த மதிப்பாய்வு வேறு இடத்தில் புதுப்பிக்கப்பட்டது</string>
+    <string name="domain_error_not_found">இந்த மதிப்பாய்வைக் கண்டுபிடிக்க முடியவில்லை</string>
+    <string name="domain_error_collision_exhausted">தனிப்பட்ட அடையாளத்தை ஒதுக்க முடியவில்லை. மீண்டும் முயலவும்</string>
+    <string name="domain_error_illegal_state">தற்போதைய மதிப்பாய்வு நிலையில் இந்தச் செயல் கிடைக்கவில்லை</string>
+    <string name="domain_error_corrupt_data">சேமிக்கப்பட்ட மதிப்பாய்வுத் தரவைப் பாதுகாப்பாகப் படிக்க முடியவில்லை</string>
+    <string name="domain_error_persistence">மாற்றங்களைச் சேமிக்க முடியவில்லை. மீண்டும் முயலவும்</string>
+    <string name="domain_error_calculation">தற்போதைய உள்ளீடுகளுடன் கணக்கீட்டை முடிக்க முடியவில்லை</string>
+    <string name="domain_error_fallback">ஏதோ தவறு நடந்தது. மீண்டும் முயலவும்</string>
+    <string name="validation_fallback">விவரங்களைச் சரிபார்த்து மீண்டும் முயலவும்</string>
+
+    <string name="save_state_saving">சேமிக்கிறது…</string>
+    <string name="save_state_saved">சேமிக்கப்பட்டது</string>
+    <string name="save_state_validation">சேமிக்க முடியவில்லை — விவரங்களைச் சரிசெய்யவும்</string>
+    <string name="save_state_persistence">சேமிக்க முடியவில்லை — மீண்டும் முயலவும்</string>
+    <string name="save_state_conflict">சேமிக்க முடியவில்லை — மதிப்பாய்வு வேறு இடத்தில் புதுப்பிக்கப்பட்டது</string>
+
+    <string name="conflict_title">மதிப்பாய்வு வேறு இடத்தில் புதுப்பிக்கப்பட்டது</string>
+    <string name="conflict_body">இந்த மதிப்பாய்வுக்கு வேறொரு மாற்றம் சேமிக்கப்பட்டது. சமீபத்திய பதிப்பை மீண்டும் ஏற்றவும், அல்லது டாஷ்போர்டுக்குத் திரும்பவும். இந்தத் திரையில் சேமிக்கப்படாத வரைவுத் திருத்தங்கள் நிராகரிக்கப்படும்.</string>
+    <string name="conflict_reload">சமீபத்தியதை மீண்டும் ஏற்று</string>
+    <string name="conflict_return_dashboard">டாஷ்போர்டுக்குத் திரும்பு</string>
+    <string name="conflict_draft_discarded">சேமிக்கப்படாத வரைவுத் திருத்தங்கள் நிராகரிக்கப்பட்டன</string>
+
+    <string name="household_a11y_income_contributor">வருமானப் பங்களிப்பாளர்</string>
+    <string name="household_a11y_dependant">சார்ந்தவர்</string>
+    <string name="household_a11y_focused">முதன்மை வருமானப் பங்களிப்பாளர்</string>
+
+    <string name="review_error_not_found">இந்த மதிப்பாய்வைக் கண்டுபிடிக்க முடியவில்லை</string>
+    <string name="responsibilities_add_another_custom">மற்றொரு தனிப்பயன் பொறுப்பைச் சேர்</string>
+    <string name="details_quantification_status_not_yet">இன்னும் அளவிடப்படவில்லை</string>
 </resources>

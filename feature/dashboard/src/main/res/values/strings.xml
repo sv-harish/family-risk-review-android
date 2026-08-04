@@ -1,8 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="dashboard_title">Family Risk Review</string>
-    <string name="dashboard_subtitle">Advisor workspace</string>
-    <string name="dashboard_start_new_review">Start New Review</string>
+    <string name="dashboard_subtitle">Advisor workspace for household risk conversations</string>
+    <string name="dashboard_nav_dashboard">Dashboard</string>
     <string name="dashboard_settings">Settings</string>
-    <string name="dashboard_phase0_note">Phase 0 shell — review list, resume, archive and sync status arrive in Phase 6.</string>
+    <string name="dashboard_start_section">Start a review</string>
+    <string name="dashboard_start_quick">Start Quick Review</string>
+    <string name="dashboard_start_guided">Start Guided Review</string>
+    <string name="dashboard_quick_difference">Quick Review focuses on the essentials in about 5–8 minutes.</string>
+    <string name="dashboard_guided_difference">Guided Review takes about 10–15 minutes with fuller detail at each stage.</string>
+    <string name="dashboard_section_in_progress">In progress</string>
+    <string name="dashboard_section_completed">Completed</string>
+    <string name="dashboard_section_archived">Archived</string>
+    <string name="dashboard_archived_hint">Archived reviews are kept separate from active work.</string>
+    <string name="dashboard_resume">Resume</string>
+    <string name="dashboard_open">Open</string>
+    <string name="dashboard_loading">Loading reviews…</string>
+    <string name="dashboard_empty_title">No reviews yet</string>
+    <string name="dashboard_empty_body">Start a Quick or Guided Review to help a household see which responsibilities depend on income that is not guaranteed to last.</string>
+    <string name="dashboard_create_error_title">Could not start review</string>
+    <string name="dashboard_dismiss_error">Dismiss</string>
+    <string name="dashboard_mode_quick">Quick</string>
+    <string name="dashboard_mode_guided">Guided</string>
+    <string name="dashboard_stage_label">Stage: %1$s</string>
+    <string name="dashboard_updated_label">Last updated: %1$s</string>
+    <string name="dashboard_review_a11y">Review %1$s, %2$s mode, stage %3$s, last updated %4$s</string>
+    <string name="dashboard_stage_household">Household support map</string>
+    <string name="dashboard_stage_responsibilities">Responsibilities</string>
+    <string name="dashboard_stage_prioritisation">Prioritisation</string>
+    <string name="dashboard_stage_details">Responsibility details</string>
+    <string name="dashboard_stage_timeline">Responsibility timeline</string>
+    <string name="dashboard_stage_income_risk">Income-risk education</string>
+    <string name="dashboard_stage_key_realization">Key realization</string>
+    <string name="dashboard_stage_gross">Gross responsibility</string>
+    <string name="dashboard_stage_comparison">Educational comparison</string>
+    <string name="dashboard_stage_summary">Awareness summary</string>
+    <string name="dashboard_stage_handoff">Advisor handoff</string>
+
+    <!-- Phase 2.1: domain / conflict recovery for dashboard shell -->
+    <string name="domain_error_fallback">Something went wrong. Please try again</string>
+    <string name="domain_error_persistence">Changes could not be saved. Please try again</string>
+    <string name="domain_error_conflict">This review was updated elsewhere</string>
+    <string name="domain_error_not_found">This review could not be found</string>
+    <string name="conflict_title">Review updated elsewhere</string>
+    <string name="conflict_body">Another change was saved for this review. Reload the latest version before continuing.</string>
+    <string name="conflict_reload">Reload latest</string>
 </resources>

@@ -1,54 +1,35 @@
 # Design system — Family Risk Review
 
-## Continuity Line
+**Phase:** Phase 1 complete — Phase 2 product experience in progress
 
-Visual motif that evolves through the journey: household connections → contribution/dependency → responsibilities → timeline → income uncertainty fade → protection reinforcement → Build vs Protect comparison.
+## Personality
 
-## Colour tokens
+Calm, clinical-meets-human. Warm off-white surfaces, deep ink text, restrained teal accent, amber only for attention. No Dareus One colours outside splash. No dark fintech default.
 
-| Token | Hex |
-|-------|-----|
-| Midnight Blue | `#122033` |
-| Slate Navy | `#1B2D42` |
-| Teal Blue | `#2D9CDB` |
-| Soft Aqua | `#56C6D6` |
-| Muted Gold | `#D6A85F` |
-| Soft Sand | `#F5EBDD` |
-| Cloud White | `#F8FAFC` |
-| Warm Mist | `#EEF2F6` |
-| Charcoal Text | `#243244` |
+## Tokens
 
-Predominantly light. Avoid Material purple, neon fintech gradients, fear-red screens, black-everywhere UI.
+| Token group | Location |
+|-------------|----------|
+| Raw palette | `FrrColors` |
+| Semantic roles | `FrrSemanticColors` / `frrColors()` |
+| Spacing | `FrrSpacing` |
+| Radius | `FrrRadius` |
+| Elevation | `FrrElevation` |
+| Icon size | `FrrIconSize` |
+| Touch target | `FrrTouchTarget` (≥48dp) |
+| Motion | `FrrMotion` |
+
+Feature screens must use semantic colours via `frrColors()`, not raw palette literals where avoidable.
 
 ## Typography
 
-| Role | Intended family |
-|------|-----------------|
-| English headings | Manrope |
-| English body / UI | Inter |
-| Tamil | Noto Sans Tamil |
-| Hindi | Noto Sans Devanagari |
+Intended: Manrope (display), Source Sans 3 (body), Noto Sans Tamil / Devanagari. Font files pending under `assets/fonts/`. Scale is defined in `FrrTypography`.
 
-Phase 0 uses system sans placeholders until font files are added under `core/designsystem/src/main/res/font/` and `assets/fonts/`.
+## Reduced motion
 
-## Layout
+Respect `UserPreferences.reducedMotion`. Splash and step transitions should skip or shorten non-essential animation.
 
-- Early journey: two-pane (visual left, interaction right) ≥ 840dp width
-- Timeline / summary: wider content, constrained line length
-- Realization: reduced clutter
-- Educational comparison: genuine split with synchronised motion
-- Touch targets ≥ 48dp; primary actions 52–56dp
+## Components
 
-## Motion
-
-Explain changes; respect Android reduced-motion preference and in-app toggle. No confetti, bouncing CTAs, or motion that delays data entry.
-
-## Major visual moments (later phases)
-
-1. Household Support Map  
-2. Responsibility Timeline  
-3. Build Over Time vs Protect From Today  
-
-## Branding constraints
-
-Dareus One only on splash. Advisor portrait only on welcome, final handoff, optional advisor panel — not every screen.
+- `FrrPrimaryButton` / `FrrSecondaryButton` / `FrrTextAction`
+- `FrrStableTextField` — preserves selection; keep raw text separate from domain parsing

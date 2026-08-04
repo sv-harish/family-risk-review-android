@@ -16,11 +16,9 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import com.familyriskreview.core.designsystem.theme.FrrColors
+import com.familyriskreview.core.designsystem.theme.FrrTouchTarget
+import com.familyriskreview.core.designsystem.theme.frrColors
 
-/**
- * Primary CTA sized for tablet touch targets (52–56dp preferred).
- */
 @Composable
 fun FrrPrimaryButton(
     text: String,
@@ -29,11 +27,13 @@ fun FrrPrimaryButton(
     enabled: Boolean = true,
     contentDescription: String? = null,
 ) {
+    val colors = frrColors()
     Button(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier
-            .heightIn(min = 52.dp)
+        modifier =
+        modifier
+            .heightIn(min = FrrTouchTarget.comfortable)
             .defaultMinSize(minWidth = 120.dp)
             .then(
                 if (contentDescription != null) {
@@ -45,11 +45,12 @@ fun FrrPrimaryButton(
                     Modifier
                 },
             ),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = FrrColors.TealBlue,
-            contentColor = FrrColors.CloudWhite,
-            disabledContainerColor = FrrColors.WarmMist,
-            disabledContentColor = FrrColors.CharcoalText.copy(alpha = 0.4f),
+        colors =
+        ButtonDefaults.buttonColors(
+            containerColor = colors.primaryAction,
+            contentColor = colors.elevatedSurface,
+            disabledContainerColor = colors.outline.copy(alpha = 0.35f),
+            disabledContentColor = colors.mutedText,
         ),
         contentPadding = PaddingValues(horizontal = 24.dp, vertical = 14.dp),
     ) {
@@ -64,12 +65,14 @@ fun FrrSecondaryButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
 ) {
+    val colors = frrColors()
     OutlinedButton(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier.heightIn(min = 52.dp),
-        colors = ButtonDefaults.outlinedButtonColors(
-            contentColor = FrrColors.SlateNavy,
+        modifier = modifier.heightIn(min = FrrTouchTarget.comfortable),
+        colors =
+        ButtonDefaults.outlinedButtonColors(
+            contentColor = colors.secondaryAction,
         ),
         contentPadding = PaddingValues(horizontal = 24.dp, vertical = 14.dp),
     ) {
@@ -87,7 +90,7 @@ fun FrrTextAction(
     TextButton(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier.heightIn(min = 48.dp),
+        modifier = modifier.heightIn(min = FrrTouchTarget.min),
     ) {
         Text(text = text)
     }

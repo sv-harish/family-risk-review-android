@@ -1,6 +1,6 @@
 # Architecture — Family Risk Review
 
-## Stack (Phase 1)
+## Stack (Phase 1 complete; Phase 2 product experience in progress)
 
 | Concern | Choice | Version |
 |---------|--------|---------|

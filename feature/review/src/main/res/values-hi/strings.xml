@@ -4,11 +4,213 @@
     <string name="welcome_supporting_line">देखें कि आपकी घरेलू आय किसकी सुरक्षा के लिए अपेक्षित है।</string>
     <string name="welcome_guided_by">मार्गदर्शन</string>
     <string name="welcome_intro">यह संक्षिप्त समीक्षा यह पहचानने में मदद करती है कि कौन-सी घरेलू ज़िम्मेदारियाँ आय पर निर्भर हैं, कब धन की आवश्यकता हो सकती है, और यदि वह आय अपेक्षित रूप से जारी न रहे तो क्या हो सकता है।</string>
+    <string name="welcome_mode_prompt">समीक्षा कैसे करना चाहते हैं, चुनें।</string>
     <string name="welcome_begin_quick">त्वरित समीक्षा शुरू करें</string>
+    <string name="welcome_quick_hint">लगभग 5–8 मिनट। आवश्यक बातों पर ध्यान; अधिकतम तीन अवश्य-जारी ज़िम्मेदारियाँ।</string>
     <string name="welcome_begin_guided">निर्देशित समीक्षा शुरू करें</string>
+    <string name="welcome_guided_hint">लगभग 10–15 मिनट। वही चरण, जहाँ मदद मिले वहाँ अधिक विवरण।</string>
     <string name="welcome_back_dashboard">डैशबोर्ड पर वापस जाएँ</string>
-    <string name="welcome_phase0_note">भाषा चयन और पूरा ग्राहक प्रवाह Phase 3 में आएगा।</string>
-    <string name="review_placeholder_title">समीक्षा जारी है</string>
-    <string name="review_placeholder_body">समीक्षा %1$s — परिवार मानचित्रण Phase 3 में शुरू होगा।</string>
-    <string name="review_placeholder_continue">सारांश पर जाएँ</string>
+
+    <string name="review_back_dashboard">सहेजें और डैशबोर्ड पर लौटें</string>
+    <string name="review_back">पीछे</string>
+    <string name="review_continue">आगे बढ़ें</string>
+    <string name="review_dismiss_error">बंद करें</string>
+    <string name="review_not_found">यह समीक्षा नहीं मिली।</string>
+
+    <string name="stage_your_family">आपका परिवार</string>
+    <string name="stage_responsibilities">ज़िम्मेदारियाँ</string>
+    <string name="stage_priorities">प्राथमिकताएँ</string>
+    <string name="stage_details">विवरण</string>
+    <string name="stage_timeline">समयरेखा</string>
+    <string name="stage_understanding_gap">अंतर को समझना</string>
+    <string name="stage_summary">सारांश</string>
+    <string name="stage_indicator_a11y">यात्रा चरण: %1$s</string>
+
+    <string name="phase2_boundary_title">अगले चरण जल्द आएँगे</string>
+    <string name="phase2_boundary_body">अब तक की प्रगति सहेजी गई है। समयरेखा, आय-जोखिम शिक्षा और संकेतात्मक सारांश अगले चरण में आएंगे। आप डैशबोर्ड पर लौट कर बाद में जारी रख सकते हैं।</string>
+    <string name="phase2_boundary_back_step">पिछले चरण पर जाएँ</string>
+    <string name="phase2_boundary_save_return">सहेजें और डैशबोर्ड पर लौटें</string>
+
+    <string name="household_title">आपका परिवार</string>
+    <string name="household_subtitle">कौन आय या अवैतनिक देखभाल देता है, और कौन उस समर्थन पर निर्भर है — इसे मानचित्रित करें।</string>
+    <string name="household_empty_hint">समर्थन मानचित्र शुरू करने के लिए परिवार के सदस्य जोड़ें।</string>
+    <string name="household_select_prompt">विवरण संपादित करने के लिए मानचित्र पर किसी को चुनें।</string>
+    <string name="household_editor_title">सदस्य विवरण</string>
+    <string name="household_label">लेबल (वैकल्पिक)</string>
+    <string name="household_label_hint">आद्याक्षर या उपनाम उपयोग करें — पूरा कानूनी नाम नहीं।</string>
+    <string name="household_age">उम्र</string>
+    <string name="household_relationship">रिश्ता</string>
+    <string name="household_contribution">घरेलू आय या देखभाल में योगदान</string>
+    <string name="household_dependency">घरेलू समर्थन पर निर्भरता</string>
+    <string name="household_set_focus">केंद्रित आय योगदानकर्ता बनाएँ</string>
+    <string name="household_is_focus">यह व्यक्ति केंद्रित आय योगदानकर्ता है</string>
+    <string name="household_remove">परिवार से हटाएँ</string>
+    <string name="household_add_self">स्वयं जोड़ें</string>
+    <string name="household_add_spouse">जीवनसाथी / साथी जोड़ें</string>
+    <string name="household_add_child">बच्चा जोड़ें</string>
+    <string name="household_add_parent">माता-पिता जोड़ें</string>
+    <string name="household_add_other">अन्य आश्रित जोड़ें</string>
+    <string name="household_map_a11y">%1$d लोगों वाला घरेलू समर्थन मानचित्र। केंद्रित योगदानकर्ता: %2$s</string>
+    <string name="household_unlabelled">बिना लेबल सदस्य</string>
+
+    <string name="relationship_self">स्वयं</string>
+    <string name="relationship_spouse">जीवनसाथी / साथी</string>
+    <string name="relationship_child">बच्चा</string>
+    <string name="relationship_parent">माता-पिता</string>
+    <string name="relationship_other">अन्य आश्रित</string>
+    <string name="relationship_self_short">स्वयं</string>
+    <string name="relationship_spouse_short">साथी</string>
+    <string name="relationship_child_short">बच्चा</string>
+    <string name="relationship_parent_short">माता-पिता</string>
+    <string name="relationship_other_short">अन्य</string>
+
+    <string name="contribution_primary">मुख्य आय</string>
+    <string name="contribution_shared">साझा आय</string>
+    <string name="contribution_supplementary">पूरक या अनियमित आय</string>
+    <string name="contribution_caregiver">आवश्यक अवैतनिक देखभालकर्ता</string>
+    <string name="contribution_none">गैर-योगदानकर्ता</string>
+
+    <string name="dependency_full">पूर्णतः आश्रित</string>
+    <string name="dependency_part">आंशिक रूप से आश्रित</string>
+    <string name="dependency_independent">वित्तीय रूप से स्वतंत्र</string>
+    <string name="dependency_na">लागू नहीं</string>
+
+    <string name="responsibilities_title">ज़िम्मेदारियाँ</string>
+    <string name="responsibilities_subtitle">वे ज़िम्मेदारियाँ चुनें जो घरेलू आय पर निर्भर हैं। सुझाव केवल संकेत हैं — कुछ भी स्वतः चयनित नहीं होता।</string>
+    <string name="responsibilities_selected">चयनित</string>
+    <string name="responsibilities_select">चुनें</string>
+    <string name="responsibilities_suggested">सुझाव: %1$s</string>
+    <string name="responsibilities_other_label">कस्टम ज़िम्मेदारी लेबल</string>
+
+    <string name="catalogue_living">आवश्यक पारिवारिक जीवन व्यय</string>
+    <string name="catalogue_education">बच्चे की उच्च शिक्षा</string>
+    <string name="catalogue_marriage">बच्चे के विवाह का समर्थन</string>
+    <string name="catalogue_spouse">जीवनसाथी या साथी का समर्थन</string>
+    <string name="catalogue_parent">माता-पिता का समर्थन</string>
+    <string name="catalogue_home_loan">गृह ऋण चुकौती</string>
+    <string name="catalogue_other_loans">अन्य बकाया ऋण</string>
+    <string name="catalogue_house">घर खरीदना या पूरा करना</string>
+    <string name="catalogue_special">विशेष आवश्यकता वाले आश्रित का समर्थन</string>
+    <string name="catalogue_childcare">बाल देखभाल प्रतिस्थापन</string>
+    <string name="catalogue_household_care">घरेलू देखभाल प्रतिस्थापन</string>
+    <string name="catalogue_other">अन्य</string>
+
+    <string name="catalogue_living_explanation">दैनिक जीवन व्यय जो आमतौर पर परिवार के लिए जारी रहते हैं।</string>
+    <string name="catalogue_education_explanation">बच्चे के लिए भविष्य की उच्च शिक्षा सहायता।</string>
+    <string name="catalogue_marriage_explanation">बच्चे के लिए भविष्य की विवाह सहायता।</string>
+    <string name="catalogue_spouse_explanation">जीवनसाथी या साथी के लिए निरंतर समर्थन।</string>
+    <string name="catalogue_parent_explanation">माता-पिता के लिए निरंतर समर्थन।</string>
+    <string name="catalogue_home_loan_explanation">अभी भी चुकाने योग्य गृह ऋण शेष।</string>
+    <string name="catalogue_other_loans_explanation">अन्य बकाया ऋण।</string>
+    <string name="catalogue_house_explanation">घर खरीदने या पूरा करने की योजनाएँ।</string>
+    <string name="catalogue_special_explanation">विशेष आवश्यकता वाले आश्रित के लिए समर्थन।</string>
+    <string name="catalogue_childcare_explanation">देखभालकर्ता जारी न रख सके तो बाल देखभाल बदलने की लागत।</string>
+    <string name="catalogue_household_care_explanation">घरेलू देखभाल कार्य बदलने की लागत।</string>
+    <string name="catalogue_other_explanation">एक कस्टम ज़िम्मेदारी जो सूची में फिट नहीं होती।</string>
+
+    <string name="priority_title">प्राथमिकताएँ</string>
+    <string name="priority_subtitle">प्रत्येक चयनित ज़िम्मेदारी को उसके स्थान पर रखने के लिए टैप करें।</string>
+    <string name="priority_must">जारी रहना चाहिए</string>
+    <string name="priority_adjustable">महत्वपूर्ण पर समायोज्य</string>
+    <string name="priority_postponed">स्थगित किया जा सकता है</string>
+    <string name="priority_unassigned">अभी रखना बाकी</string>
+    <string name="priority_zone_empty">इस क्षेत्र में अभी कोई ज़िम्मेदारी नहीं।</string>
+    <string name="priority_must_short">अवश्य</string>
+    <string name="priority_adjustable_short">समायोज्य</string>
+    <string name="priority_postponed_short">स्थगित</string>
+    <string name="priority_quick_max_hint">त्वरित समीक्षा में अधिकतम 3 अवश्य-जारी ज़िम्मेदारियाँ।</string>
+
+    <string name="details_title">विवरण</string>
+    <string name="details_subtitle">राशि और समय दर्ज करें। आप ड्राफ्ट सहेज सकते हैं और बात करते हुए सुधार सकते हैं।</string>
+    <string name="details_none_selected">पहले ज़िम्मेदारियाँ चुनें, फिर यहाँ विवरण जोड़ें।</string>
+    <string name="details_monthly_amount">मासिक राशि (₹)</string>
+    <string name="details_current_amount">वर्तमान राशि (₹)</string>
+    <string name="details_outstanding_amount">बकाया राशि (₹)</string>
+    <string name="details_duration_years">अवधि (वर्ष)</string>
+    <string name="details_years_until">आवश्यक होने तक वर्ष</string>
+    <string name="details_quantified">मात्रा निर्धारित</string>
+    <string name="details_not_yet_quantified">अभी मात्रा निर्धारित नहीं</string>
+    <string name="details_model_one_time">एकबारगी</string>
+    <string name="details_model_recurring">आवर्ती</string>
+    <string name="details_inflation_percent">मुद्रास्फीति (% प्रति वर्ष)</string>
+    <string name="details_inflation_hint">कस्टम वस्तुओं के लिए स्पष्ट मुद्रास्फीति दर आवश्यक है।</string>
+    <string name="details_save_draft">ड्राफ्ट सहेजें</string>
+
+    <!-- Phase 2.1: validation, suggestions, save-state, conflict, a11y -->
+    <string name="household_age_range_error">उम्र %1$d से %2$d के बीच होनी चाहिए</string>
+    <string name="validation_household_duplicate_self">एक समीक्षा में एक से अधिक स्वयं सदस्य नहीं हो सकते</string>
+    <string name="validation_household_primary_fully_dependent">पूर्णतः आश्रित सदस्य का मुख्य आय योगदानकर्ता होना असामान्य है</string>
+    <string name="validation_household_focus_non_contributor">केंद्रित आय योगदानकर्ता गैर-योगदानकर्ता नहीं हो सकता</string>
+    <string name="validation_household_empty">कम से कम एक परिवार सदस्य आवश्यक है</string>
+    <string name="validation_household_focus_missing">केंद्रित आय योगदानकर्ता इस समीक्षा में मौजूद होना चाहिए</string>
+
+    <string name="validation_resp_custom_label_required">कस्टम ज़िम्मेदारियों के लिए लेबल आवश्यक है</string>
+    <string name="validation_resp_none_selected">आगे बढ़ने से पहले कम से कम एक ज़िम्मेदारी चुनें</string>
+    <string name="validation_resp_priority_required">चयनित ज़िम्मेदारियों के लिए प्राथमिकता आवश्यक है</string>
+    <string name="validation_resp_quick_must_continue_limit">त्वरित समीक्षा में अधिकतम तीन अवश्य-जारी ज़िम्मेदारियाँ अनुमत हैं</string>
+    <string name="validation_resp_guided_requires_quantification">मार्गदर्शित समीक्षा में सभी चयनित ज़िम्मेदारियों की मात्रा निर्धारित होनी चाहिए</string>
+    <string name="validation_resp_must_continue_requires_quantification">अवश्य-जारी ज़िम्मेदारियाँ मात्रा-निर्धारित और गणनायोग्य होनी चाहिए</string>
+    <string name="validation_resp_lightweight_must_be_non_quantified">पूर्ण इनपुट के बिना त्वरित समीक्षा की हल्की वस्तुएँ अभी मात्रा-निर्धारित नहीं चिह्नित होनी चाहिए</string>
+    <string name="validation_resp_explicit_inflation_required">कस्टम ज़िम्मेदारियों के लिए स्पष्ट मुद्रास्फीति दर आवश्यक है</string>
+    <string name="validation_resp_timing_required">चयनित ज़िम्मेदारियों के लिए समय-निर्धारण आवश्यक है</string>
+    <string name="validation_resp_timing_not_allowed">यह समय प्रकार चयनित ज़िम्मेदारी के लिए अनुमत नहीं है</string>
+    <string name="validation_resp_years_required">आवश्यक होने तक के वर्ष प्रदान करें</string>
+    <string name="validation_resp_duration_required">अवधि सकारात्मक वर्षों में होनी चाहिए</string>
+    <string name="validation_resp_modelling_horizon_required">“जितना आवश्यक हो” के लिए संकेतात्मक मॉडलिंग अवधि चाहिए, या इसे अभी मात्रा-निर्धारित नहीं चिह्नित करें</string>
+    <string name="validation_resp_milestone_required">मील का पत्थर लेबल आवश्यक है</string>
+    <string name="validation_resp_milestone_horizon_required">मील के पत्थर तक के लिए गणनायोग्य क्षितिज आवश्यक है, या इसे अभी मात्रा-निर्धारित नहीं चिह्नित करें</string>
+    <string name="validation_resp_custom_timing_required">कस्टम समय-निर्धारण के लिए नोट आवश्यक है</string>
+    <string name="validation_resp_custom_horizon_required">कस्टम समय-निर्धारण के लिए गणनायोग्य क्षितिज आवश्यक है, या इसे अभी मात्रा-निर्धारित नहीं चिह्नित करें</string>
+    <string name="validation_resp_monthly_required">इस ज़िम्मेदारी के लिए मासिक राशि आवश्यक है</string>
+    <string name="validation_resp_current_not_primary">इस वस्तु के लिए मुख्य इनपुट के रूप में मासिक राशि उपयोग करें</string>
+    <string name="validation_resp_current_required">वर्तमान या बकाया राशि आवश्यक है</string>
+    <string name="validation_resp_monthly_not_allowed">इस सूची वस्तु के लिए मासिक इनपुट स्वीकार्य नहीं है</string>
+    <string name="validation_resp_loan_monthly_not_allowed">ऋणों के लिए बकाया राशि उपयोग होती है, मासिक समर्थन नहीं</string>
+    <string name="validation_resp_ambiguous_amount_model">राशि मॉडल दर्ज की गई राशियों से मेल नहीं खाता</string>
+    <string name="validation_resp_amount_model_required">कस्टम ज़िम्मेदारियों के लिए स्पष्ट राशि मॉडल आवश्यक है</string>
+    <string name="validation_resp_amount_limit">एकबारगी राशि समर्थित अधिकतम से अधिक है</string>
+    <string name="validation_resp_monthly_limit">मासिक राशि समर्थित अधिकतम से अधिक है</string>
+    <string name="validation_resp_years_limit">आवश्यक होने तक के वर्ष समर्थित सीमा से बाहर हैं</string>
+    <string name="validation_resp_duration_limit">अवधि वर्ष समर्थित सीमा से बाहर हैं</string>
+    <string name="validation_resp_horizon_limit">मॉडलिंग क्षितिज समर्थित सीमा से बाहर है</string>
+
+    <string name="suggestion_always_living">आवश्यक जीवन व्यय आमतौर पर परिवार के लिए जारी रहते हैं</string>
+    <string name="suggestion_has_child">परिवार में बच्चा है — संबंधित समर्थन लागू हो सकता है</string>
+    <string name="suggestion_has_spouse">परिवार में जीवनसाथी या साथी है — संबंधित समर्थन लागू हो सकता है</string>
+    <string name="suggestion_has_parent">परिवार में माता-पिता हैं — माता-पिता समर्थन लागू हो सकता है</string>
+    <string name="suggestion_has_other_dependant">परिवार में अन्य आश्रित है — विशेष-आवश्यकता समर्थन लागू हो सकता है</string>
+    <string name="suggestion_optional_loan">यदि प्रासंगिक हो तो बकाया ऋण निरंतरता पर विचार करें</string>
+    <string name="suggestion_optional_house">यदि प्रासंगिक हो तो घर खरीदने या पूरा करने की योजनाओं पर विचार करें</string>
+
+    <string name="domain_error_validation">कृपया चिह्नित विवरण जाँचें</string>
+    <string name="domain_error_transition">यह चरण अभी पूरा नहीं किया जा सकता</string>
+    <string name="domain_error_conflict">यह समीक्षा कहीं और अद्यतन की गई</string>
+    <string name="domain_error_not_found">यह समीक्षा नहीं मिली</string>
+    <string name="domain_error_collision_exhausted">अद्वितीय पहचानकर्ता आवंटित नहीं हो सका। कृपया फिर प्रयास करें</string>
+    <string name="domain_error_illegal_state">वर्तमान समीक्षा स्थिति में यह क्रिया उपलब्ध नहीं है</string>
+    <string name="domain_error_corrupt_data">संग्रहीत समीक्षा डेटा सुरक्षित रूप से पढ़ा नहीं जा सका</string>
+    <string name="domain_error_persistence">परिवर्तन सहेजे नहीं जा सके। कृपया फिर प्रयास करें</string>
+    <string name="domain_error_calculation">वर्तमान इनपुट के साथ गणना पूरी नहीं हो सकी</string>
+    <string name="domain_error_fallback">कुछ गलत हो गया। कृपया फिर प्रयास करें</string>
+    <string name="validation_fallback">कृपया विवरण जाँचें और फिर प्रयास करें</string>
+
+    <string name="save_state_saving">सहेजा जा रहा है…</string>
+    <string name="save_state_saved">सहेजा गया</string>
+    <string name="save_state_validation">सहेजा नहीं जा सका — कृपया विवरण सुधारें</string>
+    <string name="save_state_persistence">सहेजा नहीं जा सका — कृपया फिर प्रयास करें</string>
+    <string name="save_state_conflict">सहेजा नहीं जा सका — समीक्षा कहीं और अद्यतन की गई</string>
+
+    <string name="conflict_title">समीक्षा कहीं और अद्यतन की गई</string>
+    <string name="conflict_body">इस समीक्षा के लिए कोई अन्य परिवर्तन सहेजा गया। नवीनतम संस्करण फिर से लोड करें, या डैशबोर्ड पर लौटें। इस स्क्रीन पर बिना सहेजे ड्राफ्ट संपादन छोड़ दिए जाएँगे।</string>
+    <string name="conflict_reload">नवीनतम फिर से लोड करें</string>
+    <string name="conflict_return_dashboard">डैशबोर्ड पर लौटें</string>
+    <string name="conflict_draft_discarded">बिना सहेजे ड्राफ्ट संपादन छोड़ दिए गए</string>
+
+    <string name="household_a11y_income_contributor">आय योगदानकर्ता</string>
+    <string name="household_a11y_dependant">आश्रित</string>
+    <string name="household_a11y_focused">केंद्रित आय योगदानकर्ता</string>
+
+    <string name="review_error_not_found">यह समीक्षा नहीं मिली</string>
+    <string name="responsibilities_add_another_custom">एक और कस्टम ज़िम्मेदारी जोड़ें</string>
+    <string name="details_quantification_status_not_yet">अभी मात्रा निर्धारित नहीं</string>
 </resources>

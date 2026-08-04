@@ -5,4 +5,11 @@
     <string name="splash_built_by">Built by Dareus One</string>
     <string name="splash_dareus_placeholder">[Dareus One logo placeholder]</string>
     <string name="splash_a11y">Family Risk Review splash screen. Built by Dareus One.</string>
+    <string name="welcome_create_error_dismiss">Dismiss</string>
+
+    <!-- Phase 2.1: shell / create-flow domain messages -->
+    <string name="domain_error_fallback">Something went wrong. Please try again</string>
+    <string name="domain_error_persistence">Changes could not be saved. Please try again</string>
+    <string name="shell_nav_dashboard">Dashboard</string>
+    <string name="shell_nav_settings">Settings</string>
 </resources>

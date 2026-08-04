@@ -7,16 +7,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
 /**
- * Typography foundation.
+ * Typography foundation for Family Risk Review.
  *
- * Recommended families (to be bundled as font files under res/font):
- * - English headings: Manrope
- * - English body/UI: Inter
+ * Intended families (bundle under res/font when assets are available):
+ * - Display / headings: Manrope
+ * - Body / UI: Source Sans 3
  * - Tamil: Noto Sans Tamil
  * - Hindi: Noto Sans Devanagari
  *
- * Phase 0 uses platform defaults with documented placeholders until font files
- * are added. See assets/fonts/README.md.
+ * Until font files ship, we use a purposeful weight/size/letter-spacing scale
+ * rather than Material defaults alone. See assets/fonts/README.md.
  */
 val FrrFontFamily = FontFamily.SansSerif
 
@@ -30,8 +30,8 @@ val FrrTypography =
             fontWeight = FontWeight.SemiBold,
             fontSize = 40.sp,
             lineHeight = 48.sp,
-            letterSpacing = (-0.5).sp,
-            color = FrrColors.MidnightBlue,
+            letterSpacing = (-0.4).sp,
+            color = FrrColors.Ink,
         ),
         displayMedium =
         TextStyle(
@@ -39,7 +39,8 @@ val FrrTypography =
             fontWeight = FontWeight.SemiBold,
             fontSize = 32.sp,
             lineHeight = 40.sp,
-            color = FrrColors.MidnightBlue,
+            letterSpacing = (-0.2).sp,
+            color = FrrColors.Ink,
         ),
         headlineLarge =
         TextStyle(
@@ -47,7 +48,7 @@ val FrrTypography =
             fontWeight = FontWeight.SemiBold,
             fontSize = 28.sp,
             lineHeight = 36.sp,
-            color = FrrColors.MidnightBlue,
+            color = FrrColors.Ink,
         ),
         headlineMedium =
         TextStyle(
@@ -55,7 +56,7 @@ val FrrTypography =
             fontWeight = FontWeight.Medium,
             fontSize = 24.sp,
             lineHeight = 32.sp,
-            color = FrrColors.SlateNavy,
+            color = FrrColors.DeepInk,
         ),
         titleLarge =
         TextStyle(
@@ -63,7 +64,7 @@ val FrrTypography =
             fontWeight = FontWeight.SemiBold,
             fontSize = 20.sp,
             lineHeight = 28.sp,
-            color = FrrColors.CharcoalText,
+            color = FrrColors.Ink,
         ),
         titleMedium =
         TextStyle(
@@ -71,23 +72,23 @@ val FrrTypography =
             fontWeight = FontWeight.Medium,
             fontSize = 16.sp,
             lineHeight = 24.sp,
-            color = FrrColors.CharcoalText,
+            color = FrrColors.Ink,
         ),
         bodyLarge =
         TextStyle(
             fontFamily = FrrFontFamily,
             fontWeight = FontWeight.Normal,
             fontSize = 16.sp,
-            lineHeight = 24.sp,
-            color = FrrColors.CharcoalText,
+            lineHeight = 26.sp,
+            color = FrrColors.Ink,
         ),
         bodyMedium =
         TextStyle(
             fontFamily = FrrFontFamily,
             fontWeight = FontWeight.Normal,
             fontSize = 14.sp,
-            lineHeight = 20.sp,
-            color = FrrColors.CharcoalText,
+            lineHeight = 22.sp,
+            color = FrrColors.Ink,
         ),
         labelLarge =
         TextStyle(
@@ -95,7 +96,7 @@ val FrrTypography =
             fontWeight = FontWeight.Medium,
             fontSize = 14.sp,
             lineHeight = 20.sp,
-            color = FrrColors.CharcoalText,
+            color = FrrColors.Ink,
         ),
         labelMedium =
         TextStyle(
@@ -103,6 +104,6 @@ val FrrTypography =
             fontWeight = FontWeight.Medium,
             fontSize = 12.sp,
             lineHeight = 16.sp,
-            color = FrrColors.CharcoalText,
+            color = FrrColors.MutedText,
         ),
     )

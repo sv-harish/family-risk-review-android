@@ -3,9 +3,7 @@ package com.familyriskreview.feature.review
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -13,23 +11,27 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.familyriskreview.core.designsystem.component.FrrPrimaryButton
 import com.familyriskreview.core.designsystem.component.FrrSecondaryButton
-import com.familyriskreview.core.designsystem.theme.FrrColors
 import com.familyriskreview.core.designsystem.theme.FrrTypography
+import com.familyriskreview.core.designsystem.theme.frrColors
 import com.familyriskreview.core.model.AdvisorIdentity
+import com.familyriskreview.core.model.ReviewMode
 import com.familyriskreview.core.ui.layout.TwoPaneJourneyLayout
-import com.familyriskreview.feature.review.R
 
 /**
- * Phase 0 welcome / language / mode selection shell.
- * Full customer journey screens begin in Phase 3.
+ * Welcome / language / mode selection.
+ *
+ * Preferred flow: Dashboard navigates here with an optional [preferredMode];
+ * this screen confirms, then [onConfirm] creates the review.
  */
 @Composable
 fun WelcomeRoute(
-    onBeginQuickReview: () -> Unit,
-    onBeginGuidedReview: () -> Unit,
+    onConfirm: (ReviewMode) -> Unit,
     onBackToDashboard: () -> Unit,
+    preferredMode: ReviewMode? = null,
+    isCreating: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
+    val colors = frrColors()
     TwoPaneJourneyLayout(
         modifier = modifier,
         visualContext = {
@@ -37,33 +39,33 @@ fun WelcomeRoute(
                 Text(
                     text = stringResource(R.string.welcome_brand),
                     style = FrrTypography.displayMedium,
-                    color = FrrColors.MidnightBlue,
+                    color = colors.onSurface,
                 )
                 Text(
                     text = stringResource(R.string.welcome_supporting_line),
                     style = FrrTypography.bodyLarge,
-                    color = FrrColors.SlateNavy,
+                    color = colors.mutedText,
                 )
                 Spacer(Modifier.height(16.dp))
                 Text(
                     text = stringResource(R.string.welcome_guided_by),
                     style = FrrTypography.labelLarge,
-                    color = FrrColors.CharcoalText.copy(alpha = 0.7f),
+                    color = colors.mutedText,
                 )
                 Text(
                     text = AdvisorIdentity.DISPLAY_NAME,
                     style = FrrTypography.titleLarge,
-                    color = FrrColors.MidnightBlue,
+                    color = colors.onSurface,
                 )
                 Text(
                     text = AdvisorIdentity.TITLE,
                     style = FrrTypography.bodyMedium,
-                    color = FrrColors.CharcoalText,
+                    color = colors.onSurface,
                 )
                 Text(
                     text = AdvisorIdentity.CREDENTIAL,
                     style = FrrTypography.bodyMedium,
-                    color = FrrColors.CharcoalText,
+                    color = colors.mutedText,
                 )
                 // TODO(production): Verify final formal credential wording before public release.
             }
@@ -73,52 +75,56 @@ fun WelcomeRoute(
                 Text(
                     text = stringResource(R.string.welcome_intro),
                     style = FrrTypography.bodyLarge,
+                    color = colors.onSurface,
                 )
-                FrrPrimaryButton(
-                    text = stringResource(R.string.welcome_begin_quick),
-                    onClick = onBeginQuickReview,
+                Text(
+                    text = stringResource(R.string.welcome_mode_prompt),
+                    style = FrrTypography.titleMedium,
+                    color = colors.onSurface,
                 )
-                FrrSecondaryButton(
-                    text = stringResource(R.string.welcome_begin_guided),
-                    onClick = onBeginGuidedReview,
+                val quickIsPrimary = preferredMode != ReviewMode.GUIDED
+                if (quickIsPrimary) {
+                    FrrPrimaryButton(
+                        text = stringResource(R.string.welcome_begin_quick),
+                        onClick = { onConfirm(ReviewMode.QUICK) },
+                        enabled = !isCreating,
+                    )
+                } else {
+                    FrrSecondaryButton(
+                        text = stringResource(R.string.welcome_begin_quick),
+                        onClick = { onConfirm(ReviewMode.QUICK) },
+                        enabled = !isCreating,
+                    )
+                }
+                Text(
+                    text = stringResource(R.string.welcome_quick_hint),
+                    style = FrrTypography.bodyMedium,
+                    color = colors.mutedText,
+                )
+                if (quickIsPrimary) {
+                    FrrSecondaryButton(
+                        text = stringResource(R.string.welcome_begin_guided),
+                        onClick = { onConfirm(ReviewMode.GUIDED) },
+                        enabled = !isCreating,
+                    )
+                } else {
+                    FrrPrimaryButton(
+                        text = stringResource(R.string.welcome_begin_guided),
+                        onClick = { onConfirm(ReviewMode.GUIDED) },
+                        enabled = !isCreating,
+                    )
+                }
+                Text(
+                    text = stringResource(R.string.welcome_guided_hint),
+                    style = FrrTypography.bodyMedium,
+                    color = colors.mutedText,
                 )
                 FrrSecondaryButton(
                     text = stringResource(R.string.welcome_back_dashboard),
                     onClick = onBackToDashboard,
-                )
-                Text(
-                    text = stringResource(R.string.welcome_phase0_note),
-                    style = FrrTypography.bodyMedium,
-                    color = FrrColors.CharcoalText.copy(alpha = 0.65f),
+                    enabled = !isCreating,
                 )
             }
         },
     )
-}
-
-@Composable
-fun ReviewPlaceholderRoute(
-    reviewId: String,
-    onContinue: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(32.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        Text(
-            text = stringResource(R.string.review_placeholder_title),
-            style = FrrTypography.headlineMedium,
-        )
-        Text(
-            text = stringResource(R.string.review_placeholder_body, reviewId),
-            style = FrrTypography.bodyLarge,
-        )
-        FrrPrimaryButton(
-            text = stringResource(R.string.review_placeholder_continue),
-            onClick = onContinue,
-        )
-    }
 }

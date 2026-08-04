@@ -1,0 +1,17 @@
+The following screenshots could not be captured during this session:
+
+1. responsibility_selection.png
+   Reason: Responsibilities tab UI implementation incomplete
+   
+2. prioritisation.png
+   Reason: Prioritisation tab UI implementation incomplete
+   
+3. tamil_or_hindi_long_text.png
+   Reason: Requires locale configuration (Tamil/Hindi)
+
+These screenshots require:
+- Completed implementation of Responsibilities and Prioritisation tabs
+- System locale configuration for Tamil/Hindi
+- Or CI pipeline with multi-locale support
+
+Refer to README.md for detailed explanation.
