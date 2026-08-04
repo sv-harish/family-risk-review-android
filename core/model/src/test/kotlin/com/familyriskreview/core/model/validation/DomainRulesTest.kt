@@ -2,10 +2,13 @@ package com.familyriskreview.core.model.validation
 
 import com.familyriskreview.core.model.ContributionStatus
 import com.familyriskreview.core.model.DependencyStatus
+import com.familyriskreview.core.model.DomainLimits
 import com.familyriskreview.core.model.FamilyMemberType
 import com.familyriskreview.core.model.HouseholdMember
 import com.familyriskreview.core.model.MoneyAmount
+import com.familyriskreview.core.model.QuantificationStatus
 import com.familyriskreview.core.model.Responsibility
+import com.familyriskreview.core.model.ResponsibilityAmountModel
 import com.familyriskreview.core.model.ResponsibilityCatalogue
 import com.familyriskreview.core.model.ResponsibilityPriority
 import com.familyriskreview.core.model.ResponsibilityTiming
@@ -114,6 +117,7 @@ class ResponsibilityRulesTest {
                 catalogue = ResponsibilityCatalogue.OTHER,
                 isSelected = true,
                 priority = ResponsibilityPriority.MUST_CONTINUE,
+                amountModel = ResponsibilityAmountModel.ONE_TIME,
                 timing = ResponsibilityTiming(TimingKind.CURRENT_OUTSTANDING),
                 currentAmount = MoneyAmount(10_000),
             )
@@ -171,7 +175,7 @@ class ResponsibilityRulesTest {
                 isSelected = true,
                 priority = ResponsibilityPriority.MUST_CONTINUE,
                 timing = ResponsibilityTiming(TimingKind.AS_LONG_AS_REQUIRED),
-                excludedFromNumericCalculation = true,
+                quantificationStatus = QuantificationStatus.NOT_YET_QUANTIFIED,
             )
         val result = ResponsibilityRules.validateDetails(item, ReviewMode.GUIDED)
         assertThat(result.isValid).isTrue()
@@ -206,13 +210,64 @@ class ResponsibilityRulesTest {
                 catalogue = ResponsibilityCatalogue.CHILD_MARRIAGE_SUPPORT,
                 isSelected = true,
                 priority = ResponsibilityPriority.IMPORTANT_BUT_ADJUSTABLE,
+                quantificationStatus = QuantificationStatus.NOT_YET_QUANTIFIED,
             )
         val result = ResponsibilityRules.validateDetails(item, ReviewMode.QUICK)
         assertThat(result.isValid).isTrue()
     }
 
     @Test
-    fun untilMilestoneRequiresHorizonOrExclusion() {
+    fun quickLightweightWithoutDetails_mustBeNonQuantified() {
+        val item =
+            Responsibility(
+                id = "1",
+                reviewId = "r1",
+                catalogue = ResponsibilityCatalogue.CHILD_MARRIAGE_SUPPORT,
+                isSelected = true,
+                priority = ResponsibilityPriority.IMPORTANT_BUT_ADJUSTABLE,
+                quantificationStatus = QuantificationStatus.QUANTIFIED,
+            )
+        val result = ResponsibilityRules.validateDetails(item, ReviewMode.QUICK)
+        assertThat(result.errors.any { it.code == "RESP_LIGHTWEIGHT_MUST_BE_NON_QUANTIFIED" }).isTrue()
+    }
+
+    @Test
+    fun quickLightweightNonQuantified_accepted() {
+        val item =
+            Responsibility(
+                id = "1",
+                reviewId = "r1",
+                catalogue = ResponsibilityCatalogue.CHILD_MARRIAGE_SUPPORT,
+                isSelected = true,
+                priority = ResponsibilityPriority.IMPORTANT_BUT_ADJUSTABLE,
+                quantificationStatus = QuantificationStatus.NOT_YET_QUANTIFIED,
+            )
+        val result = ResponsibilityRules.validateDetails(item, ReviewMode.QUICK)
+        assertThat(result.isValid).isTrue()
+    }
+
+    @Test
+    fun livingExpenses_rejectsOneTimeTiming() {
+        val item =
+            Responsibility(
+                id = "1",
+                reviewId = "r1",
+                catalogue = ResponsibilityCatalogue.ESSENTIAL_FAMILY_LIVING_EXPENSES,
+                isSelected = true,
+                priority = ResponsibilityPriority.MUST_CONTINUE,
+                timing =
+                ResponsibilityTiming(
+                    TimingKind.ONE_TIME_IN_YEARS,
+                    yearsUntilRequired = 5,
+                ),
+                monthlyAmount = MoneyAmount(20_000),
+            )
+        val result = ResponsibilityRules.validateDetails(item, ReviewMode.GUIDED)
+        assertThat(result.errors.any { it.code == "RESP_TIMING_NOT_ALLOWED" }).isTrue()
+    }
+
+    @Test
+    fun education_rejectsRecurringTiming() {
         val item =
             Responsibility(
                 id = "1",
@@ -222,12 +277,109 @@ class ResponsibilityRulesTest {
                 priority = ResponsibilityPriority.MUST_CONTINUE,
                 timing =
                 ResponsibilityTiming(
-                    TimingKind.UNTIL_MILESTONE,
-                    milestoneLabel = "Graduation",
+                    TimingKind.RECURRING_DURATION,
+                    durationYears = 5,
                 ),
                 currentAmount = MoneyAmount(1_000_000),
             )
         val result = ResponsibilityRules.validateDetails(item, ReviewMode.GUIDED)
-        assertThat(result.errors.any { it.code == "RESP_MILESTONE_HORIZON_REQUIRED" }).isTrue()
+        assertThat(result.errors.any { it.code == "RESP_TIMING_NOT_ALLOWED" }).isTrue()
+    }
+
+    @Test
+    fun amountAboveLimit_rejected() {
+        val item =
+            Responsibility(
+                id = "1",
+                reviewId = "r1",
+                catalogue = ResponsibilityCatalogue.CHILD_HIGHER_EDUCATION,
+                isSelected = true,
+                priority = ResponsibilityPriority.MUST_CONTINUE,
+                timing =
+                ResponsibilityTiming(
+                    TimingKind.ONE_TIME_IN_YEARS,
+                    yearsUntilRequired = 10,
+                ),
+                currentAmount = MoneyAmount(DomainLimits.MAX_ONE_TIME_RUPEES + 1),
+            )
+        val result = ResponsibilityRules.validateDetails(item, ReviewMode.GUIDED)
+        assertThat(result.errors.any { it.code == "RESP_AMOUNT_LIMIT" }).isTrue()
+    }
+
+    @Test
+    fun amountAtMaxBoundary_accepted() {
+        val item =
+            Responsibility(
+                id = "1",
+                reviewId = "r1",
+                catalogue = ResponsibilityCatalogue.CHILD_HIGHER_EDUCATION,
+                isSelected = true,
+                priority = ResponsibilityPriority.MUST_CONTINUE,
+                timing =
+                ResponsibilityTiming(
+                    TimingKind.ONE_TIME_IN_YEARS,
+                    yearsUntilRequired = 0,
+                ),
+                currentAmount = MoneyAmount(DomainLimits.MAX_ONE_TIME_RUPEES),
+            )
+        val result = ResponsibilityRules.validateDetails(item, ReviewMode.GUIDED)
+        assertThat(result.isValid).isTrue()
+    }
+
+    @Test
+    fun durationAboveLimit_rejected() {
+        val item =
+            Responsibility(
+                id = "1",
+                reviewId = "r1",
+                catalogue = ResponsibilityCatalogue.ESSENTIAL_FAMILY_LIVING_EXPENSES,
+                isSelected = true,
+                priority = ResponsibilityPriority.MUST_CONTINUE,
+                timing =
+                ResponsibilityTiming(
+                    TimingKind.RECURRING_DURATION,
+                    durationYears = DomainLimits.MAX_DURATION_YEARS + 1,
+                ),
+                monthlyAmount = MoneyAmount(10_000),
+            )
+        val result = ResponsibilityRules.validateDetails(item, ReviewMode.GUIDED)
+        assertThat(result.errors.any { it.code == "RESP_DURATION_LIMIT" }).isTrue()
+    }
+
+    @Test
+    fun guidedPostponedStillRequiresFullDetails() {
+        val item =
+            Responsibility(
+                id = "1",
+                reviewId = "r1",
+                catalogue = ResponsibilityCatalogue.CHILD_MARRIAGE_SUPPORT,
+                isSelected = true,
+                priority = ResponsibilityPriority.CAN_BE_POSTPONED_OR_REDUCED,
+                quantificationStatus = QuantificationStatus.QUANTIFIED,
+            )
+        val result = ResponsibilityRules.validateDetails(item, ReviewMode.GUIDED)
+        assertThat(result.isValid).isFalse()
+        assertThat(result.errors.any { it.code == "RESP_TIMING_REQUIRED" }).isTrue()
+    }
+
+    @Test
+    fun livingExpenses_rejectsCustomTiming() {
+        val item =
+            Responsibility(
+                id = "1",
+                reviewId = "r1",
+                catalogue = ResponsibilityCatalogue.ESSENTIAL_FAMILY_LIVING_EXPENSES,
+                isSelected = true,
+                priority = ResponsibilityPriority.MUST_CONTINUE,
+                timing =
+                ResponsibilityTiming(
+                    TimingKind.CUSTOM,
+                    customNote = "ad hoc",
+                    modellingDurationYears = 10,
+                ),
+                monthlyAmount = MoneyAmount(20_000),
+            )
+        val result = ResponsibilityRules.validateDetails(item, ReviewMode.GUIDED)
+        assertThat(result.errors.any { it.code == "RESP_TIMING_NOT_ALLOWED" }).isTrue()
     }
 }

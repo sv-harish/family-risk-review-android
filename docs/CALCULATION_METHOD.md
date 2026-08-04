@@ -79,6 +79,28 @@ data class CalculationScenario(
 
 Lower / Base / Higher results are generated only when each scenario has documented assumption differences. If only Base is approved, do not imply a meaningful range.
 
+`ScenarioRules.validateAndOrder` enforces unique kinds, Quick Base-only (or empty), Guided Lower/Base/Higher, and deterministic Lower → Base → Higher order. The summary use case keeps one canonical Base result; Lower/Higher appear separately without duplicating Base.
+
+## Quantification
+
+`QuantificationStatus.QUANTIFIED` | `NOT_YET_QUANTIFIED`.
+
+* Non-quantified items appear in summary lines with a **null** indicative amount.
+* They are **excluded** from numeric totals (never silently ₹0).
+* Quick Review lightweight (adjustable/postponed) items without complete inputs must be `NOT_YET_QUANTIFIED`.
+* `optionalIndicativeAmount` returns null for non-quantified items and does not throw.
+
+## Domain limits (enforced before calculation)
+
+| Input | Bound |
+|-------|-------|
+| One-time amount | ≤ ₹1,00,000 crore (`1e12`) |
+| Monthly amount | ≤ ₹10 crore |
+| Years until required | 0 … 80 |
+| Recurring duration / modelling horizon | 1 … 80 |
+
+Known calculator failures map to `DomainError.Calculation` at the use-case boundary (`CalculationFailureMapper`).
+
 ## Indicative Gross Responsibility Value
 
 Sum of indicative values for selected **Must continue** responsibilities. Not recommended life cover.
@@ -94,7 +116,7 @@ Persisted `CalculationSnapshot` rows capture:
 * scenario kind
 * assumptions JSON
 * must-continue / adjustable / postponed totals
-* per-responsibility indicative lines JSON
+* per-responsibility indicative lines JSON (includes quantification status; null amount when non-quantified)
 * generated-at timestamp
 
 The review’s `summaryStale` flag is cleared when a snapshot is saved and set again whenever calculation inputs change.

@@ -5,6 +5,7 @@ import com.familyriskreview.core.model.CalculationAssumptions
 import com.familyriskreview.core.model.CalculationScenario
 import com.familyriskreview.core.model.DerivedValueMetadata
 import com.familyriskreview.core.model.MoneyAmount
+import com.familyriskreview.core.model.QuantificationStatus
 import com.familyriskreview.core.model.Responsibility
 import com.familyriskreview.core.model.ResponsibilityCatalogue
 import com.familyriskreview.core.model.ResponsibilityPriority
@@ -332,7 +333,7 @@ class ResponsibilityCalculatorTest {
                 timing = ResponsibilityTiming(TimingKind.AS_LONG_AS_REQUIRED),
                 monthlyAmount = MoneyAmount(10_000),
                 isSelected = true,
-                excludedFromNumericCalculation = true,
+                quantificationStatus = QuantificationStatus.NOT_YET_QUANTIFIED,
             )
         val included =
             Responsibility(
@@ -343,8 +344,12 @@ class ResponsibilityCalculatorTest {
                 timing = ResponsibilityTiming(TimingKind.CURRENT_OUTSTANDING),
                 currentAmount = MoneyAmount(500_000),
                 isSelected = true,
+                quantificationStatus = QuantificationStatus.QUANTIFIED,
             )
         assertThat(ResponsibilityCalculator.optionalIndicativeAmount(excluded)).isNull()
+        assertThrows(IllegalArgumentException::class.java) {
+            ResponsibilityCalculator.indicativeAmount(excluded)
+        }
         val gross =
             ResponsibilityCalculator.indicativeGrossResponsibility(listOf(excluded, included))
         assertThat(gross.mustContinueTotalRupees).isEqualTo(500_000)

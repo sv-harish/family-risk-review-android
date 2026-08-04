@@ -109,7 +109,8 @@ fun ResponsibilityEntity.toDomain(): Responsibility = Responsibility(
     calculationVersion = calculationVersion,
     isSelected = isSelected,
     sortOrder = sortOrder,
-    excludedFromNumericCalculation = excludedFromNumericCalculation,
+    quantificationStatus = quantificationStatus,
+    amountModel = amountModel,
 )
 
 private fun ResponsibilityEntity.toDerivedMetadata(): DerivedValueMetadata? {
@@ -156,7 +157,8 @@ fun Responsibility.toEntity(): ResponsibilityEntity = ResponsibilityEntity(
     calculationVersion = calculationVersion,
     isSelected = isSelected,
     sortOrder = sortOrder,
-    excludedFromNumericCalculation = excludedFromNumericCalculation,
+    quantificationStatus = quantificationStatus,
+    amountModel = amountModel,
 )
 
 fun AdvisorReferenceEntity.toDomain(): AdvisorReference = AdvisorReference(

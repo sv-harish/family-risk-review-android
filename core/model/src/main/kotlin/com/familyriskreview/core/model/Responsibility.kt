@@ -42,6 +42,29 @@ enum class ResponsibilityPriority {
     CAN_BE_POSTPONED_OR_REDUCED,
 }
 
+/**
+ * Explicit quantitative state. Do not infer quantification from nullable amounts.
+ *
+ * [NOT_YET_QUANTIFIED] items appear in summaries with a null indicative amount and
+ * are excluded from numeric totals (never silently ₹0).
+ */
+@Serializable
+enum class QuantificationStatus {
+    QUANTIFIED,
+    NOT_YET_QUANTIFIED,
+}
+
+/**
+ * Explicit amount model for custom / OTHER responsibilities.
+ * Timing and amount fields are validated against this model — not by probing
+ * which nullable money fields happen to be set.
+ */
+@Serializable
+enum class ResponsibilityAmountModel {
+    ONE_TIME,
+    RECURRING,
+}
+
 @Serializable
 enum class TimingKind {
     ONE_TIME_IN_YEARS,
@@ -52,15 +75,6 @@ enum class TimingKind {
     CUSTOM,
 }
 
-/**
- * Timing for a responsibility.
- *
- * For [TimingKind.AS_LONG_AS_REQUIRED], [TimingKind.UNTIL_MILESTONE], and
- * [TimingKind.CUSTOM], either a calculable horizon
- * ([modellingDurationYears] / [yearsUntilRequired] / [durationYears]) must be
- * set, or the parent responsibility must be marked
- * [Responsibility.excludedFromNumericCalculation].
- */
 @Serializable
 data class ResponsibilityTiming(
     val kind: TimingKind,
@@ -68,10 +82,6 @@ data class ResponsibilityTiming(
     val durationYears: Int? = null,
     val milestoneLabel: String? = null,
     val customNote: String? = null,
-    /**
-     * Explicit modelling horizon (years) used for awareness calculations when
-     * the conceptual duration is open-ended (e.g. “as long as required”).
-     */
     val modellingDurationYears: Int? = null,
 )
 
@@ -101,11 +111,11 @@ data class Responsibility(
     val calculationVersion: String? = null,
     val isSelected: Boolean = false,
     val sortOrder: Int = 0,
-    /**
-     * When true, the item is shown as “Duration not yet quantified” and is
-     * excluded from numeric totals (never silently treated as ₹0).
-     */
-    val excludedFromNumericCalculation: Boolean = false,
+    val quantificationStatus: QuantificationStatus = QuantificationStatus.QUANTIFIED,
+    /** Required when [catalogue] is [ResponsibilityCatalogue.OTHER]. */
+    val amountModel: ResponsibilityAmountModel? = null,
 ) {
-    fun isIncludedInNumericTotal(): Boolean = isSelected && !excludedFromNumericCalculation
+    fun isNonQuantified(): Boolean = quantificationStatus == QuantificationStatus.NOT_YET_QUANTIFIED
+
+    fun isIncludedInNumericTotal(): Boolean = isSelected && quantificationStatus == QuantificationStatus.QUANTIFIED
 }

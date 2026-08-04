@@ -93,8 +93,28 @@
 **Status:** Accepted  
 **Decision:** `Review.calculationInputRevision` bumps only when calculation inputs change. Aggregate `revision` bumps on all writes (including archive/step). Snapshots bind to `calculationInputRevision`. Non-financial revisions (archive, step) do not stale a fresh summary.
 
-## ADR-020 — Open-ended timing requires modelling horizon or exclusion
+## ADR-020 — Open-ended timing requires modelling horizon or explicit non-quantified state
+
+**Status:** Accepted (supersedes exclusion-flag wording)  
+**Decision:** `AS_LONG_AS_REQUIRED`, `UNTIL_MILESTONE`, and `CUSTOM` require a calculable horizon (`modellingDurationYears` / years / duration) **or** `QuantificationStatus.NOT_YET_QUANTIFIED`. Non-quantified items appear in summary lines with a null indicative amount and are omitted from numeric totals (never silent ₹0). Do not infer quantification from nullable amount fields.
+
+## ADR-021 — Catalogue-specific timing rules
 
 **Status:** Accepted  
-**Decision:** `AS_LONG_AS_REQUIRED`, `UNTIL_MILESTONE`, and `CUSTOM` require a calculable horizon (`modellingDurationYears` / years / duration) or `excludedFromNumericCalculation=true`. Excluded items are omitted from totals (never silent ₹0).
+**Decision:** Allowed timing kinds are catalogue-specific (`CatalogueTimingRules`). Living expenses reject one-time and loan timing. Support catalogues reject one-time/loan timing (justified `CUSTOM` recurring allowed). Education / marriage / house are one-time oriented. Loans require `CURRENT_OUTSTANDING`. Custom (`OTHER`) requires an explicit `ResponsibilityAmountModel` (`ONE_TIME` / `RECURRING`); timing is validated against that model, not by probing which money fields are set.
+
+## ADR-022 — Deterministic scenario sets
+
+**Status:** Accepted  
+**Decision:** `ScenarioRules.validateAndOrder` enforces unique scenario kinds, Quick Base-only (or empty), Guided Lower/Base/Higher, and always returns Lower → Base → Higher order. Empty list means the standard Base result only — missing scenarios are never invented. `CalculateReviewSummaryUseCase` keeps one canonical Base in `Result.base`; Lower/Higher appear in `Result.scenarios` without duplicating Base.
+
+## ADR-023 — Typed calculation failures and domain limits
+
+**Status:** Accepted  
+**Decision:** Known calculator `IllegalArgumentException` / `IllegalStateException` / `ArithmeticException` are mapped at the use-case boundary via `CalculationFailureMapper` to `DomainError.Calculation` with stable codes. Programming defects are not caught indiscriminately. `DomainLimits` bounds one-time/monthly amounts and year horizons and are enforced in domain validation before calculation.
+
+## ADR-024 — Feature-facing persistence cannot bypass lifecycle
+
+**Status:** Accepted  
+**Decision:** `ReviewRepository` no longer exposes `updateReviewCas` or `advanceStep`. Step advances go through `AdvanceReviewStepUseCase` → `ReviewInternalWriter` (bound in `:core:data` DI). Features must use use cases; they cannot arbitrarily set status, clear summary-stale, change calculation version, or jump steps via the public repository API.
 

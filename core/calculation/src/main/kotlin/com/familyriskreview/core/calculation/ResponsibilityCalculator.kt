@@ -3,9 +3,11 @@ package com.familyriskreview.core.calculation
 import com.familyriskreview.core.model.AnnualRateBps
 import com.familyriskreview.core.model.CalculationAssumptions
 import com.familyriskreview.core.model.DerivedValueMetadata
+import com.familyriskreview.core.model.DomainLimits
 import com.familyriskreview.core.model.GrossResponsibilityResult
 import com.familyriskreview.core.model.InflationAssumptionKind
 import com.familyriskreview.core.model.MoneyAmount
+import com.familyriskreview.core.model.QuantificationStatus
 import com.familyriskreview.core.model.Responsibility
 import com.familyriskreview.core.model.ResponsibilityCatalogue
 import com.familyriskreview.core.model.ResponsibilityPriority
@@ -129,15 +131,15 @@ object ResponsibilityCalculator {
     }
 
     /**
-     * Indicative amount for a calculable responsibility.
-     * Excluded / non-quantified items must not call this — use [optionalIndicativeAmount].
+     * Indicative amount for a quantified, calculable responsibility.
+     * Non-quantified items must use [optionalIndicativeAmount] instead.
      */
     fun indicativeAmount(
         responsibility: Responsibility,
         assumptions: CalculationAssumptions = CalculationAssumptions.Default,
     ): Long {
-        require(!responsibility.excludedFromNumericCalculation) {
-            "Excluded responsibilities must not contribute a numeric indicative amount"
+        require(responsibility.quantificationStatus == QuantificationStatus.QUANTIFIED) {
+            "Non-quantified responsibilities must not contribute a numeric indicative amount"
         }
         if (canReuseDerived(responsibility, assumptions)) {
             return responsibility.futureIndicativeAmount!!.amountRupees
@@ -145,13 +147,13 @@ object ResponsibilityCalculator {
         return computeIndicative(responsibility, assumptions).amountRupees
     }
 
-    /** Null when excluded from numeric totals — never silently treat as ₹0. */
+    /** Null when not quantified — never silently treat as ₹0 and never throws for that case. */
     fun optionalIndicativeAmount(
         responsibility: Responsibility,
         assumptions: CalculationAssumptions = CalculationAssumptions.Default,
     ): Long? {
-        if (responsibility.excludedFromNumericCalculation) return null
         if (!responsibility.isSelected) return null
+        if (responsibility.isNonQuantified()) return null
         return indicativeAmount(responsibility, assumptions)
     }
 
@@ -159,7 +161,7 @@ object ResponsibilityCalculator {
         responsibility: Responsibility,
         assumptions: CalculationAssumptions = CalculationAssumptions.Default,
     ): MoneyAmount {
-        require(!responsibility.excludedFromNumericCalculation) {
+        require(responsibility.quantificationStatus == QuantificationStatus.QUANTIFIED) {
             "Cannot compute indicative amount for a non-quantified responsibility"
         }
         val inflation = resolveInflation(responsibility, assumptions)
@@ -227,7 +229,7 @@ object ResponsibilityCalculator {
         responsibility: Responsibility,
         assumptions: CalculationAssumptions,
     ): Boolean {
-        if (responsibility.excludedFromNumericCalculation) return false
+        if (responsibility.isNonQuantified()) return false
         val derived = responsibility.futureIndicativeAmount ?: return false
         val meta = responsibility.derivedMetadata ?: return false
         if (meta.assumptionVersion != assumptions.version) return false
@@ -310,7 +312,7 @@ object ResponsibilityCalculator {
 
     private fun requireNonOverflowBase(amount: Long) {
         // Guard extreme bases that would explode under multi-year compounding.
-        require(amount <= 1_000_000_000_000L) {
+        require(amount <= DomainLimits.MAX_ONE_TIME_RUPEES) {
             "amount exceeds supported calculation range"
         }
     }

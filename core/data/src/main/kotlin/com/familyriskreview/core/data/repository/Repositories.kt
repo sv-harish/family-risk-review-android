@@ -33,17 +33,6 @@ interface ReviewRepository {
         assumptions: CalculationAssumptions = CalculationAssumptions.Default,
     ): DomainResult<Review>
 
-    suspend fun updateReviewCas(
-        review: Review,
-        expectedRevision: Long,
-    ): DomainResult<Review>
-
-    suspend fun advanceStep(
-        reviewId: String,
-        expectedRevision: Long,
-        step: ReviewStep,
-    ): DomainResult<Review>
-
     suspend fun archiveReview(
         id: String,
         expectedRevision: Long,
@@ -69,6 +58,19 @@ interface ReviewRepository {
         id: String,
         expectedRevision: Long,
         customerAcknowledged: Boolean,
+    ): DomainResult<Review>
+}
+
+/**
+ * Internal write surface for use cases in `:core:data` only.
+ * Not exposed on the feature-facing [ReviewRepository] API so callers cannot
+ * bypass progression gates or arbitrarily mutate protected aggregate fields.
+ */
+interface ReviewInternalWriter {
+    suspend fun advanceStep(
+        reviewId: String,
+        expectedRevision: Long,
+        step: ReviewStep,
     ): DomainResult<Review>
 }
 

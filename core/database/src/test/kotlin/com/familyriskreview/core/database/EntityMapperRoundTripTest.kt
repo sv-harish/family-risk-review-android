@@ -86,6 +86,23 @@ class EntityMapperRoundTripTest {
                     calculationVersion = "1.1.0",
                 ),
                 isSelected = true,
+                quantificationStatus = com.familyriskreview.core.model.QuantificationStatus.QUANTIFIED,
+            )
+        assertThat(responsibility.toEntity().toDomain()).isEqualTo(responsibility)
+    }
+
+    @Test
+    fun responsibilityRoundTrip_nonQuantifiedAndAmountModel() {
+        val responsibility =
+            Responsibility(
+                id = "r2",
+                reviewId = "id-1",
+                catalogue = ResponsibilityCatalogue.OTHER,
+                customLabel = "Custom support",
+                priority = ResponsibilityPriority.IMPORTANT_BUT_ADJUSTABLE,
+                isSelected = true,
+                quantificationStatus = com.familyriskreview.core.model.QuantificationStatus.NOT_YET_QUANTIFIED,
+                amountModel = com.familyriskreview.core.model.ResponsibilityAmountModel.RECURRING,
             )
         assertThat(responsibility.toEntity().toDomain()).isEqualTo(responsibility)
     }

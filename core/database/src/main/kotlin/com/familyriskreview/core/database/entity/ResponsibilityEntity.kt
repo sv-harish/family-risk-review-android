@@ -4,6 +4,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.familyriskreview.core.model.QuantificationStatus
+import com.familyriskreview.core.model.ResponsibilityAmountModel
 import com.familyriskreview.core.model.ResponsibilityCatalogue
 import com.familyriskreview.core.model.ResponsibilityPriority
 import com.familyriskreview.core.model.TimingKind
@@ -48,5 +50,6 @@ data class ResponsibilityEntity(
     val calculationVersion: String?,
     val isSelected: Boolean,
     val sortOrder: Int,
-    val excludedFromNumericCalculation: Boolean,
+    val quantificationStatus: QuantificationStatus,
+    val amountModel: ResponsibilityAmountModel?,
 )

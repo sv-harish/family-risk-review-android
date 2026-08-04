@@ -40,6 +40,9 @@ sealed class DomainError {
 
     /** Non-retryable persistence / constraint failure. */
     data class Persistence(val message: String) : DomainError()
+
+    /** Expected calculation / arithmetic failure mapped at the use-case boundary. */
+    data class Calculation(val code: String, val message: String) : DomainError()
 }
 
 data class ValidationIssue(

@@ -5,6 +5,8 @@ import com.familyriskreview.core.model.AppLanguage
 import com.familyriskreview.core.model.ContributionStatus
 import com.familyriskreview.core.model.DependencyStatus
 import com.familyriskreview.core.model.FamilyMemberType
+import com.familyriskreview.core.model.QuantificationStatus
+import com.familyriskreview.core.model.ResponsibilityAmountModel
 import com.familyriskreview.core.model.ResponsibilityCatalogue
 import com.familyriskreview.core.model.ResponsibilityPriority
 import com.familyriskreview.core.model.ReviewMode
@@ -62,4 +64,12 @@ class DatabaseConverters {
     @TypeConverter fun fromScenarioKind(value: ScenarioKind): String = value.name
 
     @TypeConverter fun toScenarioKind(value: String): ScenarioKind = ScenarioKind.valueOf(value)
+
+    @TypeConverter fun fromQuantificationStatus(value: QuantificationStatus): String = value.name
+
+    @TypeConverter fun toQuantificationStatus(value: String): QuantificationStatus = QuantificationStatus.valueOf(value)
+
+    @TypeConverter fun fromAmountModel(value: ResponsibilityAmountModel?): String? = value?.name
+
+    @TypeConverter fun toAmountModel(value: String?): ResponsibilityAmountModel? = value?.let { ResponsibilityAmountModel.valueOf(it) }
 }

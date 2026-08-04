@@ -110,6 +110,7 @@ class Phase11HardeningRobolectricTest {
         advance =
             AdvanceReviewStepUseCase(
                 reviewRepository = reviews,
+                reviewWriter = reviews,
                 householdRepository = household,
                 responsibilityRepository = responsibilities,
                 snapshotRepository = snapshots,

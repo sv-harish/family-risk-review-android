@@ -1,50 +1,52 @@
 # QA status — Family Risk Review
 
-## Phase 1.1 gates (local)
+## Phase 1.2 gates (local)
 
 | Gate | Status |
 |------|--------|
-| `./gradlew spotlessCheck` | **Passed** |
-| `./gradlew lintDebug` | **Passed** (0 errors; warnings present — see unresolved) |
-| `./gradlew test` | **Passed** |
-| `./gradlew assembleDebug` | **Passed** |
-| `./gradlew :app:verifyPhase1` | **Passed** |
+| `./gradlew spotlessCheck` | Pending local run this revision |
+| `./gradlew lintDebug` | Pending local run this revision |
+| `./gradlew test` | Pending local run this revision |
+| `./gradlew assembleDebug` | Pending local run this revision |
+| `./gradlew :app:verifyPhase1` | Pending local run this revision |
 
-## Phase 1.1 correctness hardening
+## Phase 1.2 final domain corrections
 
-Repaired before PR #2 merge:
+On PR #2 (draft) before merge:
 
-- CAS conflict rolls back child writes / snapshots (Room abort exception)
-- Sync enqueue only after commit
-- Progression gates validate before advancing
-- Explicit `ReviewModePolicy` Quick vs Guided differences
-- Open-ended timing requires modelling horizon or numeric exclusion
-- Catalogue-specific amount rules
-- Assumption corruption fails closed (`CorruptData`)
-- Lifecycle editability + explicit reopen
-- Focused-contributor integrity (`FocusUpdate`)
-- Review-number collision classification
-- Explicit `calculationVersion` + `calculationInputRevision` staleness
+1. Quick lightweight items → explicit `QuantificationStatus.NOT_YET_QUANTIFIED`
+2. Null indicative in summary lines; excluded from totals; no silent ₹0; no `indicativeAmount` crash
+3. Catalogue-specific timing via `CatalogueTimingRules` + `ResponsibilityAmountModel` for OTHER
+4. `ScenarioRules` unique kinds + deterministic Lower → Base → Higher order
+5. Quick rejects non-Base / duplicate Base scenarios
+6. One canonical Base in use-case result (no duplicate Base row)
+7. `DomainError.Calculation` via `CalculationFailureMapper`
+8. `DomainLimits` enforced in domain validation
+9. `ReviewRepository` no longer exposes `updateReviewCas` / `advanceStep` (`ReviewInternalWriter` internal)
+10. Regression tests for each correction
+11. No Phase 2 UI
 
 ## Test inventory
 
 | Kind | Notes |
 |------|-------|
-| JVM unit tests | lifecycle, progression gates, validation, calculation, assumptions parse |
-| Robolectric | CAS rollback asserts persisted DB state + sync intents; lifecycle; focus |
+| JVM unit tests | lifecycle, progression, ScenarioRules, CatalogueTiming, Quantification, DomainLimits, CalculationFailureMapper |
+| Robolectric | CAS rollback, sync-after-commit, lifecycle, focus, repository API |
+| Use-case | `CalculateReviewSummaryFailureTest` (typed overflow failure) |
 | Instrumentation executed | 0 |
 
-### Representative regression tests
+### Representative Phase 1.2 tests
 
-- `Phase11HardeningRobolectricTest` (rollback, sync-after-commit, editability, focus, staleness)
-- `ProgressionGatesTest`
-- `ResponsibilityRulesTest` (timing/amount/Quick vs Guided)
-- `ResponsibilityCalculatorTest` (no silent zero; exclusion omitted from totals)
-- `ReviewLifecycleTest` (reopen + mode policies)
+- `Phase12QuantificationTest`
+- `ScenarioRulesTest`
+- `CatalogueTimingRulesTest`
+- `CalculationFailureMapperTest` / `CalculateReviewSummaryFailureTest`
+- `ResponsibilityRulesTest` (Quick non-quantified + Guided full details + limits)
+- `ResponsibilityCalculatorTest` (optional indicative null; indicative throws for non-quantified)
 
 ## Unresolved warnings / gaps
 
-- Android Lint informational/warning findings; no lint errors.
+- Android Lint informational/warning findings; no lint errors expected.
 - kotlinx-datetime `Instant` deprecation warnings.
 - Fonts / Dareus One logo / advisor portrait still placeholders.
 - Emulator IME / device recreation QA not run.
@@ -56,9 +58,6 @@ Do not claim device testing without running it. Do not claim PR verification pas
 
 ## CI status
 
-Phase 1.1 GitHub Actions **passed** on branch `cursor/phase-1-domain-engine-1a7a`:
+Phase 1.1 was green. Phase 1.2 CI status will be recorded after push of this revision.
 
-- push run: success — https://github.com/sv-harish/family-risk-review-android/actions/runs/30864687192
-- pull_request run: success — https://github.com/sv-harish/family-risk-review-android/actions/runs/30864688987
-
-**PR #2 remains a draft** until Phase 1.1 corrections are reviewed.
+**PR #2 remains a draft** until Phase 1.2 final review is complete.

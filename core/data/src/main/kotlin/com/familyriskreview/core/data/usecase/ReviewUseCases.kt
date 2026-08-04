@@ -5,6 +5,7 @@ import com.familyriskreview.core.data.repository.AdvisorReferenceRepository
 import com.familyriskreview.core.data.repository.CalculationSnapshotRepository
 import com.familyriskreview.core.data.repository.HouseholdRepository
 import com.familyriskreview.core.data.repository.ResponsibilityRepository
+import com.familyriskreview.core.data.repository.ReviewInternalWriter
 import com.familyriskreview.core.data.repository.ReviewRepository
 import com.familyriskreview.core.model.AdvisorReference
 import com.familyriskreview.core.model.AppLanguage
@@ -21,16 +22,17 @@ import com.familyriskreview.core.model.Review
 import com.familyriskreview.core.model.ReviewMode
 import com.familyriskreview.core.model.ReviewStatus
 import com.familyriskreview.core.model.ScenarioKind
-import com.familyriskreview.core.model.lifecycle.ReviewModePolicy
 import com.familyriskreview.core.model.lifecycle.ReviewProgression
 import com.familyriskreview.core.model.result.DomainError
 import com.familyriskreview.core.model.result.DomainResult
 import com.familyriskreview.core.model.service.Clock
 import com.familyriskreview.core.model.service.IdGenerator
 import com.familyriskreview.core.model.suggestion.ResponsibilitySuggestionEngine
+import com.familyriskreview.core.model.validation.CalculationFailureMapper
 import com.familyriskreview.core.model.validation.HouseholdRules
 import com.familyriskreview.core.model.validation.ProgressionGates
 import com.familyriskreview.core.model.validation.ResponsibilityRules
+import com.familyriskreview.core.model.validation.ScenarioRules
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
@@ -73,6 +75,7 @@ class AdvanceReviewStepUseCase
 @Inject
 constructor(
     private val reviewRepository: ReviewRepository,
+    private val reviewWriter: ReviewInternalWriter,
     private val householdRepository: HouseholdRepository,
     private val responsibilityRepository: ResponsibilityRepository,
     private val snapshotRepository: CalculationSnapshotRepository,
@@ -110,7 +113,7 @@ constructor(
             } ?: return DomainResult.failure(
                 DomainError.Transition("No further step from ${review.currentStep}"),
             )
-        return reviewRepository.advanceStep(reviewId, expectedRevision, next)
+        return reviewWriter.advanceStep(reviewId, expectedRevision, next)
     }
 }
 
@@ -252,19 +255,11 @@ constructor(
         val review =
             reviewRepository.getReview(reviewId)
                 ?: return DomainResult.failure(DomainError.NotFound("Review $reviewId not found"))
-        val policy = ReviewModePolicy.forMode(review.mode)
-        if (!policy.allowMultipleScenarios && scenarios.any { it.kind != ScenarioKind.BASE }) {
-            return DomainResult.failure(
-                DomainError.Validation(
-                    listOf(
-                        com.familyriskreview.core.model.result.ValidationIssue(
-                            code = "SCENARIO_NOT_ALLOWED",
-                            message = "This review mode only allows the Base calculation scenario",
-                        ),
-                    ),
-                ),
-            )
-        }
+        val orderedScenarios =
+            when (val validated = ScenarioRules.validateAndOrder(review.mode, scenarios)) {
+                is DomainResult.Success -> validated.value
+                is DomainResult.Failure -> return validated
+            }
         val responsibilities = responsibilityRepository.getResponsibilities(reviewId)
         val validation = ResponsibilityRules.validateForCalculation(responsibilities, review.mode)
         if (!validation.isValid) {
@@ -276,32 +271,56 @@ constructor(
                 is DomainResult.Failure -> return parsed
             }
 
-        val base =
-            ResponsibilityCalculator.indicativeGrossResponsibility(
-                responsibilities = responsibilities,
-                assumptions = assumptions,
-                scenarioKind = ScenarioKind.BASE,
-            )
-        val scenarioResults =
-            if (scenarios.isEmpty()) {
-                emptyList()
-            } else {
-                ResponsibilityCalculator.evaluateScenarios(responsibilities, scenarios)
+        val computed =
+            try {
+                // Canonical Base only — explicit Base scenario assumptions replace review
+                // assumptions; Base never appears again in [scenarios] (no duplicate).
+                val baseAssumptions =
+                    orderedScenarios.find { it.kind == ScenarioKind.BASE }?.assumptions
+                        ?: assumptions
+                val canonicalBase =
+                    ResponsibilityCalculator.indicativeGrossResponsibility(
+                        responsibilities = responsibilities,
+                        assumptions = baseAssumptions,
+                        scenarioKind = ScenarioKind.BASE,
+                    )
+                // Only Lower / Higher in ordered results; empty / Base-only → empty list.
+                val scenarioResults =
+                    orderedScenarios
+                        .filter { it.kind != ScenarioKind.BASE }
+                        .map { scenario ->
+                            ResponsibilityCalculator.indicativeGrossResponsibility(
+                                responsibilities = responsibilities,
+                                assumptions = scenario.assumptions,
+                                scenarioKind = scenario.kind,
+                            )
+                        }
+                val lines =
+                    responsibilities
+                        .filter { it.isSelected }
+                        .map { item ->
+                            ResponsibilityIndicativeLine(
+                                responsibilityId = item.id,
+                                catalogue = item.catalogue,
+                                priority = item.priority,
+                                indicativeAmountRupees =
+                                ResponsibilityCalculator.optionalIndicativeAmount(
+                                    item,
+                                    baseAssumptions,
+                                ),
+                                quantificationStatus = item.quantificationStatus,
+                            )
+                        }
+                Triple(canonicalBase, scenarioResults, lines)
+            } catch (ex: Throwable) {
+                val mapped = CalculationFailureMapper.fromKnownThrowable(ex)
+                if (mapped != null) {
+                    return DomainResult.failure(mapped)
+                }
+                throw ex
             }
 
-        val lines =
-            responsibilities
-                .filter { it.isSelected }
-                .map { item ->
-                    ResponsibilityIndicativeLine(
-                        responsibilityId = item.id,
-                        catalogue = item.catalogue,
-                        priority = item.priority,
-                        indicativeAmountRupees =
-                        ResponsibilityCalculator.optionalIndicativeAmount(item, assumptions),
-                        excludedFromNumericCalculation = item.excludedFromNumericCalculation,
-                    )
-                }
+        val (canonicalBase, scenarioResults, lines) = computed
         val snapshot =
             CalculationSnapshot(
                 id = idGenerator.newId(),
@@ -312,9 +331,9 @@ constructor(
                 calculationVersion = ResponsibilityCalculator.CALCULATION_VERSION,
                 scenarioKind = ScenarioKind.BASE,
                 assumptionsJson = assumptions.toJson(),
-                mustContinueTotalRupees = base.mustContinueTotalRupees,
-                adjustableTotalRupees = base.adjustableTotalRupees,
-                postponedTotalRupees = base.postponedTotalRupees,
+                mustContinueTotalRupees = canonicalBase.mustContinueTotalRupees,
+                adjustableTotalRupees = canonicalBase.adjustableTotalRupees,
+                postponedTotalRupees = canonicalBase.postponedTotalRupees,
                 perResponsibilityJson = SnapshotJson.encodeToString(lines),
                 generatedAtEpochMs = clock.now().toEpochMilliseconds(),
             )
@@ -330,7 +349,7 @@ constructor(
                 DomainResult.success(
                     Result(
                         review = saved.value,
-                        base = base,
+                        base = canonicalBase,
                         scenarios = scenarioResults,
                         snapshot = snapshot.copy(reviewRevision = saved.value.revision),
                     ),

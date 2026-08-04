@@ -47,7 +47,8 @@ constructor(
     private val clock: Clock,
     private val idGenerator: IdGenerator,
     private val reviewNumberProvider: ReviewNumberProvider,
-) : ReviewRepository {
+) : ReviewRepository,
+    ReviewInternalWriter {
     override fun observeActiveReviews(): Flow<List<Review>> = reviewDao.observeAllActive().map { list -> list.map { it.toDomain() } }
 
     override fun observeByStatus(status: ReviewStatus): Flow<List<Review>> = reviewDao.observeByStatus(status).map { list -> list.map { it.toDomain() } }
@@ -109,43 +110,6 @@ constructor(
                 "Unable to allocate a unique review number after $MAX_REVIEW_NUMBER_ATTEMPTS attempts",
             ),
         )
-    }
-
-    override suspend fun updateReviewCas(
-        review: Review,
-        expectedRevision: Long,
-    ): DomainResult<Review> {
-        val now = clock.now()
-        val newRevision = expectedRevision + 1
-        val updated =
-            review.copy(
-                updatedAt = now,
-                revision = newRevision,
-                syncState = SyncState.PENDING,
-            )
-        val rows =
-            reviewDao.updateCas(
-                id = updated.id,
-                expectedRevision = expectedRevision,
-                newRevision = newRevision,
-                reviewNumber = updated.reviewNumber,
-                mode = updated.mode,
-                language = updated.language,
-                status = updated.status,
-                currentStep = updated.currentStep,
-                updatedAtEpochMs = now.toEpochMilliseconds(),
-                completedAtEpochMs = updated.completedAt?.toEpochMilliseconds(),
-                focusedIncomeContributorId = updated.focusedIncomeContributorId,
-                assumptionVersion = updated.assumptionVersion,
-                calculationVersion = updated.calculationVersion,
-                syncState = updated.syncState,
-                calculationInputRevision = updated.calculationInputRevision,
-                customerAcknowledged = updated.customerAcknowledged,
-                statusBeforeArchive = updated.statusBeforeArchive,
-                summaryStale = updated.summaryStale,
-                assumptionsJson = updated.assumptionsJson,
-            )
-        return casResult(updated.id, expectedRevision, rows, updated)
     }
 
     override suspend fun advanceStep(

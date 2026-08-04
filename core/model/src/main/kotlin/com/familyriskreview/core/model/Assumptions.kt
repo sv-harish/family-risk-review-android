@@ -138,7 +138,7 @@ data class ResponsibilityIndicativeLine(
     val catalogue: ResponsibilityCatalogue,
     val priority: ResponsibilityPriority?,
     val indicativeAmountRupees: Long?,
-    val excludedFromNumericCalculation: Boolean = false,
+    val quantificationStatus: QuantificationStatus = QuantificationStatus.QUANTIFIED,
 )
 
 @Serializable

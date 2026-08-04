@@ -10,6 +10,7 @@ import com.familyriskreview.core.data.repository.DefaultReviewRepository
 import com.familyriskreview.core.data.repository.DefaultUserPreferencesRepository
 import com.familyriskreview.core.data.repository.HouseholdRepository
 import com.familyriskreview.core.data.repository.ResponsibilityRepository
+import com.familyriskreview.core.data.repository.ReviewInternalWriter
 import com.familyriskreview.core.data.repository.ReviewRepository
 import com.familyriskreview.core.data.repository.UserPreferencesRepository
 import com.familyriskreview.core.data.service.DefaultReviewNumberProvider
@@ -29,6 +30,9 @@ import javax.inject.Singleton
 abstract class DataModule {
     @Binds @Singleton
     abstract fun bindReviewRepository(impl: DefaultReviewRepository): ReviewRepository
+
+    @Binds @Singleton
+    abstract fun bindReviewInternalWriter(impl: DefaultReviewRepository): ReviewInternalWriter
 
     @Binds @Singleton
     abstract fun bindHouseholdRepository(impl: DefaultHouseholdRepository): HouseholdRepository

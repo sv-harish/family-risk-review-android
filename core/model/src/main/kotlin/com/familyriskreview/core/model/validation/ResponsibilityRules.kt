@@ -1,6 +1,9 @@
 package com.familyriskreview.core.model.validation
 
+import com.familyriskreview.core.model.DomainLimits
+import com.familyriskreview.core.model.QuantificationStatus
 import com.familyriskreview.core.model.Responsibility
+import com.familyriskreview.core.model.ResponsibilityAmountModel
 import com.familyriskreview.core.model.ResponsibilityCatalogue
 import com.familyriskreview.core.model.ResponsibilityPriority
 import com.familyriskreview.core.model.ResponsibilityTiming
@@ -67,7 +70,10 @@ object ResponsibilityRules {
 
     /**
      * Detail completeness for a single responsibility, honouring mode policy.
-     * Excluded (non-quantified) items skip amount/timing calculability checks.
+     *
+     * Quick Review lightweight (adjustable/postponed) items may omit full details
+     * only when [QuantificationStatus.NOT_YET_QUANTIFIED]. Marking them QUANTIFIED
+     * without complete inputs is an error.
      */
     fun validateDetails(
         responsibility: Responsibility,
@@ -77,27 +83,33 @@ object ResponsibilityRules {
         if (!responsibility.isSelected) return result
 
         val policy = ReviewModePolicy.forMode(mode)
-        if (!requiresFullDetails(responsibility, policy)) {
+        val needsFullDetails = requiresFullDetails(responsibility, policy)
+
+        if (responsibility.isNonQuantified()) {
+            // Deliberate non-quantified: allowed for must-continue and lightweight alike.
             return result
         }
 
-        if (responsibility.excludedFromNumericCalculation) {
-            result += validateNonQuantifiedMarker(responsibility)
+        if (!needsFullDetails) {
+            // Quick lightweight item marked QUANTIFIED → must either have full inputs
+            // or be NOT_YET_QUANTIFIED.
+            val completeness = validateQuantifiedCompleteness(responsibility)
+            if (!completeness.isValid) {
+                result +=
+                    ValidationResult.error(
+                        code = "RESP_LIGHTWEIGHT_MUST_BE_NON_QUANTIFIED",
+                        message =
+                        "Quick Review lightweight items without complete calculation " +
+                            "inputs must be marked NOT_YET_QUANTIFIED",
+                        field = "quantificationStatus",
+                    )
+                result += completeness
+            }
             return result
         }
 
-        result += validateTimingForCalculation(responsibility)
-        result += validateCatalogueAmounts(responsibility)
-        if (responsibility.catalogue == ResponsibilityCatalogue.OTHER &&
-            responsibility.explicitInflationBps == null
-        ) {
-            result +=
-                ValidationResult.error(
-                    code = "RESP_EXPLICIT_INFLATION_REQUIRED",
-                    message = "Custom responsibilities require an explicit inflation rate",
-                    field = "explicitInflationBps",
-                )
-        }
+        // Must-continue / Guided full-detail path.
+        result += validateQuantifiedCompleteness(responsibility)
         return result
     }
 
@@ -139,14 +151,27 @@ object ResponsibilityRules {
         TimingKind.CURRENT_OUTSTANDING -> 0
     }
 
-    private fun validateNonQuantifiedMarker(responsibility: Responsibility): ValidationResult {
+    private fun validateQuantifiedCompleteness(responsibility: Responsibility): ValidationResult {
         var result = ValidationResult.Ok
-        if (responsibility.timing == null) {
+        result +=
+            CatalogueTimingRules.validate(
+                catalogue = responsibility.catalogue,
+                timingKind = responsibility.timing?.kind,
+                amountModel = responsibility.amountModel,
+            )
+        if (!result.isValid) return result
+
+        result += validateTimingForCalculation(responsibility)
+        result += validateCatalogueAmounts(responsibility)
+        result += validateDomainLimits(responsibility)
+        if (responsibility.catalogue == ResponsibilityCatalogue.OTHER &&
+            responsibility.explicitInflationBps == null
+        ) {
             result +=
                 ValidationResult.error(
-                    code = "RESP_TIMING_REQUIRED",
-                    message = "Non-quantified responsibilities still require a timing kind",
-                    field = "timing",
+                    code = "RESP_EXPLICIT_INFLATION_REQUIRED",
+                    message = "Custom responsibilities require an explicit inflation rate",
+                    field = "explicitInflationBps",
                 )
         }
         return result
@@ -191,7 +216,7 @@ object ResponsibilityRules {
                             code = "RESP_MODELLING_HORIZON_REQUIRED",
                             message =
                             "“As long as required” needs an indicative modelling duration " +
-                                "(e.g. 10/15/20 years) or must be excluded from numeric totals",
+                                "or must be NOT_YET_QUANTIFIED",
                             field = "modellingDurationYears",
                         )
                 }
@@ -205,14 +230,13 @@ object ResponsibilityRules {
                             field = "milestoneLabel",
                         )
                 }
-                val horizon = resolveCalculableDurationYears(timing)
-                if (horizon == null) {
+                if (resolveCalculableDurationYears(timing) == null) {
                     result +=
                         ValidationResult.error(
                             code = "RESP_MILESTONE_HORIZON_REQUIRED",
                             message =
-                            "Until-milestone requires years until milestone or a modelling " +
-                                "horizon, or exclusion from numeric totals",
+                            "Until-milestone requires a calculable horizon " +
+                                "or must be NOT_YET_QUANTIFIED",
                             field = "yearsUntilRequired",
                         )
                 }
@@ -231,8 +255,8 @@ object ResponsibilityRules {
                         ValidationResult.error(
                             code = "RESP_CUSTOM_HORIZON_REQUIRED",
                             message =
-                            "Custom timing requires a calculable horizon or exclusion " +
-                                "from numeric totals",
+                            "Custom timing requires a calculable horizon " +
+                                "or must be NOT_YET_QUANTIFIED",
                             field = "modellingDurationYears",
                         )
                 }
@@ -246,41 +270,6 @@ object ResponsibilityRules {
         val monthly = responsibility.monthlyAmount?.amountRupees ?: 0L
         var result = ValidationResult.Ok
 
-        fun requireMonthly(code: String = "RESP_MONTHLY_REQUIRED") {
-            if (monthly <= 0L) {
-                result +=
-                    ValidationResult.error(
-                        code = code,
-                        message = "A monthly amount is required for this responsibility",
-                        field = "monthlyAmount",
-                    )
-            }
-        }
-
-        fun requireCurrent(code: String = "RESP_CURRENT_REQUIRED") {
-            if (current <= 0L) {
-                result +=
-                    ValidationResult.error(
-                        code = code,
-                        message = "A current one-time amount is required for this responsibility",
-                        field = "currentAmount",
-                    )
-            }
-        }
-
-        fun rejectAmbiguousBoth() {
-            if (current > 0L && monthly > 0L) {
-                result +=
-                    ValidationResult.error(
-                        code = "RESP_AMBIGUOUS_AMOUNT_MODEL",
-                        message =
-                        "Provide either a current or monthly amount for this catalogue item, " +
-                            "not both",
-                        field = "amount",
-                    )
-            }
-        }
-
         when (responsibility.catalogue) {
             ResponsibilityCatalogue.ESSENTIAL_FAMILY_LIVING_EXPENSES,
             ResponsibilityCatalogue.PARENT_SUPPORT,
@@ -289,7 +278,14 @@ object ResponsibilityRules {
             ResponsibilityCatalogue.CHILDCARE_REPLACEMENT,
             ResponsibilityCatalogue.HOUSEHOLD_CARE_REPLACEMENT,
             -> {
-                requireMonthly()
+                if (monthly <= 0L) {
+                    result +=
+                        ValidationResult.error(
+                            code = "RESP_MONTHLY_REQUIRED",
+                            message = "A monthly amount is required for this responsibility",
+                            field = "monthlyAmount",
+                        )
+                }
                 if (current > 0L) {
                     result +=
                         ValidationResult.error(
@@ -303,12 +299,19 @@ object ResponsibilityRules {
             ResponsibilityCatalogue.CHILD_MARRIAGE_SUPPORT,
             ResponsibilityCatalogue.BUYING_OR_COMPLETING_HOUSE,
             -> {
-                requireCurrent()
+                if (current <= 0L) {
+                    result +=
+                        ValidationResult.error(
+                            code = "RESP_CURRENT_REQUIRED",
+                            message = "A current one-time amount is required",
+                            field = "currentAmount",
+                        )
+                }
                 if (monthly > 0L) {
                     result +=
                         ValidationResult.error(
                             code = "RESP_MONTHLY_NOT_ALLOWED",
-                            message = "Monthly-only input is not accepted for this catalogue item",
+                            message = "Monthly input is not accepted for this catalogue item",
                             field = "monthlyAmount",
                         )
                 }
@@ -316,35 +319,134 @@ object ResponsibilityRules {
             ResponsibilityCatalogue.HOME_LOAN_REPAYMENT,
             ResponsibilityCatalogue.OTHER_OUTSTANDING_LOANS,
             -> {
-                requireCurrent()
+                if (current <= 0L) {
+                    result +=
+                        ValidationResult.error(
+                            code = "RESP_CURRENT_REQUIRED",
+                            message = "Outstanding loan amount is required",
+                            field = "currentAmount",
+                        )
+                }
                 if (monthly > 0L) {
                     result +=
                         ValidationResult.error(
                             code = "RESP_LOAN_MONTHLY_NOT_ALLOWED",
-                            message = "Loans use outstanding amount, not monthly support calculations",
+                            message = "Loans use outstanding amount, not monthly support",
                             field = "monthlyAmount",
-                        )
-                }
-                val kind = responsibility.timing?.kind
-                if (kind != null && kind != TimingKind.CURRENT_OUTSTANDING) {
-                    result +=
-                        ValidationResult.error(
-                            code = "RESP_LOAN_TIMING",
-                            message = "Loans require current-outstanding timing",
-                            field = "timing",
                         )
                 }
             }
             ResponsibilityCatalogue.OTHER -> {
-                if (current <= 0L && monthly <= 0L) {
-                    result +=
-                        ValidationResult.error(
-                            code = "RESP_AMOUNT_REQUIRED",
-                            message = "Custom responsibilities require an explicit amount",
-                            field = "amount",
-                        )
+                when (responsibility.amountModel) {
+                    ResponsibilityAmountModel.ONE_TIME -> {
+                        if (current <= 0L) {
+                            result +=
+                                ValidationResult.error(
+                                    code = "RESP_CURRENT_REQUIRED",
+                                    message = "One-time custom items require a current amount",
+                                    field = "currentAmount",
+                                )
+                        }
+                        if (monthly > 0L) {
+                            result +=
+                                ValidationResult.error(
+                                    code = "RESP_AMBIGUOUS_AMOUNT_MODEL",
+                                    message = "ONE_TIME amount model must not include a monthly amount",
+                                    field = "monthlyAmount",
+                                )
+                        }
+                    }
+                    ResponsibilityAmountModel.RECURRING -> {
+                        if (monthly <= 0L) {
+                            result +=
+                                ValidationResult.error(
+                                    code = "RESP_MONTHLY_REQUIRED",
+                                    message = "Recurring custom items require a monthly amount",
+                                    field = "monthlyAmount",
+                                )
+                        }
+                        if (current > 0L) {
+                            result +=
+                                ValidationResult.error(
+                                    code = "RESP_AMBIGUOUS_AMOUNT_MODEL",
+                                    message = "RECURRING amount model must not include a current amount",
+                                    field = "currentAmount",
+                                )
+                        }
+                    }
+                    null ->
+                        result +=
+                            ValidationResult.error(
+                                code = "RESP_AMOUNT_MODEL_REQUIRED",
+                                message = "Custom responsibilities require an explicit amount model",
+                                field = "amountModel",
+                            )
                 }
-                rejectAmbiguousBoth()
+            }
+        }
+        return result
+    }
+
+    private fun validateDomainLimits(responsibility: Responsibility): ValidationResult {
+        var result = ValidationResult.Ok
+        responsibility.currentAmount?.amountRupees?.let { amount ->
+            if (amount > DomainLimits.MAX_ONE_TIME_RUPEES) {
+                result +=
+                    ValidationResult.error(
+                        code = "RESP_AMOUNT_LIMIT",
+                        message =
+                        "One-time amount exceeds supported maximum " +
+                            "(${DomainLimits.MAX_ONE_TIME_RUPEES})",
+                        field = "currentAmount",
+                    )
+            }
+        }
+        responsibility.monthlyAmount?.amountRupees?.let { amount ->
+            if (amount > DomainLimits.MAX_MONTHLY_RUPEES) {
+                result +=
+                    ValidationResult.error(
+                        code = "RESP_MONTHLY_LIMIT",
+                        message =
+                        "Monthly amount exceeds supported maximum " +
+                            "(${DomainLimits.MAX_MONTHLY_RUPEES})",
+                        field = "monthlyAmount",
+                    )
+            }
+        }
+        val timing = responsibility.timing ?: return result
+        timing.yearsUntilRequired?.let { years ->
+            if (years !in DomainLimits.MIN_YEARS..DomainLimits.MAX_YEARS_UNTIL_REQUIRED) {
+                result +=
+                    ValidationResult.error(
+                        code = "RESP_YEARS_LIMIT",
+                        message =
+                        "Years until required must be between " +
+                            "${DomainLimits.MIN_YEARS} and ${DomainLimits.MAX_YEARS_UNTIL_REQUIRED}",
+                        field = "yearsUntilRequired",
+                    )
+            }
+        }
+        timing.durationYears?.let { years ->
+            if (years !in 1..DomainLimits.MAX_DURATION_YEARS) {
+                result +=
+                    ValidationResult.error(
+                        code = "RESP_DURATION_LIMIT",
+                        message =
+                        "Duration years must be between 1 and ${DomainLimits.MAX_DURATION_YEARS}",
+                        field = "durationYears",
+                    )
+            }
+        }
+        timing.modellingDurationYears?.let { years ->
+            if (years !in 1..DomainLimits.MAX_MODELLING_HORIZON_YEARS) {
+                result +=
+                    ValidationResult.error(
+                        code = "RESP_HORIZON_LIMIT",
+                        message =
+                        "Modelling horizon must be between 1 and " +
+                            "${DomainLimits.MAX_MODELLING_HORIZON_YEARS}",
+                        field = "modellingDurationYears",
+                    )
             }
         }
         return result
