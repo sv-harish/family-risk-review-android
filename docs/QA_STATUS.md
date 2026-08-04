@@ -1,56 +1,54 @@
 # QA status — Family Risk Review
 
-## Phase 0.5 gates (local)
+## Phase status
+
+**Phase 1.3 — Final domain integrity review** (current, draft PR #2)
+
+After approval and merge: **Phase 1 complete**.
+
+## Phase 1.3 gates (local)
 
 | Gate | Status |
 |------|--------|
 | `./gradlew spotlessCheck` | **Passed** |
-| `./gradlew lintDebug` | **Passed** (0 errors; warnings present — see unresolved) |
+| `./gradlew lintDebug` | **Passed** (0 errors; warnings present) |
 | `./gradlew test` | **Passed** |
 | `./gradlew assembleDebug` | **Passed** |
-| `./gradlew :app:verifyPhase0` | **Passed** |
+| `./gradlew :app:verifyPhase1` | **Passed** |
+
+## Phase 1.3 integrity corrections
+
+1. Snapshot assumptions match effective Base assumptions used for calculation
+2. Scenario assumption versions validated (`SUPPORTED_VERSIONS`)
+3. Guided cannot bypass details via `NOT_YET_QUANTIFIED`
+4. Quick must-continue must be quantified
+5. Quick lightweight adjustable/postponed non-quantified still supported
+6. Feature modules cannot access `internal ReviewMutationWriter`
+7. Feature modules cannot directly complete a review (`ReviewReader` has no mutations)
+8. Fresh-summary completion enforced through `CompleteReviewUseCase`
+9. Regression tests cover all corrections
+10. README / status docs current
+11. No Phase 2 UI
 
 ## Test inventory
 
-| Kind | Count | Notes |
-|------|------:|-------|
-| JVM unit tests | 36 | model, calculation, mappers, sync, nav, summary mapping |
-| Robolectric unit tests | 4 | DAO, repository, DataStore (`@Config(sdk=[34])`) |
-| Instrumentation tests executed | 0 | Not run in this environment |
-| Instrumentation tests compiled | present stubs only | — |
-
-**Unique tests executed:** 40 (0 failures)
-
-### Representative test names
-
-- `ResponsibilityCalculatorTest` (education/marriage/loan/recurring/derived/scenario/overflow…)
-- `IndianCurrencyFormatterTest`
-- `ReviewNumberGeneratorTest`
-- `EntityMapperRoundTripTest`
-- `ReviewDaoRobolectricTest`
-- `ReviewRepositoryRobolectricTest`
-- `UserPreferencesDataSourceTest`
-- `CustomerSummaryMapperTest`
-- `FakeSyncClientTest`
-- `NavigationRoutesTest`
-
-## Unresolved warnings / gaps
-
-- Android Lint reports informational/warning findings (including dependency target-api notes); no lint errors.
-- kotlinx-datetime `Instant` deprecation warnings toward `kotlin.time.Instant` (migrate in a later hardening pass).
-- Fonts / Dareus One logo / advisor portrait still placeholders.
-- Emulator IME / device recreation QA not run.
-- GitHub Actions CI status must be confirmed green on the PR before merge claim.
+| Kind | Notes |
+|------|-------|
+| JVM | ScenarioRules version checks; quantification policy; draft vs progression |
+| Use-case | `CalculateReviewSummaryAssumptionAuditTest`; `CalculateReviewSummaryFailureTest` |
+| API integrity | `Phase13ApiIntegrityTest` (reader surface, internal writer source, stale completion) |
+| Robolectric | CAS / lifecycle / progression via use cases |
+| Instrumentation executed | 0 |
 
 ## Honesty rule
 
-Do not claim device testing without running it. Do not claim PR verification passed until GitHub Actions completes successfully.
+Do not claim device testing without running it. Do not claim PR verification passed until GitHub Actions completes successfully on the final exact PR head.
 
-## CI status (Phase 0.5)
+## CI status
 
-GitHub Actions **passed** on branch `cursor/phase-0-bootstrap-1a7a`:
+Phase 1.3 GitHub Actions **passed** on branch `cursor/phase-1-domain-engine-1a7a` (head `eb4e804`):
 
-- push run: success — https://github.com/sv-harish/family-risk-review-android/actions/runs/30860418524
-- pull_request run: success — https://github.com/sv-harish/family-risk-review-android/actions/runs/30860421324
+- push run: success — https://github.com/sv-harish/family-risk-review-android/actions/runs/30867272829
+- pull_request run: success — https://github.com/sv-harish/family-risk-review-android/actions/runs/30867274892
 
-**PR #1 is ready to merge** from a Phase 0.5 foundation perspective.
+**PR #2 remains a draft** until Phase 1.3 final review is complete.

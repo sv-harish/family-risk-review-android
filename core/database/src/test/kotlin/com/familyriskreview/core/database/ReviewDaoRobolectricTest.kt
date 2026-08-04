@@ -5,6 +5,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.familyriskreview.core.database.entity.ReviewEntity
 import com.familyriskreview.core.model.AppLanguage
+import com.familyriskreview.core.model.CalculationAssumptions
 import com.familyriskreview.core.model.ReviewMode
 import com.familyriskreview.core.model.ReviewStatus
 import com.familyriskreview.core.model.ReviewStep
@@ -54,7 +55,10 @@ class ReviewDaoRobolectricTest {
                 calculationVersion = "1.1.0",
                 syncState = SyncState.LOCAL_ONLY,
                 revision = 1L,
+                calculationInputRevision = 1L,
                 customerAcknowledged = false,
+                summaryStale = true,
+                assumptionsJson = CalculationAssumptions.Default.toJson(),
             )
         db.reviewDao().insert(entity)
         val loaded = db.reviewDao().getById("id-1")
@@ -64,7 +68,7 @@ class ReviewDaoRobolectricTest {
     }
 
     @Test
-    fun softDelete_hidesFromActive() = runBlocking {
+    fun updateStatusCas_softDeletePreservesRow() = runBlocking {
         val entity =
             ReviewEntity(
                 id = "id-2",
@@ -79,11 +83,60 @@ class ReviewDaoRobolectricTest {
                 calculationVersion = "1.1.0",
                 syncState = SyncState.LOCAL_ONLY,
                 revision = 1L,
+                calculationInputRevision = 1L,
                 customerAcknowledged = false,
+                summaryStale = true,
+                assumptionsJson = CalculationAssumptions.Default.toJson(),
             )
         db.reviewDao().insert(entity)
-        db.reviewDao().softDelete("id-2", updatedAt = 5L)
+        val rows =
+            db.reviewDao().updateStatusCas(
+                id = "id-2",
+                expectedRevision = 1L,
+                newRevision = 2L,
+                status = ReviewStatus.DELETED,
+                statusBeforeArchive = null,
+                updatedAtEpochMs = 5L,
+                syncState = SyncState.PENDING,
+                completedAtEpochMs = null,
+            )
+        assertThat(rows).isEqualTo(1)
         val loaded = db.reviewDao().getById("id-2")
         assertThat(loaded!!.status).isEqualTo(ReviewStatus.DELETED)
+        assertThat(loaded.revision).isEqualTo(2L)
+    }
+
+    @Test
+    fun updateCas_returnsZeroOnConflict() = runBlocking {
+        val entity =
+            ReviewEntity(
+                id = "id-3",
+                reviewNumber = "FRR-20260101-CCCCCC",
+                mode = ReviewMode.QUICK,
+                language = AppLanguage.ENGLISH,
+                status = ReviewStatus.IN_PROGRESS,
+                currentStep = ReviewStep.HOUSEHOLD_SUPPORT_MAP,
+                createdAtEpochMs = 1L,
+                updatedAtEpochMs = 1L,
+                assumptionVersion = "1.1.0",
+                calculationVersion = "1.1.0",
+                syncState = SyncState.LOCAL_ONLY,
+                revision = 1L,
+                calculationInputRevision = 1L,
+                customerAcknowledged = false,
+                summaryStale = true,
+                assumptionsJson = CalculationAssumptions.Default.toJson(),
+            )
+        db.reviewDao().insert(entity)
+        val rows =
+            db.reviewDao().updateStepCas(
+                id = "id-3",
+                expectedRevision = 99L,
+                newRevision = 100L,
+                currentStep = ReviewStep.RESPONSIBILITIES,
+                updatedAtEpochMs = 9L,
+                syncState = SyncState.PENDING,
+            )
+        assertThat(rows).isEqualTo(0)
     }
 }

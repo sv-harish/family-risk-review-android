@@ -1,10 +1,13 @@
 package com.familyriskreview.core.database.mapper
 
 import com.familyriskreview.core.database.entity.AdvisorReferenceEntity
+import com.familyriskreview.core.database.entity.CalculationSnapshotEntity
 import com.familyriskreview.core.database.entity.HouseholdMemberEntity
 import com.familyriskreview.core.database.entity.ResponsibilityEntity
 import com.familyriskreview.core.database.entity.ReviewEntity
 import com.familyriskreview.core.model.AdvisorReference
+import com.familyriskreview.core.model.CalculationAssumptions
+import com.familyriskreview.core.model.CalculationSnapshot
 import com.familyriskreview.core.model.DerivedValueMetadata
 import com.familyriskreview.core.model.HouseholdMember
 import com.familyriskreview.core.model.MoneyAmount
@@ -28,7 +31,11 @@ fun ReviewEntity.toDomain(): Review = Review(
     calculationVersion = calculationVersion,
     syncState = syncState,
     revision = revision,
+    calculationInputRevision = calculationInputRevision,
     customerAcknowledged = customerAcknowledged,
+    statusBeforeArchive = statusBeforeArchive,
+    summaryStale = summaryStale,
+    assumptionsJson = assumptionsJson,
 )
 
 fun Review.toEntity(serverUpdatedAtEpochMs: Long? = null): ReviewEntity = ReviewEntity(
@@ -46,8 +53,12 @@ fun Review.toEntity(serverUpdatedAtEpochMs: Long? = null): ReviewEntity = Review
     calculationVersion = calculationVersion,
     syncState = syncState,
     revision = revision,
+    calculationInputRevision = calculationInputRevision,
     customerAcknowledged = customerAcknowledged,
     serverUpdatedAtEpochMs = serverUpdatedAtEpochMs,
+    statusBeforeArchive = statusBeforeArchive,
+    summaryStale = summaryStale,
+    assumptionsJson = assumptionsJson.ifBlank { CalculationAssumptions.Default.toJson() },
 )
 
 fun HouseholdMemberEntity.toDomain(): HouseholdMember = HouseholdMember(
@@ -86,6 +97,7 @@ fun ResponsibilityEntity.toDomain(): Responsibility = Responsibility(
             durationYears = durationYears,
             milestoneLabel = milestoneLabel,
             customNote = customTimingNote,
+            modellingDurationYears = modellingDurationYears,
         )
     },
     currentAmount = currentAmountRupees?.let(::MoneyAmount),
@@ -97,6 +109,8 @@ fun ResponsibilityEntity.toDomain(): Responsibility = Responsibility(
     calculationVersion = calculationVersion,
     isSelected = isSelected,
     sortOrder = sortOrder,
+    quantificationStatus = quantificationStatus,
+    amountModel = amountModel,
 )
 
 private fun ResponsibilityEntity.toDerivedMetadata(): DerivedValueMetadata? {
@@ -126,6 +140,7 @@ fun Responsibility.toEntity(): ResponsibilityEntity = ResponsibilityEntity(
     durationYears = timing?.durationYears,
     milestoneLabel = timing?.milestoneLabel,
     customTimingNote = timing?.customNote,
+    modellingDurationYears = timing?.modellingDurationYears,
     currentAmountRupees = currentAmount?.amountRupees,
     monthlyAmountRupees = monthlyAmount?.amountRupees,
     futureIndicativeAmountRupees = futureIndicativeAmount?.amountRupees,
@@ -142,6 +157,8 @@ fun Responsibility.toEntity(): ResponsibilityEntity = ResponsibilityEntity(
     calculationVersion = calculationVersion,
     isSelected = isSelected,
     sortOrder = sortOrder,
+    quantificationStatus = quantificationStatus,
+    amountModel = amountModel,
 )
 
 fun AdvisorReferenceEntity.toDomain(): AdvisorReference = AdvisorReference(
@@ -149,7 +166,6 @@ fun AdvisorReferenceEntity.toDomain(): AdvisorReference = AdvisorReference(
     customerInitialsOrNickname = customerInitialsOrNickname,
     crmReference = crmReference,
     privateNote = privateNote,
-    includeInCustomerSummary = includeInCustomerSummary,
 )
 
 fun AdvisorReference.toEntity(): AdvisorReferenceEntity = AdvisorReferenceEntity(
@@ -157,5 +173,36 @@ fun AdvisorReference.toEntity(): AdvisorReferenceEntity = AdvisorReferenceEntity
     customerInitialsOrNickname = customerInitialsOrNickname,
     crmReference = crmReference,
     privateNote = privateNote,
-    includeInCustomerSummary = includeInCustomerSummary,
+)
+
+fun CalculationSnapshotEntity.toDomain(): CalculationSnapshot = CalculationSnapshot(
+    id = id,
+    reviewId = reviewId,
+    reviewRevision = reviewRevision,
+    calculationInputRevision = calculationInputRevision,
+    assumptionVersion = assumptionVersion,
+    calculationVersion = calculationVersion,
+    scenarioKind = scenarioKind,
+    assumptionsJson = assumptionsJson,
+    mustContinueTotalRupees = mustContinueTotalRupees,
+    adjustableTotalRupees = adjustableTotalRupees,
+    postponedTotalRupees = postponedTotalRupees,
+    perResponsibilityJson = perResponsibilityJson,
+    generatedAtEpochMs = generatedAtEpochMs,
+)
+
+fun CalculationSnapshot.toEntity(): CalculationSnapshotEntity = CalculationSnapshotEntity(
+    id = id,
+    reviewId = reviewId,
+    reviewRevision = reviewRevision,
+    calculationInputRevision = calculationInputRevision,
+    assumptionVersion = assumptionVersion,
+    calculationVersion = calculationVersion,
+    scenarioKind = scenarioKind,
+    assumptionsJson = assumptionsJson,
+    mustContinueTotalRupees = mustContinueTotalRupees,
+    adjustableTotalRupees = adjustableTotalRupees,
+    postponedTotalRupees = postponedTotalRupees,
+    perResponsibilityJson = perResponsibilityJson,
+    generatedAtEpochMs = generatedAtEpochMs,
 )

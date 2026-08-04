@@ -4,10 +4,12 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.familyriskreview.core.database.dao.AdvisorReferenceDao
+import com.familyriskreview.core.database.dao.CalculationSnapshotDao
 import com.familyriskreview.core.database.dao.HouseholdMemberDao
 import com.familyriskreview.core.database.dao.ResponsibilityDao
 import com.familyriskreview.core.database.dao.ReviewDao
 import com.familyriskreview.core.database.entity.AdvisorReferenceEntity
+import com.familyriskreview.core.database.entity.CalculationSnapshotEntity
 import com.familyriskreview.core.database.entity.HouseholdMemberEntity
 import com.familyriskreview.core.database.entity.ResponsibilityEntity
 import com.familyriskreview.core.database.entity.ReviewEntity
@@ -15,11 +17,12 @@ import com.familyriskreview.core.database.entity.ReviewEntity
 /**
  * Local source of truth for Family Risk Review.
  *
- * ## Schema policy (Phase 0.5)
+ * ## Schema policy (Phase 1)
  *
- * Schema version 1 is **provisional / pre-release**. The application has not
- * shipped a persistence-compatible public build. During Phase 1, schema v1 may
- * be corrected directly without migration debt.
+ * Schema version 1 remains **provisional / pre-release**. Fields were corrected
+ * directly in Phase 1 (statusBeforeArchive, summaryStale, assumptionsJson,
+ * calculation_snapshots, advisor-only columns). No migration chain is required
+ * until the schema-freeze milestone.
  *
  * **Schema-freeze milestone:** the first intentionally distributed
  * persistence-compatible build (declared in docs/DECISIONS.md). From that
@@ -34,6 +37,7 @@ import com.familyriskreview.core.database.entity.ReviewEntity
         HouseholdMemberEntity::class,
         ResponsibilityEntity::class,
         AdvisorReferenceEntity::class,
+        CalculationSnapshotEntity::class,
     ],
     version = FamilyRiskReviewDatabase.VERSION,
     exportSchema = true,
@@ -48,8 +52,10 @@ abstract class FamilyRiskReviewDatabase : RoomDatabase() {
 
     abstract fun advisorReferenceDao(): AdvisorReferenceDao
 
+    abstract fun calculationSnapshotDao(): CalculationSnapshotDao
+
     companion object {
-        /** Provisional pre-release schema. May be corrected in Phase 1 before freeze. */
+        /** Provisional pre-release schema. Corrected in Phase 1 before freeze. */
         const val VERSION: Int = 1
         const val NAME: String = "family_risk_review.db"
         const val SCHEMA_STATUS: String = "PROVISIONAL_PRE_RELEASE"

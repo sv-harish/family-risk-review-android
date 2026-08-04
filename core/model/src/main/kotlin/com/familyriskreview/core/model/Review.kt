@@ -6,11 +6,12 @@ import kotlinx.serialization.Serializable
 /**
  * Root aggregate for a Family Risk Review session.
  *
- * Customer PII is intentionally excluded. Advisor-only references must not
- * automatically appear in the customer-facing summary.
+ * [revision] bumps on every aggregate write (including non-financial status changes).
+ * [calculationInputRevision] bumps only when calculation inputs change; snapshots
+ * bind to that fingerprint so archive/step advances do not falsely stale a summary.
  *
- * A Review is created only after Quick or Guided mode is selected.
- * Splash / Welcome are app-shell destinations, not [currentStep] values.
+ * [calculationVersion] has no misleading default — callers must supply the
+ * authoritative engine version from `:core:calculation` at construction time.
  */
 @Serializable
 data class Review(
@@ -25,46 +26,46 @@ data class Review(
     val completedAt: Instant? = null,
     val focusedIncomeContributorId: String? = null,
     val assumptionVersion: String = CalculationAssumptions.CURRENT_VERSION,
-    val calculationVersion: String = "1.1.0",
+    val calculationVersion: String,
     val syncState: SyncState = SyncState.LOCAL_ONLY,
     val revision: Long = 1L,
+    /** Fingerprint of calculation inputs; independent of non-financial revisions. */
+    val calculationInputRevision: Long = 1L,
     val customerAcknowledged: Boolean = false,
+    val statusBeforeArchive: ReviewStatus? = null,
+    val summaryStale: Boolean = true,
+    val assumptionsJson: String = CalculationAssumptions.Default.toJson(),
 )
 
-/**
- * Advisor-only metadata. Never auto-include in customer PDFs/summaries.
- */
 @Serializable
 data class AdvisorReference(
     val reviewId: String,
     val customerInitialsOrNickname: String? = null,
     val crmReference: String? = null,
     val privateNote: String? = null,
-    val includeInCustomerSummary: Boolean = false,
 )
 
-/**
- * Documented production TODO: verify final formal credential wording before public release.
- * Do not silently change this supplied wording.
- */
 object AdvisorIdentity {
     const val DISPLAY_NAME: String = "S V Harish"
     const val TITLE: String = "Certified Insurance Planner"
     const val CREDENTIAL: String = "LUGI CIP Completed"
 
     // TODO(production): Verify final formal credential wording before public release.
-    // Supplied wording is intentionally preserved until product/legal confirmation.
 }
 
-/**
- * Customer-summary projection that excludes advisor-only fields unless
- * [AdvisorReference.includeInCustomerSummary] is explicitly true for initials only.
- */
 @Serializable
 data class CustomerSummaryProjection(
     val reviewId: String,
     val reviewNumber: String,
     val mode: ReviewMode,
     val language: AppLanguage,
-    val customerDisplayLabel: String? = null,
 )
+
+/** How a household write updates the focused income contributor. */
+sealed interface FocusUpdate {
+    data object Unchanged : FocusUpdate
+
+    data object Clear : FocusUpdate
+
+    data class Set(val memberId: String) : FocusUpdate
+}

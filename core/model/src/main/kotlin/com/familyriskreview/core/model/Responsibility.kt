@@ -37,14 +37,32 @@ fun ResponsibilityCatalogue.defaultInflationKind(): InflationAssumptionKind = wh
 
 @Serializable
 enum class ResponsibilityPriority {
-    /** Included in the primary Indicative Gross Responsibility Value. */
     MUST_CONTINUE,
-
-    /** Shown separately; amount/timing/scale could change. */
     IMPORTANT_BUT_ADJUSTABLE,
-
-    /** Desirable but not essential to immediate continuity. */
     CAN_BE_POSTPONED_OR_REDUCED,
+}
+
+/**
+ * Explicit quantitative state. Do not infer quantification from nullable amounts.
+ *
+ * [NOT_YET_QUANTIFIED] items appear in summaries with a null indicative amount and
+ * are excluded from numeric totals (never silently ₹0).
+ */
+@Serializable
+enum class QuantificationStatus {
+    QUANTIFIED,
+    NOT_YET_QUANTIFIED,
+}
+
+/**
+ * Explicit amount model for custom / OTHER responsibilities.
+ * Timing and amount fields are validated against this model — not by probing
+ * which nullable money fields happen to be set.
+ */
+@Serializable
+enum class ResponsibilityAmountModel {
+    ONE_TIME,
+    RECURRING,
 }
 
 @Serializable
@@ -64,12 +82,9 @@ data class ResponsibilityTiming(
     val durationYears: Int? = null,
     val milestoneLabel: String? = null,
     val customNote: String? = null,
+    val modellingDurationYears: Int? = null,
 )
 
-/**
- * Monetary amounts are stored as whole rupees (Long).
- * Formatted display strings are never the source of truth.
- */
 @Serializable
 data class MoneyAmount(
     val amountRupees: Long,
@@ -96,4 +111,11 @@ data class Responsibility(
     val calculationVersion: String? = null,
     val isSelected: Boolean = false,
     val sortOrder: Int = 0,
-)
+    val quantificationStatus: QuantificationStatus = QuantificationStatus.QUANTIFIED,
+    /** Required when [catalogue] is [ResponsibilityCatalogue.OTHER]. */
+    val amountModel: ResponsibilityAmountModel? = null,
+) {
+    fun isNonQuantified(): Boolean = quantificationStatus == QuantificationStatus.NOT_YET_QUANTIFIED
+
+    fun isIncludedInNumericTotal(): Boolean = isSelected && quantificationStatus == QuantificationStatus.QUANTIFIED
+}

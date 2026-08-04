@@ -9,9 +9,11 @@ Native Android tablet application for advisor-led household risk awareness sessi
 
 ## Status
 
-**Phase 0.5 — Hardened bootstrap** (current)
+**Phase 1.3 — Final domain integrity review** (current, on PR #2)
 
-Greenfield foundation with upgraded toolchain (API 36), `core:data` repository boundary, corrected calculation semantics, enforced CI gates, and provisional Room schema policy.
+Phase 1 domain/application/persistence foundation with transactional CAS rollback, progression gates, Quick/Guided policies, calculable timing contracts, fail-closed assumptions, effective Base assumption audit, mode-specific quantification, and public-read / internal-mutation boundaries. No polished customer UI.
+
+After approval and merge of PR #2, status becomes **Phase 1 complete**.
 
 ## Toolchain matrix
 
@@ -47,12 +49,12 @@ Notes:
 | Module | Responsibility |
 |--------|----------------|
 | `:app` | Application entry, splash, root navigation, DI aggregation |
-| `:core:model` | Pure domain models |
-| `:core:calculation` | Deterministic financial math |
+| `:core:model` | Pure domain models, lifecycle, validation, suggestions |
+| `:core:calculation` | Deterministic financial math + authoritative calc version |
 | `:core:database` | Room entities/DAOs only |
 | `:core:datastore` | Preference persistence only |
 | `:core:sync` | SyncClient + Fake / Supabase stub |
-| `:core:data` | Repositories coordinating storage + sync |
+| `:core:data` | Repositories, use cases, injectable Clock/Id/ReviewNumber |
 | `:core:designsystem` | Tokens, theme, shared components |
 | `:core:ui` | Adaptive layouts, type-safe routes |
 | `:feature:*` | UI features depending on repositories/domain — not DAOs |
@@ -64,8 +66,19 @@ Notes:
 ./gradlew lintDebug
 ./gradlew test
 ./gradlew assembleDebug
-./gradlew :app:verifyPhase0
+./gradlew :app:verifyPhase1
 ```
+
+## Phase 1 highlights
+
+- Review lifecycle: IN_PROGRESS → COMPLETED / ARCHIVED / DELETED; archive stores prior status for restore
+- Quick Review: max 3 must-continue responsibilities; same step order as Guided
+- Conditional suggestions never auto-select
+- Calculation snapshots + `summaryStale`; checked Long aggregate totals
+- Room transactions bump parent revision / sync pending / summary stale
+- CAS optimistic concurrency on review writes
+- Advisor references never projected into customer summaries
+- Injectable `Clock` / `IdGenerator` / `ReviewNumberProvider` (no System/UUID/SecureRandom in repos)
 
 ## Documentation
 
@@ -79,4 +92,4 @@ Notes:
 
 ## License
 
-See [LICENSE](LICENSE).
+Proprietary — all rights reserved unless otherwise stated.

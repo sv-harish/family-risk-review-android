@@ -46,8 +46,8 @@ jobs:
       - name: Assemble debug
         run: ./gradlew assembleDebug --stacktrace
 
-      - name: Phase 0.5 verification
-        run: ./gradlew :app:verifyPhase0 --stacktrace
+      - name: Phase 1 verification
+        run: ./gradlew :app:verifyPhase1 --stacktrace
 
       - name: Upload reports
         if: always()

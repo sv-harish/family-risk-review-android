@@ -5,11 +5,14 @@ import com.familyriskreview.core.model.AppLanguage
 import com.familyriskreview.core.model.ContributionStatus
 import com.familyriskreview.core.model.DependencyStatus
 import com.familyriskreview.core.model.FamilyMemberType
+import com.familyriskreview.core.model.QuantificationStatus
+import com.familyriskreview.core.model.ResponsibilityAmountModel
 import com.familyriskreview.core.model.ResponsibilityCatalogue
 import com.familyriskreview.core.model.ResponsibilityPriority
 import com.familyriskreview.core.model.ReviewMode
 import com.familyriskreview.core.model.ReviewStatus
 import com.familyriskreview.core.model.ReviewStep
+import com.familyriskreview.core.model.ScenarioKind
 import com.familyriskreview.core.model.SyncState
 import com.familyriskreview.core.model.TimingKind
 
@@ -18,9 +21,9 @@ class DatabaseConverters {
 
     @TypeConverter fun toReviewMode(value: String): ReviewMode = ReviewMode.valueOf(value)
 
-    @TypeConverter fun fromReviewStatus(value: ReviewStatus): String = value.name
+    @TypeConverter fun fromReviewStatus(value: ReviewStatus?): String? = value?.name
 
-    @TypeConverter fun toReviewStatus(value: String): ReviewStatus = ReviewStatus.valueOf(value)
+    @TypeConverter fun toReviewStatus(value: String?): ReviewStatus? = value?.let { ReviewStatus.valueOf(it) }
 
     @TypeConverter fun fromReviewStep(value: ReviewStep): String = value.name
 
@@ -57,4 +60,16 @@ class DatabaseConverters {
     @TypeConverter fun fromTimingKind(value: TimingKind?): String? = value?.name
 
     @TypeConverter fun toTimingKind(value: String?): TimingKind? = value?.let { TimingKind.valueOf(it) }
+
+    @TypeConverter fun fromScenarioKind(value: ScenarioKind): String = value.name
+
+    @TypeConverter fun toScenarioKind(value: String): ScenarioKind = ScenarioKind.valueOf(value)
+
+    @TypeConverter fun fromQuantificationStatus(value: QuantificationStatus): String = value.name
+
+    @TypeConverter fun toQuantificationStatus(value: String): QuantificationStatus = QuantificationStatus.valueOf(value)
+
+    @TypeConverter fun fromAmountModel(value: ResponsibilityAmountModel?): String? = value?.name
+
+    @TypeConverter fun toAmountModel(value: String?): ResponsibilityAmountModel? = value?.let { ResponsibilityAmountModel.valueOf(it) }
 }

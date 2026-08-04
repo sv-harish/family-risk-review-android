@@ -32,6 +32,10 @@ data class ReviewEntity(
     val calculationVersion: String,
     val syncState: SyncState,
     val revision: Long,
+    val calculationInputRevision: Long,
     val customerAcknowledged: Boolean,
     val serverUpdatedAtEpochMs: Long? = null,
+    val statusBeforeArchive: ReviewStatus? = null,
+    val summaryStale: Boolean = true,
+    val assumptionsJson: String,
 )

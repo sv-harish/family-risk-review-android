@@ -5,6 +5,7 @@ import com.familyriskreview.core.model.CalculationAssumptions
 import com.familyriskreview.core.model.CalculationScenario
 import com.familyriskreview.core.model.DerivedValueMetadata
 import com.familyriskreview.core.model.MoneyAmount
+import com.familyriskreview.core.model.QuantificationStatus
 import com.familyriskreview.core.model.Responsibility
 import com.familyriskreview.core.model.ResponsibilityCatalogue
 import com.familyriskreview.core.model.ResponsibilityPriority
@@ -134,7 +135,7 @@ class ResponsibilityCalculatorTest {
                     sourceCurrentAmountRupees = 1_000_000,
                     sourceMonthlyAmountRupees = null,
                     sourceYears = 10,
-                    sourceDurationYears = null,
+                    sourceDurationYears = 10,
                     inflationRateBps = 800,
                     expectedNetReturnBps = null,
                     assumptionVersion = "0.0.1",
@@ -156,7 +157,7 @@ class ResponsibilityCalculatorTest {
                     sourceCurrentAmountRupees = 1_000_000,
                     sourceMonthlyAmountRupees = null,
                     sourceYears = 10,
-                    sourceDurationYears = null,
+                    sourceDurationYears = 10,
                     inflationRateBps = 800,
                     expectedNetReturnBps = null,
                     assumptionVersion = CalculationAssumptions.CURRENT_VERSION,
@@ -178,7 +179,7 @@ class ResponsibilityCalculatorTest {
                     sourceCurrentAmountRupees = 1_000_000,
                     sourceMonthlyAmountRupees = null,
                     sourceYears = 10,
-                    sourceDurationYears = null,
+                    sourceDurationYears = 10,
                     inflationRateBps = 800,
                     expectedNetReturnBps = null,
                     assumptionVersion = "old",
@@ -199,7 +200,7 @@ class ResponsibilityCalculatorTest {
                     sourceCurrentAmountRupees = 1_000_000,
                     sourceMonthlyAmountRupees = null,
                     sourceYears = 10,
-                    sourceDurationYears = null,
+                    sourceDurationYears = 10,
                     inflationRateBps = 800,
                     expectedNetReturnBps = null,
                     assumptionVersion = CalculationAssumptions.CURRENT_VERSION,
@@ -275,6 +276,83 @@ class ResponsibilityCalculatorTest {
         val result = ResponsibilityCalculator.indicativeGrossResponsibility(responsibilities)
         assertThat(result.mustContinueTotalRupees).isEqualTo(1_000_000)
         assertThat(result.adjustableTotalRupees).isEqualTo(500_000)
+    }
+
+    @Test
+    fun checkedSum_throwsOnOverflow() {
+        assertThrows(ArithmeticException::class.java) {
+            ResponsibilityCalculator.checkedSum(sequenceOf(Long.MAX_VALUE, 1L))
+        }
+    }
+
+    @Test
+    fun asLongAsRequired_usesModellingHorizon_notSilentZero() {
+        val item =
+            Responsibility(
+                id = "parent",
+                reviewId = "r1",
+                catalogue = ResponsibilityCatalogue.PARENT_SUPPORT,
+                priority = ResponsibilityPriority.MUST_CONTINUE,
+                timing =
+                ResponsibilityTiming(
+                    TimingKind.AS_LONG_AS_REQUIRED,
+                    modellingDurationYears = 10,
+                ),
+                monthlyAmount = MoneyAmount(10_000),
+                isSelected = true,
+            )
+        val amount = ResponsibilityCalculator.indicativeAmount(item)
+        assertThat(amount).isGreaterThan(0L)
+    }
+
+    @Test
+    fun asLongAsRequired_withoutHorizon_throwsInsteadOfZero() {
+        val item =
+            Responsibility(
+                id = "parent",
+                reviewId = "r1",
+                catalogue = ResponsibilityCatalogue.PARENT_SUPPORT,
+                priority = ResponsibilityPriority.MUST_CONTINUE,
+                timing = ResponsibilityTiming(TimingKind.AS_LONG_AS_REQUIRED),
+                monthlyAmount = MoneyAmount(10_000),
+                isSelected = true,
+            )
+        assertThrows(IllegalStateException::class.java) {
+            ResponsibilityCalculator.indicativeAmount(item)
+        }
+    }
+
+    @Test
+    fun excludedResponsibility_omittedFromTotals_notZero() {
+        val excluded =
+            Responsibility(
+                id = "parent",
+                reviewId = "r1",
+                catalogue = ResponsibilityCatalogue.PARENT_SUPPORT,
+                priority = ResponsibilityPriority.MUST_CONTINUE,
+                timing = ResponsibilityTiming(TimingKind.AS_LONG_AS_REQUIRED),
+                monthlyAmount = MoneyAmount(10_000),
+                isSelected = true,
+                quantificationStatus = QuantificationStatus.NOT_YET_QUANTIFIED,
+            )
+        val included =
+            Responsibility(
+                id = "loan",
+                reviewId = "r1",
+                catalogue = ResponsibilityCatalogue.HOME_LOAN_REPAYMENT,
+                priority = ResponsibilityPriority.MUST_CONTINUE,
+                timing = ResponsibilityTiming(TimingKind.CURRENT_OUTSTANDING),
+                currentAmount = MoneyAmount(500_000),
+                isSelected = true,
+                quantificationStatus = QuantificationStatus.QUANTIFIED,
+            )
+        assertThat(ResponsibilityCalculator.optionalIndicativeAmount(excluded)).isNull()
+        assertThrows(IllegalArgumentException::class.java) {
+            ResponsibilityCalculator.indicativeAmount(excluded)
+        }
+        val gross =
+            ResponsibilityCalculator.indicativeGrossResponsibility(listOf(excluded, included))
+        assertThat(gross.mustContinueTotalRupees).isEqualTo(500_000)
     }
 
     private fun baseEducation() = Responsibility(

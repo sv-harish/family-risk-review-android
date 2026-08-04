@@ -54,6 +54,15 @@ class FakeSyncClient : SyncClient {
     override fun isConfigured(): Boolean = true
 
     fun pendingCount(): Int = pending.size + deleted.size
+
+    fun pendingUpsertIds(): Set<String> = pending.toSet()
+
+    fun pendingDeleteIds(): Set<String> = deleted.toSet()
+
+    fun clearIntents() {
+        pending.clear()
+        deleted.clear()
+    }
 }
 
 /**

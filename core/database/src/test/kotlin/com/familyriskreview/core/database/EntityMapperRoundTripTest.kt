@@ -4,6 +4,7 @@ import com.familyriskreview.core.database.mapper.toDomain
 import com.familyriskreview.core.database.mapper.toEntity
 import com.familyriskreview.core.model.AdvisorReference
 import com.familyriskreview.core.model.AppLanguage
+import com.familyriskreview.core.model.CalculationAssumptions
 import com.familyriskreview.core.model.ContributionStatus
 import com.familyriskreview.core.model.DependencyStatus
 import com.familyriskreview.core.model.DerivedValueMetadata
@@ -39,6 +40,9 @@ class EntityMapperRoundTripTest {
                 updatedAt = Instant.fromEpochMilliseconds(20),
                 syncState = SyncState.LOCAL_ONLY,
                 revision = 3,
+                calculationVersion = "1.1.0",
+                summaryStale = true,
+                assumptionsJson = CalculationAssumptions.Default.toJson(),
             )
         assertThat(original.toEntity().toDomain()).isEqualTo(original)
     }
@@ -82,19 +86,35 @@ class EntityMapperRoundTripTest {
                     calculationVersion = "1.1.0",
                 ),
                 isSelected = true,
+                quantificationStatus = com.familyriskreview.core.model.QuantificationStatus.QUANTIFIED,
             )
         assertThat(responsibility.toEntity().toDomain()).isEqualTo(responsibility)
     }
 
     @Test
-    fun advisorReferenceRoundTrip() {
+    fun responsibilityRoundTrip_nonQuantifiedAndAmountModel() {
+        val responsibility =
+            Responsibility(
+                id = "r2",
+                reviewId = "id-1",
+                catalogue = ResponsibilityCatalogue.OTHER,
+                customLabel = "Custom support",
+                priority = ResponsibilityPriority.IMPORTANT_BUT_ADJUSTABLE,
+                isSelected = true,
+                quantificationStatus = com.familyriskreview.core.model.QuantificationStatus.NOT_YET_QUANTIFIED,
+                amountModel = com.familyriskreview.core.model.ResponsibilityAmountModel.RECURRING,
+            )
+        assertThat(responsibility.toEntity().toDomain()).isEqualTo(responsibility)
+    }
+
+    @Test
+    fun advisorReferenceRoundTrip_excludesCustomerLeakFields() {
         val ref =
             AdvisorReference(
                 reviewId = "id-1",
                 customerInitialsOrNickname = "RK",
                 crmReference = "CRM-9",
                 privateNote = "private",
-                includeInCustomerSummary = false,
             )
         assertThat(ref.toEntity().toDomain()).isEqualTo(ref)
     }

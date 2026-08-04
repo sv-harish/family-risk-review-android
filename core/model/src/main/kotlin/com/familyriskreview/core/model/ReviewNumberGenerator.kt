@@ -1,15 +1,22 @@
 package com.familyriskreview.core.model
 
+import com.familyriskreview.core.model.service.ReviewNumberProvider
+import kotlinx.datetime.Instant
+import java.util.Random
+
 /**
  * Generates unique review numbers of the form `FRR-YYYYMMDD-XXXXXX`.
- * Uniqueness within a day is provided by a cryptographically strong random suffix.
+ *
+ * Production code should obtain numbers through [ReviewNumberProvider] so tests
+ * can inject deterministic clocks/random sources. Prefer not calling
+ * [System.currentTimeMillis] or [java.security.SecureRandom] from repositories.
  */
 object ReviewNumberGenerator {
     private val alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 
     fun generate(
-        epochMs: Long = System.currentTimeMillis(),
-        random: java.util.Random = java.security.SecureRandom(),
+        epochMs: Long,
+        random: Random,
     ): String {
         val day =
             java.time.Instant
@@ -25,4 +32,14 @@ object ReviewNumberGenerator {
             }
         return "FRR-$ymd-$suffix"
     }
+}
+
+/** Production [ReviewNumberProvider] backed by SecureRandom. */
+class SecureReviewNumberProvider(
+    private val random: Random = java.security.SecureRandom(),
+) : ReviewNumberProvider {
+    override fun generate(now: Instant): String = ReviewNumberGenerator.generate(
+        epochMs = now.toEpochMilliseconds(),
+        random = random,
+    )
 }
