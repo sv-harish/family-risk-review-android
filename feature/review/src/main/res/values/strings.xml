@@ -135,4 +135,82 @@
     <string name="details_inflation_percent">Inflation (% per year)</string>
     <string name="details_inflation_hint">Custom items need an explicit inflation rate.</string>
     <string name="details_save_draft">Save draft</string>
+
+    <!-- Phase 2.1: validation, suggestions, save-state, conflict, a11y -->
+    <string name="household_age_range_error">Age must be between %1$d and %2$d</string>
+    <string name="validation_household_duplicate_self">A review cannot contain more than one Self member</string>
+    <string name="validation_household_primary_fully_dependent">A fully dependent member is unusual as a primary income contributor</string>
+    <string name="validation_household_focus_non_contributor">Focused income contributor cannot be a non-contributor</string>
+    <string name="validation_household_empty">At least one household member is required</string>
+    <string name="validation_household_focus_missing">Focused income contributor must exist in this review</string>
+
+    <string name="validation_resp_custom_label_required">Custom responsibilities require a label</string>
+    <string name="validation_resp_none_selected">At least one responsibility must be selected before continuing</string>
+    <string name="validation_resp_priority_required">Selected responsibilities require a priority</string>
+    <string name="validation_resp_quick_must_continue_limit">Quick Review allows at most three must-continue responsibilities</string>
+    <string name="validation_resp_guided_requires_quantification">Guided Review requires all selected responsibilities to be quantified</string>
+    <string name="validation_resp_must_continue_requires_quantification">Must-continue responsibilities must be quantified and calculable</string>
+    <string name="validation_resp_lightweight_must_be_non_quantified">Quick Review lightweight items without complete inputs must be marked not yet quantified</string>
+    <string name="validation_resp_explicit_inflation_required">Custom responsibilities require an explicit inflation rate</string>
+    <string name="validation_resp_timing_required">Selected responsibilities require timing</string>
+    <string name="validation_resp_timing_not_allowed">This timing kind is not allowed for the selected responsibility</string>
+    <string name="validation_resp_years_required">Years until required must be provided</string>
+    <string name="validation_resp_duration_required">Duration years must be a positive value</string>
+    <string name="validation_resp_modelling_horizon_required">“As long as required” needs an indicative modelling duration, or must be marked not yet quantified</string>
+    <string name="validation_resp_milestone_required">Milestone label is required</string>
+    <string name="validation_resp_milestone_horizon_required">Until-milestone requires a calculable horizon, or must be marked not yet quantified</string>
+    <string name="validation_resp_custom_timing_required">Custom timing requires a note</string>
+    <string name="validation_resp_custom_horizon_required">Custom timing requires a calculable horizon, or must be marked not yet quantified</string>
+    <string name="validation_resp_monthly_required">A monthly amount is required for this responsibility</string>
+    <string name="validation_resp_current_not_primary">Use monthly amount as the primary input for this item</string>
+    <string name="validation_resp_current_required">A current or outstanding amount is required</string>
+    <string name="validation_resp_monthly_not_allowed">Monthly input is not accepted for this catalogue item</string>
+    <string name="validation_resp_loan_monthly_not_allowed">Loans use outstanding amount, not monthly support</string>
+    <string name="validation_resp_ambiguous_amount_model">The amount model conflicts with the amounts entered</string>
+    <string name="validation_resp_amount_model_required">Custom responsibilities require an explicit amount model</string>
+    <string name="validation_resp_amount_limit">One-time amount exceeds the supported maximum</string>
+    <string name="validation_resp_monthly_limit">Monthly amount exceeds the supported maximum</string>
+    <string name="validation_resp_years_limit">Years until required is outside the supported range</string>
+    <string name="validation_resp_duration_limit">Duration years is outside the supported range</string>
+    <string name="validation_resp_horizon_limit">Modelling horizon is outside the supported range</string>
+
+    <string name="suggestion_always_living">Essential living expenses usually continue for the household</string>
+    <string name="suggestion_has_child">Household includes a child — related support may apply</string>
+    <string name="suggestion_has_spouse">Household includes a spouse or partner — related support may apply</string>
+    <string name="suggestion_has_parent">Household includes a parent — parent support may apply</string>
+    <string name="suggestion_has_other_dependant">Household includes another dependant — special-needs support may apply</string>
+    <string name="suggestion_optional_loan">Consider outstanding loan continuity if relevant</string>
+    <string name="suggestion_optional_house">Consider house purchase or completion plans if relevant</string>
+
+    <string name="domain_error_validation">Please review the highlighted details</string>
+    <string name="domain_error_transition">This step cannot be completed yet</string>
+    <string name="domain_error_conflict">This review was updated elsewhere</string>
+    <string name="domain_error_not_found">This review could not be found</string>
+    <string name="domain_error_collision_exhausted">Could not allocate a unique identifier. Please try again</string>
+    <string name="domain_error_illegal_state">This action is not available in the current review state</string>
+    <string name="domain_error_corrupt_data">Stored review data could not be read safely</string>
+    <string name="domain_error_persistence">Changes could not be saved. Please try again</string>
+    <string name="domain_error_calculation">A calculation could not be completed with the current inputs</string>
+    <string name="domain_error_fallback">Something went wrong. Please try again</string>
+    <string name="validation_fallback">Please check the details and try again</string>
+
+    <string name="save_state_saving">Saving…</string>
+    <string name="save_state_saved">Saved</string>
+    <string name="save_state_validation">Could not save — please fix the details</string>
+    <string name="save_state_persistence">Could not save — please try again</string>
+    <string name="save_state_conflict">Could not save — review was updated elsewhere</string>
+
+    <string name="conflict_title">Review updated elsewhere</string>
+    <string name="conflict_body">Another change was saved for this review. Reload the latest version, or return to the dashboard. Unsaved draft edits on this screen will be discarded.</string>
+    <string name="conflict_reload">Reload latest</string>
+    <string name="conflict_return_dashboard">Return to dashboard</string>
+    <string name="conflict_draft_discarded">Unsaved draft edits were discarded</string>
+
+    <string name="household_a11y_income_contributor">Income contributor</string>
+    <string name="household_a11y_dependant">Dependant</string>
+    <string name="household_a11y_focused">Focused income contributor</string>
+
+    <string name="review_error_not_found">This review could not be found</string>
+    <string name="responsibilities_add_another_custom">Add another custom responsibility</string>
+    <string name="details_quantification_status_not_yet">Not yet quantified</string>
 </resources>

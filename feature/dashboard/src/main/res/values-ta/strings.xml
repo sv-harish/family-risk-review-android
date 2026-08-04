@@ -36,4 +36,13 @@
     <string name="dashboard_stage_comparison">கல்வி ஒப்பீடு</string>
     <string name="dashboard_stage_summary">விழிப்புணர்வு சுருக்கம்</string>
     <string name="dashboard_stage_handoff">ஆலோசகர் ஒப்படைப்பு</string>
+
+    <!-- Phase 2.1: domain / conflict recovery for dashboard shell -->
+    <string name="domain_error_fallback">ஏதோ தவறு நடந்தது. மீண்டும் முயலவும்</string>
+    <string name="domain_error_persistence">மாற்றங்களைச் சேமிக்க முடியவில்லை. மீண்டும் முயலவும்</string>
+    <string name="domain_error_conflict">இந்த மதிப்பாய்வு வேறு இடத்தில் புதுப்பிக்கப்பட்டது</string>
+    <string name="domain_error_not_found">இந்த மதிப்பாய்வைக் கண்டுபிடிக்க முடியவில்லை</string>
+    <string name="conflict_title">மதிப்பாய்வு வேறு இடத்தில் புதுப்பிக்கப்பட்டது</string>
+    <string name="conflict_body">இந்த மதிப்பாய்வுக்கு வேறொரு மாற்றம் சேமிக்கப்பட்டது. தொடர்வதற்கு முன் சமீபத்திய பதிப்பை மீண்டும் ஏற்றவும்.</string>
+    <string name="conflict_reload">சமீபத்தியதை மீண்டும் ஏற்று</string>
 </resources>

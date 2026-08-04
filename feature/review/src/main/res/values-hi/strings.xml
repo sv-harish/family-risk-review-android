@@ -135,4 +135,82 @@
     <string name="details_inflation_percent">मुद्रास्फीति (% प्रति वर्ष)</string>
     <string name="details_inflation_hint">कस्टम वस्तुओं के लिए स्पष्ट मुद्रास्फीति दर आवश्यक है।</string>
     <string name="details_save_draft">ड्राफ्ट सहेजें</string>
+
+    <!-- Phase 2.1: validation, suggestions, save-state, conflict, a11y -->
+    <string name="household_age_range_error">उम्र %1$d से %2$d के बीच होनी चाहिए</string>
+    <string name="validation_household_duplicate_self">एक समीक्षा में एक से अधिक स्वयं सदस्य नहीं हो सकते</string>
+    <string name="validation_household_primary_fully_dependent">पूर्णतः आश्रित सदस्य का मुख्य आय योगदानकर्ता होना असामान्य है</string>
+    <string name="validation_household_focus_non_contributor">केंद्रित आय योगदानकर्ता गैर-योगदानकर्ता नहीं हो सकता</string>
+    <string name="validation_household_empty">कम से कम एक परिवार सदस्य आवश्यक है</string>
+    <string name="validation_household_focus_missing">केंद्रित आय योगदानकर्ता इस समीक्षा में मौजूद होना चाहिए</string>
+
+    <string name="validation_resp_custom_label_required">कस्टम ज़िम्मेदारियों के लिए लेबल आवश्यक है</string>
+    <string name="validation_resp_none_selected">आगे बढ़ने से पहले कम से कम एक ज़िम्मेदारी चुनें</string>
+    <string name="validation_resp_priority_required">चयनित ज़िम्मेदारियों के लिए प्राथमिकता आवश्यक है</string>
+    <string name="validation_resp_quick_must_continue_limit">त्वरित समीक्षा में अधिकतम तीन अवश्य-जारी ज़िम्मेदारियाँ अनुमत हैं</string>
+    <string name="validation_resp_guided_requires_quantification">मार्गदर्शित समीक्षा में सभी चयनित ज़िम्मेदारियों की मात्रा निर्धारित होनी चाहिए</string>
+    <string name="validation_resp_must_continue_requires_quantification">अवश्य-जारी ज़िम्मेदारियाँ मात्रा-निर्धारित और गणनायोग्य होनी चाहिए</string>
+    <string name="validation_resp_lightweight_must_be_non_quantified">पूर्ण इनपुट के बिना त्वरित समीक्षा की हल्की वस्तुएँ अभी मात्रा-निर्धारित नहीं चिह्नित होनी चाहिए</string>
+    <string name="validation_resp_explicit_inflation_required">कस्टम ज़िम्मेदारियों के लिए स्पष्ट मुद्रास्फीति दर आवश्यक है</string>
+    <string name="validation_resp_timing_required">चयनित ज़िम्मेदारियों के लिए समय-निर्धारण आवश्यक है</string>
+    <string name="validation_resp_timing_not_allowed">यह समय प्रकार चयनित ज़िम्मेदारी के लिए अनुमत नहीं है</string>
+    <string name="validation_resp_years_required">आवश्यक होने तक के वर्ष प्रदान करें</string>
+    <string name="validation_resp_duration_required">अवधि सकारात्मक वर्षों में होनी चाहिए</string>
+    <string name="validation_resp_modelling_horizon_required">“जितना आवश्यक हो” के लिए संकेतात्मक मॉडलिंग अवधि चाहिए, या इसे अभी मात्रा-निर्धारित नहीं चिह्नित करें</string>
+    <string name="validation_resp_milestone_required">मील का पत्थर लेबल आवश्यक है</string>
+    <string name="validation_resp_milestone_horizon_required">मील के पत्थर तक के लिए गणनायोग्य क्षितिज आवश्यक है, या इसे अभी मात्रा-निर्धारित नहीं चिह्नित करें</string>
+    <string name="validation_resp_custom_timing_required">कस्टम समय-निर्धारण के लिए नोट आवश्यक है</string>
+    <string name="validation_resp_custom_horizon_required">कस्टम समय-निर्धारण के लिए गणनायोग्य क्षितिज आवश्यक है, या इसे अभी मात्रा-निर्धारित नहीं चिह्नित करें</string>
+    <string name="validation_resp_monthly_required">इस ज़िम्मेदारी के लिए मासिक राशि आवश्यक है</string>
+    <string name="validation_resp_current_not_primary">इस वस्तु के लिए मुख्य इनपुट के रूप में मासिक राशि उपयोग करें</string>
+    <string name="validation_resp_current_required">वर्तमान या बकाया राशि आवश्यक है</string>
+    <string name="validation_resp_monthly_not_allowed">इस सूची वस्तु के लिए मासिक इनपुट स्वीकार्य नहीं है</string>
+    <string name="validation_resp_loan_monthly_not_allowed">ऋणों के लिए बकाया राशि उपयोग होती है, मासिक समर्थन नहीं</string>
+    <string name="validation_resp_ambiguous_amount_model">राशि मॉडल दर्ज की गई राशियों से मेल नहीं खाता</string>
+    <string name="validation_resp_amount_model_required">कस्टम ज़िम्मेदारियों के लिए स्पष्ट राशि मॉडल आवश्यक है</string>
+    <string name="validation_resp_amount_limit">एकबारगी राशि समर्थित अधिकतम से अधिक है</string>
+    <string name="validation_resp_monthly_limit">मासिक राशि समर्थित अधिकतम से अधिक है</string>
+    <string name="validation_resp_years_limit">आवश्यक होने तक के वर्ष समर्थित सीमा से बाहर हैं</string>
+    <string name="validation_resp_duration_limit">अवधि वर्ष समर्थित सीमा से बाहर हैं</string>
+    <string name="validation_resp_horizon_limit">मॉडलिंग क्षितिज समर्थित सीमा से बाहर है</string>
+
+    <string name="suggestion_always_living">आवश्यक जीवन व्यय आमतौर पर परिवार के लिए जारी रहते हैं</string>
+    <string name="suggestion_has_child">परिवार में बच्चा है — संबंधित समर्थन लागू हो सकता है</string>
+    <string name="suggestion_has_spouse">परिवार में जीवनसाथी या साथी है — संबंधित समर्थन लागू हो सकता है</string>
+    <string name="suggestion_has_parent">परिवार में माता-पिता हैं — माता-पिता समर्थन लागू हो सकता है</string>
+    <string name="suggestion_has_other_dependant">परिवार में अन्य आश्रित है — विशेष-आवश्यकता समर्थन लागू हो सकता है</string>
+    <string name="suggestion_optional_loan">यदि प्रासंगिक हो तो बकाया ऋण निरंतरता पर विचार करें</string>
+    <string name="suggestion_optional_house">यदि प्रासंगिक हो तो घर खरीदने या पूरा करने की योजनाओं पर विचार करें</string>
+
+    <string name="domain_error_validation">कृपया चिह्नित विवरण जाँचें</string>
+    <string name="domain_error_transition">यह चरण अभी पूरा नहीं किया जा सकता</string>
+    <string name="domain_error_conflict">यह समीक्षा कहीं और अद्यतन की गई</string>
+    <string name="domain_error_not_found">यह समीक्षा नहीं मिली</string>
+    <string name="domain_error_collision_exhausted">अद्वितीय पहचानकर्ता आवंटित नहीं हो सका। कृपया फिर प्रयास करें</string>
+    <string name="domain_error_illegal_state">वर्तमान समीक्षा स्थिति में यह क्रिया उपलब्ध नहीं है</string>
+    <string name="domain_error_corrupt_data">संग्रहीत समीक्षा डेटा सुरक्षित रूप से पढ़ा नहीं जा सका</string>
+    <string name="domain_error_persistence">परिवर्तन सहेजे नहीं जा सके। कृपया फिर प्रयास करें</string>
+    <string name="domain_error_calculation">वर्तमान इनपुट के साथ गणना पूरी नहीं हो सकी</string>
+    <string name="domain_error_fallback">कुछ गलत हो गया। कृपया फिर प्रयास करें</string>
+    <string name="validation_fallback">कृपया विवरण जाँचें और फिर प्रयास करें</string>
+
+    <string name="save_state_saving">सहेजा जा रहा है…</string>
+    <string name="save_state_saved">सहेजा गया</string>
+    <string name="save_state_validation">सहेजा नहीं जा सका — कृपया विवरण सुधारें</string>
+    <string name="save_state_persistence">सहेजा नहीं जा सका — कृपया फिर प्रयास करें</string>
+    <string name="save_state_conflict">सहेजा नहीं जा सका — समीक्षा कहीं और अद्यतन की गई</string>
+
+    <string name="conflict_title">समीक्षा कहीं और अद्यतन की गई</string>
+    <string name="conflict_body">इस समीक्षा के लिए कोई अन्य परिवर्तन सहेजा गया। नवीनतम संस्करण फिर से लोड करें, या डैशबोर्ड पर लौटें। इस स्क्रीन पर बिना सहेजे ड्राफ्ट संपादन छोड़ दिए जाएँगे।</string>
+    <string name="conflict_reload">नवीनतम फिर से लोड करें</string>
+    <string name="conflict_return_dashboard">डैशबोर्ड पर लौटें</string>
+    <string name="conflict_draft_discarded">बिना सहेजे ड्राफ्ट संपादन छोड़ दिए गए</string>
+
+    <string name="household_a11y_income_contributor">आय योगदानकर्ता</string>
+    <string name="household_a11y_dependant">आश्रित</string>
+    <string name="household_a11y_focused">केंद्रित आय योगदानकर्ता</string>
+
+    <string name="review_error_not_found">यह समीक्षा नहीं मिली</string>
+    <string name="responsibilities_add_another_custom">एक और कस्टम ज़िम्मेदारी जोड़ें</string>
+    <string name="details_quantification_status_not_yet">अभी मात्रा निर्धारित नहीं</string>
 </resources>

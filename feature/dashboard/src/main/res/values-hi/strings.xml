@@ -36,4 +36,13 @@
     <string name="dashboard_stage_comparison">शैक्षिक तुलना</string>
     <string name="dashboard_stage_summary">जागरूकता सारांश</string>
     <string name="dashboard_stage_handoff">सलाहकार हस्तांतरण</string>
+
+    <!-- Phase 2.1: domain / conflict recovery for dashboard shell -->
+    <string name="domain_error_fallback">कुछ गलत हो गया। कृपया फिर प्रयास करें</string>
+    <string name="domain_error_persistence">परिवर्तन सहेजे नहीं जा सके। कृपया फिर प्रयास करें</string>
+    <string name="domain_error_conflict">यह समीक्षा कहीं और अद्यतन की गई</string>
+    <string name="domain_error_not_found">यह समीक्षा नहीं मिली</string>
+    <string name="conflict_title">समीक्षा कहीं और अद्यतन की गई</string>
+    <string name="conflict_body">इस समीक्षा के लिए कोई अन्य परिवर्तन सहेजा गया। आगे बढ़ने से पहले नवीनतम संस्करण फिर से लोड करें।</string>
+    <string name="conflict_reload">नवीनतम फिर से लोड करें</string>
 </resources>

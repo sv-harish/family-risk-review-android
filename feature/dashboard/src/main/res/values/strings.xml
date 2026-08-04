@@ -36,4 +36,13 @@
     <string name="dashboard_stage_comparison">Educational comparison</string>
     <string name="dashboard_stage_summary">Awareness summary</string>
     <string name="dashboard_stage_handoff">Advisor handoff</string>
+
+    <!-- Phase 2.1: domain / conflict recovery for dashboard shell -->
+    <string name="domain_error_fallback">Something went wrong. Please try again</string>
+    <string name="domain_error_persistence">Changes could not be saved. Please try again</string>
+    <string name="domain_error_conflict">This review was updated elsewhere</string>
+    <string name="domain_error_not_found">This review could not be found</string>
+    <string name="conflict_title">Review updated elsewhere</string>
+    <string name="conflict_body">Another change was saved for this review. Reload the latest version before continuing.</string>
+    <string name="conflict_reload">Reload latest</string>
 </resources>
