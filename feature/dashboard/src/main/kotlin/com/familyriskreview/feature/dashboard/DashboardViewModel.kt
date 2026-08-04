@@ -50,26 +50,24 @@ data class DashboardUiState(
  * Archived reviews stay separate from in-progress and completed.
  */
 object DashboardReviewGrouping {
-    fun toItem(review: Review): DashboardReviewItem =
-        DashboardReviewItem(
-            id = review.id,
-            reviewNumber = review.reviewNumber,
-            mode = review.mode,
-            updatedAtLabel = formatUpdatedAt(review.updatedAt),
-            stage = review.currentStep,
-            status = review.status,
-        )
+    fun toItem(review: Review): DashboardReviewItem = DashboardReviewItem(
+        id = review.id,
+        reviewNumber = review.reviewNumber,
+        mode = review.mode,
+        updatedAtLabel = formatUpdatedAt(review.updatedAt),
+        stage = review.currentStep,
+        status = review.status,
+    )
 
     fun group(
         inProgress: List<Review>,
         completed: List<Review>,
         archived: List<Review>,
-    ): Triple<List<DashboardReviewItem>, List<DashboardReviewItem>, List<DashboardReviewItem>> =
-        Triple(
-            inProgress.map(::toItem),
-            completed.map(::toItem),
-            archived.map(::toItem),
-        )
+    ): Triple<List<DashboardReviewItem>, List<DashboardReviewItem>, List<DashboardReviewItem>> = Triple(
+        inProgress.map(::toItem),
+        completed.map(::toItem),
+        archived.map(::toItem),
+    )
 
     fun formatUpdatedAt(instant: Instant): String {
         val zoned =
@@ -79,19 +77,18 @@ object DashboardReviewGrouping {
         return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).format(zoned)
     }
 
-    fun userMessage(error: DomainError): String =
-        when (error) {
-            is DomainError.Validation ->
-                error.issues.firstOrNull()?.message ?: "Unable to create review."
-            is DomainError.Transition -> error.message
-            is DomainError.Conflict -> error.message
-            is DomainError.NotFound -> error.message
-            is DomainError.CollisionExhausted -> error.message
-            is DomainError.IllegalState -> error.message
-            is DomainError.CorruptData -> error.message
-            is DomainError.Persistence -> error.message
-            is DomainError.Calculation -> error.message
-        }
+    fun userMessage(error: DomainError): String = when (error) {
+        is DomainError.Validation ->
+            error.issues.firstOrNull()?.message ?: "Unable to create review."
+        is DomainError.Transition -> error.message
+        is DomainError.Conflict -> error.message
+        is DomainError.NotFound -> error.message
+        is DomainError.CollisionExhausted -> error.message
+        is DomainError.IllegalState -> error.message
+        is DomainError.CorruptData -> error.message
+        is DomainError.Persistence -> error.message
+        is DomainError.Calculation -> error.message
+    }
 }
 
 @HiltViewModel

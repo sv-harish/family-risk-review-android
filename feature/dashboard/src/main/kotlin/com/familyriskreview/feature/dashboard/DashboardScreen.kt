@@ -88,10 +88,10 @@ fun DashboardScreen(
 
     Column(
         modifier =
-            modifier
-                .fillMaxSize()
-                .verticalScroll(scroll)
-                .padding(bottom = FrrSpacing.xl),
+        modifier
+            .fillMaxSize()
+            .verticalScroll(scroll)
+            .padding(bottom = FrrSpacing.xl),
         verticalArrangement = Arrangement.Top,
     ) {
         Text(
@@ -148,11 +148,11 @@ fun DashboardScreen(
             Spacer(Modifier.height(FrrSpacing.md))
             Column(
                 modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .background(colors.blockingError.copy(alpha = 0.08f))
-                        .padding(FrrSpacing.md)
-                        .semantics { contentDescription = message },
+                Modifier
+                    .fillMaxWidth()
+                    .background(colors.blockingError.copy(alpha = 0.08f))
+                    .padding(FrrSpacing.md)
+                    .semantics { contentDescription = message },
             ) {
                 Text(
                     text = stringResource(R.string.dashboard_create_error_title),
@@ -260,9 +260,9 @@ private fun EmptyState() {
     val colors = frrColors()
     Column(
         modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(vertical = FrrSpacing.md),
+        Modifier
+            .fillMaxWidth()
+            .padding(vertical = FrrSpacing.md),
         verticalArrangement = Arrangement.spacedBy(FrrSpacing.xs),
     ) {
         Text(
@@ -312,11 +312,11 @@ private fun ReviewRow(
 
     Column(
         modifier =
-            Modifier
-                .fillMaxWidth()
-                .background(colors.elevatedSurface)
-                .padding(FrrSpacing.md)
-                .semantics { contentDescription = rowDescription },
+        Modifier
+            .fillMaxWidth()
+            .background(colors.elevatedSurface)
+            .padding(FrrSpacing.md)
+            .semantics { contentDescription = rowDescription },
         verticalArrangement = Arrangement.spacedBy(FrrSpacing.xxs),
     ) {
         Row(
@@ -355,17 +355,16 @@ private fun ReviewRow(
     }
 }
 
-private fun stageLabelRes(step: ReviewStep): Int =
-    when (step) {
-        ReviewStep.HOUSEHOLD_SUPPORT_MAP -> R.string.dashboard_stage_household
-        ReviewStep.RESPONSIBILITIES -> R.string.dashboard_stage_responsibilities
-        ReviewStep.PRIORITISATION -> R.string.dashboard_stage_prioritisation
-        ReviewStep.RESPONSIBILITY_DETAILS -> R.string.dashboard_stage_details
-        ReviewStep.TIMELINE -> R.string.dashboard_stage_timeline
-        ReviewStep.INCOME_RISK_EDUCATION -> R.string.dashboard_stage_income_risk
-        ReviewStep.KEY_REALIZATION -> R.string.dashboard_stage_key_realization
-        ReviewStep.GROSS_RESPONSIBILITY -> R.string.dashboard_stage_gross
-        ReviewStep.EDUCATIONAL_COMPARISON -> R.string.dashboard_stage_comparison
-        ReviewStep.AWARENESS_SUMMARY -> R.string.dashboard_stage_summary
-        ReviewStep.ADVISOR_HANDOFF -> R.string.dashboard_stage_handoff
-    }
+private fun stageLabelRes(step: ReviewStep): Int = when (step) {
+    ReviewStep.HOUSEHOLD_SUPPORT_MAP -> R.string.dashboard_stage_household
+    ReviewStep.RESPONSIBILITIES -> R.string.dashboard_stage_responsibilities
+    ReviewStep.PRIORITISATION -> R.string.dashboard_stage_prioritisation
+    ReviewStep.RESPONSIBILITY_DETAILS -> R.string.dashboard_stage_details
+    ReviewStep.TIMELINE -> R.string.dashboard_stage_timeline
+    ReviewStep.INCOME_RISK_EDUCATION -> R.string.dashboard_stage_income_risk
+    ReviewStep.KEY_REALIZATION -> R.string.dashboard_stage_key_realization
+    ReviewStep.GROSS_RESPONSIBILITY -> R.string.dashboard_stage_gross
+    ReviewStep.EDUCATIONAL_COMPARISON -> R.string.dashboard_stage_comparison
+    ReviewStep.AWARENESS_SUMMARY -> R.string.dashboard_stage_summary
+    ReviewStep.ADVISOR_HANDOFF -> R.string.dashboard_stage_handoff
+}

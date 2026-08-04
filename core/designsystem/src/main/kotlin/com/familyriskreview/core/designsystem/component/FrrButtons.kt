@@ -32,26 +32,26 @@ fun FrrPrimaryButton(
         onClick = onClick,
         enabled = enabled,
         modifier =
-            modifier
-                .heightIn(min = FrrTouchTarget.comfortable)
-                .defaultMinSize(minWidth = 120.dp)
-                .then(
-                    if (contentDescription != null) {
-                        Modifier.semantics {
-                            this.contentDescription = contentDescription
-                            role = Role.Button
-                        }
-                    } else {
-                        Modifier
-                    },
-                ),
-        colors =
-            ButtonDefaults.buttonColors(
-                containerColor = colors.primaryAction,
-                contentColor = colors.elevatedSurface,
-                disabledContainerColor = colors.outline.copy(alpha = 0.35f),
-                disabledContentColor = colors.mutedText,
+        modifier
+            .heightIn(min = FrrTouchTarget.comfortable)
+            .defaultMinSize(minWidth = 120.dp)
+            .then(
+                if (contentDescription != null) {
+                    Modifier.semantics {
+                        this.contentDescription = contentDescription
+                        role = Role.Button
+                    }
+                } else {
+                    Modifier
+                },
             ),
+        colors =
+        ButtonDefaults.buttonColors(
+            containerColor = colors.primaryAction,
+            contentColor = colors.elevatedSurface,
+            disabledContainerColor = colors.outline.copy(alpha = 0.35f),
+            disabledContentColor = colors.mutedText,
+        ),
         contentPadding = PaddingValues(horizontal = 24.dp, vertical = 14.dp),
     ) {
         Text(text = text)
@@ -71,9 +71,9 @@ fun FrrSecondaryButton(
         enabled = enabled,
         modifier = modifier.heightIn(min = FrrTouchTarget.comfortable),
         colors =
-            ButtonDefaults.outlinedButtonColors(
-                contentColor = colors.secondaryAction,
-            ),
+        ButtonDefaults.outlinedButtonColors(
+            contentColor = colors.secondaryAction,
+        ),
         contentPadding = PaddingValues(horizontal = 24.dp, vertical = 14.dp),
     ) {
         Text(text = text)

@@ -67,8 +67,12 @@ fun ResponsibilitySelectionScreen(
             modifier = Modifier.padding(top = FrrSpacing.xs, bottom = FrrSpacing.md),
         )
         state.validationIssues.forEach { issue ->
-            Text(text = issue.message, style = FrrTypography.bodyMedium, color = colors.blockingError,
-                modifier = Modifier.padding(bottom = FrrSpacing.xs))
+            Text(
+                text = issue.message,
+                style = FrrTypography.bodyMedium,
+                color = colors.blockingError,
+                modifier = Modifier.padding(bottom = FrrSpacing.xs),
+            )
         }
         LazyVerticalGrid(
             columns = GridCells.Adaptive(minSize = 200.dp),
@@ -91,17 +95,22 @@ fun ResponsibilitySelectionScreen(
                     state.responsibilities.any { it.catalogue == ResponsibilityCatalogue.OTHER && it.isSelected }
                 Column(
                     modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(FrrRadius.md))
-                        .border(if (otherSelected) 2.dp else 1.dp,
+                        .border(
+                            if (otherSelected) 2.dp else 1.dp,
                             if (otherSelected) colors.primaryAction else colors.outline,
-                            RoundedCornerShape(FrrRadius.md))
+                            RoundedCornerShape(FrrRadius.md),
+                        )
                         .background(colors.elevatedSurface).padding(FrrSpacing.sm),
                     verticalArrangement = Arrangement.spacedBy(FrrSpacing.xs),
                 ) {
                     CatalogueTileHeader(ResponsibilityCatalogue.OTHER, otherSelected) {
                         onToggle(ResponsibilityCatalogue.OTHER, !otherSelected, otherLabel.text.trim().ifBlank { null })
                     }
-                    Text(text = catalogueExplanation(ResponsibilityCatalogue.OTHER),
-                        style = FrrTypography.bodyMedium, color = colors.mutedText)
+                    Text(
+                        text = catalogueExplanation(ResponsibilityCatalogue.OTHER),
+                        style = FrrTypography.bodyMedium,
+                        color = colors.mutedText,
+                    )
                     FrrStableTextField(
                         value = otherLabel,
                         onValueChange = { otherLabel = it },
@@ -134,7 +143,11 @@ private fun CatalogueTile(
         modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(FrrRadius.md))
             .border(if (selected) 2.dp else 1.dp, if (selected) colors.primaryAction else colors.outline, RoundedCornerShape(FrrRadius.md))
             .background(colors.elevatedSurface).clickable(onClick = onClick)
-            .semantics { role = Role.Button; this.selected = selected; contentDescription = catalogue.name }
+            .semantics {
+                role = Role.Button
+                this.selected = selected
+                contentDescription = catalogue.name
+            }
             .padding(FrrSpacing.sm),
         verticalArrangement = Arrangement.spacedBy(FrrSpacing.xs),
     ) {

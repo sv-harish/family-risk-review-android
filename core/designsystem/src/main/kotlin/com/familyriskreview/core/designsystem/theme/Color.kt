@@ -82,6 +82,7 @@ data class FrrSemanticColors(
     val outline: Color = FrrColors.Outline,
 )
 
+@Suppress("CompositionLocalNaming")
 val LocalFrrSemanticColors = staticCompositionLocalOf { FrrSemanticColors() }
 
 object FrrSpacing {
@@ -124,7 +125,7 @@ object FrrTouchTarget {
 }
 
 object FrrMotion {
-    const val shortMs: Int = 180
-    const val mediumMs: Int = 280
-    const val longMs: Int = 420
+    const val SHORT_MS: Int = 180
+    const val MEDIUM_MS: Int = 280
+    const val LONG_MS: Int = 420
 }

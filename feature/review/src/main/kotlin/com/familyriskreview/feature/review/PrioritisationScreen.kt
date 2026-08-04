@@ -76,8 +76,12 @@ fun PrioritisationScreen(
             Spacer(Modifier.height(FrrSpacing.sm))
         }
         state.validationIssues.filter { it.code != "RESP_QUICK_MUST_CONTINUE_LIMIT" }.forEach { issue ->
-            Text(text = issue.message, style = FrrTypography.bodyMedium, color = colors.blockingError,
-                modifier = Modifier.padding(bottom = FrrSpacing.xs))
+            Text(
+                text = issue.message,
+                style = FrrTypography.bodyMedium,
+                color = colors.blockingError,
+                modifier = Modifier.padding(bottom = FrrSpacing.xs),
+            )
         }
         if (unassigned.isNotEmpty()) {
             PriorityZone(stringResource(R.string.priority_unassigned), colors.outline, unassigned, onSetPriority)
@@ -129,16 +133,25 @@ private fun PriorityItemRow(responsibility: Responsibility, onAssign: (String, R
     ) {
         Text(text = label, style = FrrTypography.titleMedium, color = colors.onSurface)
         Row(horizontalArrangement = Arrangement.spacedBy(FrrSpacing.xs)) {
-            PriorityChip(stringResource(R.string.priority_must_short),
-                responsibility.priority == ResponsibilityPriority.MUST_CONTINUE, colors.mustContinue) {
+            PriorityChip(
+                stringResource(R.string.priority_must_short),
+                responsibility.priority == ResponsibilityPriority.MUST_CONTINUE,
+                colors.mustContinue,
+            ) {
                 onAssign(responsibility.id, ResponsibilityPriority.MUST_CONTINUE)
             }
-            PriorityChip(stringResource(R.string.priority_adjustable_short),
-                responsibility.priority == ResponsibilityPriority.IMPORTANT_BUT_ADJUSTABLE, colors.adjustable) {
+            PriorityChip(
+                stringResource(R.string.priority_adjustable_short),
+                responsibility.priority == ResponsibilityPriority.IMPORTANT_BUT_ADJUSTABLE,
+                colors.adjustable,
+            ) {
                 onAssign(responsibility.id, ResponsibilityPriority.IMPORTANT_BUT_ADJUSTABLE)
             }
-            PriorityChip(stringResource(R.string.priority_postponed_short),
-                responsibility.priority == ResponsibilityPriority.CAN_BE_POSTPONED_OR_REDUCED, colors.postponed) {
+            PriorityChip(
+                stringResource(R.string.priority_postponed_short),
+                responsibility.priority == ResponsibilityPriority.CAN_BE_POSTPONED_OR_REDUCED,
+                colors.postponed,
+            ) {
                 onAssign(responsibility.id, ResponsibilityPriority.CAN_BE_POSTPONED_OR_REDUCED)
             }
         }
@@ -156,7 +169,10 @@ private fun PriorityChip(text: String, selected: Boolean, color: Color, onClick:
             .background(if (selected) color else colors.elevatedSurface)
             .border(1.dp, color, RoundedCornerShape(FrrRadius.sm))
             .clickable(onClick = onClick)
-            .semantics { role = Role.Button; contentDescription = text }
+            .semantics {
+                role = Role.Button
+                contentDescription = text
+            }
             .padding(horizontal = FrrSpacing.sm, vertical = FrrSpacing.xs),
     )
 }

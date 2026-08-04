@@ -48,16 +48,16 @@ fun FrrStableTextField(
         value = value,
         onValueChange = onValueChange,
         modifier =
-            modifier
-                .fillMaxWidth()
-                .heightIn(min = FrrTouchTarget.comfortable)
-                .onFocusChanged { state ->
-                    val nowFocused = state.isFocused
-                    if (focused && !nowFocused) {
-                        onFocusLost?.invoke()
-                    }
-                    focused = nowFocused
-                },
+        modifier
+            .fillMaxWidth()
+            .heightIn(min = FrrTouchTarget.comfortable)
+            .onFocusChanged { state ->
+                val nowFocused = state.isFocused
+                if (focused && !nowFocused) {
+                    onFocusLost?.invoke()
+                }
+                focused = nowFocused
+            },
         enabled = enabled,
         singleLine = singleLine,
         isError = isError,
@@ -67,13 +67,13 @@ fun FrrStableTextField(
         keyboardActions = keyboardActions,
         visualTransformation = visualTransformation,
         colors =
-            OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = colors.primaryAction,
-                unfocusedBorderColor = colors.outline,
-                errorBorderColor = colors.blockingError,
-                focusedLabelColor = colors.primaryAction,
-                cursorColor = colors.primaryAction,
-            ),
+        OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = colors.primaryAction,
+            unfocusedBorderColor = colors.outline,
+            errorBorderColor = colors.blockingError,
+            focusedLabelColor = colors.primaryAction,
+            cursorColor = colors.primaryAction,
+        ),
     )
 }
 

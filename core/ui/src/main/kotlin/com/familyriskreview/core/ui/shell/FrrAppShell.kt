@@ -48,9 +48,9 @@ fun FrrAppShell(
     val colors = frrColors()
     BoxWithConstraints(
         modifier =
-            modifier
-                .fillMaxSize()
-                .background(colors.surface),
+        modifier
+            .fillMaxSize()
+            .background(colors.surface),
     ) {
         val widthClass = classifyWidth(maxWidth)
         val showRail = widthClass == WindowWidthClass.EXPANDED
@@ -106,9 +106,9 @@ fun FrrContentWidth(
 ) {
     Box(
         modifier =
-            modifier
-                .fillMaxWidth()
-                .widthIn(max = FrrSpacing.contentMaxWidth),
+        modifier
+            .fillMaxWidth()
+            .widthIn(max = FrrSpacing.contentMaxWidth),
     ) {
         content()
     }
@@ -128,13 +128,13 @@ private fun ShellRailItem(
         icon = { Icon(imageVector = icon, contentDescription = label) },
         label = { Text(label) },
         colors =
-            NavigationRailItemDefaults.colors(
-                selectedIconColor = colors.primaryAction,
-                selectedTextColor = colors.primaryAction,
-                indicatorColor = colors.primaryAction.copy(alpha = 0.14f),
-                unselectedIconColor = colors.mutedText,
-                unselectedTextColor = colors.mutedText,
-            ),
+        NavigationRailItemDefaults.colors(
+            selectedIconColor = colors.primaryAction,
+            selectedTextColor = colors.primaryAction,
+            indicatorColor = colors.primaryAction.copy(alpha = 0.14f),
+            unselectedIconColor = colors.mutedText,
+            unselectedTextColor = colors.mutedText,
+        ),
         modifier = Modifier.padding(vertical = 4.dp),
     )
 }

@@ -80,19 +80,18 @@ constructor(
         }
     }
 
-    private fun userMessage(error: DomainError): String =
-        when (error) {
-            is DomainError.Validation ->
-                error.issues.firstOrNull()?.message ?: "Unable to create review."
-            is DomainError.Transition -> error.message
-            is DomainError.Conflict -> error.message
-            is DomainError.NotFound -> error.message
-            is DomainError.CollisionExhausted -> error.message
-            is DomainError.IllegalState -> error.message
-            is DomainError.CorruptData -> error.message
-            is DomainError.Persistence -> error.message
-            is DomainError.Calculation -> error.message
-        }
+    private fun userMessage(error: DomainError): String = when (error) {
+        is DomainError.Validation ->
+            error.issues.firstOrNull()?.message ?: "Unable to create review."
+        is DomainError.Transition -> error.message
+        is DomainError.Conflict -> error.message
+        is DomainError.NotFound -> error.message
+        is DomainError.CollisionExhausted -> error.message
+        is DomainError.IllegalState -> error.message
+        is DomainError.CorruptData -> error.message
+        is DomainError.Persistence -> error.message
+        is DomainError.Calculation -> error.message
+    }
 }
 
 @Composable
@@ -170,11 +169,11 @@ fun FrrNavHost(
                     val colors = frrColors()
                     Column(
                         modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 32.dp, vertical = 8.dp)
-                                .background(colors.blockingError.copy(alpha = 0.08f))
-                                .padding(16.dp),
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 32.dp, vertical = 8.dp)
+                            .background(colors.blockingError.copy(alpha = 0.08f))
+                            .padding(16.dp),
                     ) {
                         Text(
                             text = message,

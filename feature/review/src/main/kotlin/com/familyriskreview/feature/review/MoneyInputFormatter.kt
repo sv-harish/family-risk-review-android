@@ -16,9 +16,7 @@ object MoneyInputFormatter {
         return digits.toLongOrNull()
     }
 
-    fun formatRupees(amountRupees: Long): String =
-        NumberFormat.getNumberInstance(locale).format(amountRupees)
+    fun formatRupees(amountRupees: Long): String = NumberFormat.getNumberInstance(locale).format(amountRupees)
 
-    fun formatOrEmpty(amountRupees: Long?): String =
-        amountRupees?.let { formatRupees(it) }.orEmpty()
+    fun formatOrEmpty(amountRupees: Long?): String = amountRupees?.let { formatRupees(it) }.orEmpty()
 }

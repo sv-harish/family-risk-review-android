@@ -322,35 +322,32 @@ constructor(
         }
     }
 
-    private fun defaultsFor(relationship: FamilyMemberType): Pair<ContributionStatus, DependencyStatus> =
-        when (relationship) {
-            FamilyMemberType.SELF ->
-                ContributionStatus.PRIMARY_INCOME to DependencyStatus.NOT_APPLICABLE
-            FamilyMemberType.SPOUSE_OR_PARTNER ->
-                ContributionStatus.SHARED_INCOME to DependencyStatus.PARTLY_DEPENDENT
-            FamilyMemberType.CHILD ->
-                ContributionStatus.NON_CONTRIBUTOR to DependencyStatus.FULLY_DEPENDENT
-            FamilyMemberType.PARENT ->
-                ContributionStatus.NON_CONTRIBUTOR to DependencyStatus.PARTLY_DEPENDENT
-            FamilyMemberType.OTHER_DEPENDANT ->
-                ContributionStatus.NON_CONTRIBUTOR to DependencyStatus.FULLY_DEPENDENT
-        }
+    private fun defaultsFor(relationship: FamilyMemberType): Pair<ContributionStatus, DependencyStatus> = when (relationship) {
+        FamilyMemberType.SELF ->
+            ContributionStatus.PRIMARY_INCOME to DependencyStatus.NOT_APPLICABLE
+        FamilyMemberType.SPOUSE_OR_PARTNER ->
+            ContributionStatus.SHARED_INCOME to DependencyStatus.PARTLY_DEPENDENT
+        FamilyMemberType.CHILD ->
+            ContributionStatus.NON_CONTRIBUTOR to DependencyStatus.FULLY_DEPENDENT
+        FamilyMemberType.PARENT ->
+            ContributionStatus.NON_CONTRIBUTOR to DependencyStatus.PARTLY_DEPENDENT
+        FamilyMemberType.OTHER_DEPENDANT ->
+            ContributionStatus.NON_CONTRIBUTOR to DependencyStatus.FULLY_DEPENDENT
+    }
 }
 
-internal fun isIncomeContributor(status: ContributionStatus): Boolean =
-    status == ContributionStatus.PRIMARY_INCOME ||
-        status == ContributionStatus.SHARED_INCOME ||
-        status == ContributionStatus.SUPPLEMENTARY_OR_IRREGULAR
+internal fun isIncomeContributor(status: ContributionStatus): Boolean = status == ContributionStatus.PRIMARY_INCOME ||
+    status == ContributionStatus.SHARED_INCOME ||
+    status == ContributionStatus.SUPPLEMENTARY_OR_IRREGULAR
 
-private fun DomainError.toPlainMessage(): String =
-    when (this) {
-        is DomainError.Validation -> issues.firstOrNull()?.message ?: "Please check the details"
-        is DomainError.Conflict -> message
-        is DomainError.NotFound -> message
-        is DomainError.Transition -> message
-        is DomainError.IllegalState -> message
-        is DomainError.CollisionExhausted -> message
-        is DomainError.CorruptData -> message
-        is DomainError.Persistence -> message
-        is DomainError.Calculation -> message
-    }
+private fun DomainError.toPlainMessage(): String = when (this) {
+    is DomainError.Validation -> issues.firstOrNull()?.message ?: "Please check the details"
+    is DomainError.Conflict -> message
+    is DomainError.NotFound -> message
+    is DomainError.Transition -> message
+    is DomainError.IllegalState -> message
+    is DomainError.CollisionExhausted -> message
+    is DomainError.CorruptData -> message
+    is DomainError.Persistence -> message
+    is DomainError.Calculation -> message
+}

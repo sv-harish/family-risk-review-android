@@ -1,12 +1,12 @@
 package com.familyriskreview.feature.review
 
-import com.familyriskreview.core.model.ReviewStep
-import com.familyriskreview.core.model.suggestion.ResponsibilitySuggestionEngine
-import com.familyriskreview.core.model.FamilyMemberType
-import com.familyriskreview.core.model.HouseholdMember
 import com.familyriskreview.core.model.ContributionStatus
 import com.familyriskreview.core.model.DependencyStatus
+import com.familyriskreview.core.model.FamilyMemberType
+import com.familyriskreview.core.model.HouseholdMember
+import com.familyriskreview.core.model.ReviewStep
 import com.familyriskreview.core.model.lifecycle.QuickReviewRules
+import com.familyriskreview.core.model.suggestion.ResponsibilitySuggestionEngine
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 

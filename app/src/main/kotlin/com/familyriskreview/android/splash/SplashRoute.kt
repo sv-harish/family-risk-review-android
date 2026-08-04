@@ -22,8 +22,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.familyriskreview.android.R
 import com.familyriskreview.core.designsystem.theme.FrrMotion
-import com.familyriskreview.core.designsystem.theme.frrColors
 import com.familyriskreview.core.designsystem.theme.FrrTypography
+import com.familyriskreview.core.designsystem.theme.frrColors
 import kotlinx.coroutines.delay
 
 /**
@@ -41,7 +41,7 @@ fun SplashRoute(
 
     LaunchedEffect(reducedMotion) {
         if (reducedMotion) {
-            delay(FrrMotion.shortMs.toLong())
+            delay(FrrMotion.SHORT_MS.toLong())
             onFinished()
         } else {
             alpha.animateTo(1f, animationSpec = tween(durationMillis = 500))
@@ -53,17 +53,17 @@ fun SplashRoute(
     val brandDescription = stringResource(R.string.splash_a11y)
     Box(
         modifier =
-            modifier
-                .fillMaxSize()
-                .background(colors.surface)
-                .semantics { contentDescription = brandDescription },
+        modifier
+            .fillMaxSize()
+            .background(colors.surface)
+            .semantics { contentDescription = brandDescription },
         contentAlignment = Alignment.Center,
     ) {
         Column(
             modifier =
-                Modifier
-                    .alpha(alpha.value)
-                    .padding(32.dp),
+            Modifier
+                .alpha(alpha.value)
+                .padding(32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
@@ -81,10 +81,10 @@ fun SplashRoute(
 
         Column(
             modifier =
-                Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 40.dp)
-                    .alpha(alpha.value * 0.85f),
+            Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 40.dp)
+                .alpha(alpha.value * 0.85f),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             // Placeholder for Dareus One logo — see assets/branding/README.md

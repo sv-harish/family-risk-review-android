@@ -59,8 +59,12 @@ fun ResponsibilityDetailsScreen(
             modifier = Modifier.padding(top = FrrSpacing.xs, bottom = FrrSpacing.md),
         )
         state.validationIssues.forEach { issue ->
-            Text(text = issue.message, style = FrrTypography.bodyMedium, color = colors.blockingError,
-                modifier = Modifier.padding(bottom = FrrSpacing.xs))
+            Text(
+                text = issue.message,
+                style = FrrTypography.bodyMedium,
+                color = colors.blockingError,
+                modifier = Modifier.padding(bottom = FrrSpacing.xs),
+            )
         }
         if (items.isEmpty()) {
             Text(text = stringResource(R.string.details_none_selected), style = FrrTypography.bodyLarge, color = colors.mutedText)
@@ -68,8 +72,11 @@ fun ResponsibilityDetailsScreen(
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(FrrSpacing.xs)) {
                 items.forEach { item ->
                     val label = item.customLabel?.takeIf { it.isNotBlank() } ?: catalogueLabel(item.catalogue)
-                    FilterChip(selected = item.id == current?.id, onClick = { selectedId = item.id },
-                        label = { Text(label.take(18)) })
+                    FilterChip(
+                        selected = item.id == current?.id,
+                        onClick = { selectedId = item.id },
+                        label = { Text(label.take(18)) },
+                    )
                 }
             }
             Spacer(Modifier.height(FrrSpacing.md))
@@ -95,9 +102,11 @@ private fun ResponsibilityDetailsForm(responsibility: Responsibility, onSaveDraf
         mutableStateOf(TextFieldValue(MoneyInputFormatter.formatOrEmpty(responsibility.currentAmount?.amountRupees)))
     }
     var yearsField by remember(responsibility.id) {
-        mutableStateOf(TextFieldValue(
-            (responsibility.timing?.yearsUntilRequired ?: responsibility.timing?.durationYears)?.toString().orEmpty(),
-        ))
+        mutableStateOf(
+            TextFieldValue(
+                (responsibility.timing?.yearsUntilRequired ?: responsibility.timing?.durationYears)?.toString().orEmpty(),
+            ),
+        )
     }
     var inflationField by remember(responsibility.id) {
         mutableStateOf(TextFieldValue(responsibility.explicitInflationBps?.let { (it / 100.0).toString() }.orEmpty()))
@@ -109,8 +118,7 @@ private fun ResponsibilityDetailsForm(responsibility: Responsibility, onSaveDraf
         mutableStateOf(responsibility.quantificationStatus == QuantificationStatus.NOT_YET_QUANTIFIED)
     }
 
-    fun moneyOrNull(field: TextFieldValue): MoneyAmount? =
-        MoneyInputFormatter.parseRupees(field.text)?.let { MoneyAmount(it) }
+    fun moneyOrNull(field: TextFieldValue): MoneyAmount? = MoneyInputFormatter.parseRupees(field.text)?.let { MoneyAmount(it) }
 
     fun buildDraft(): Responsibility {
         val timing = when {
@@ -144,10 +152,14 @@ private fun ResponsibilityDetailsForm(responsibility: Responsibility, onSaveDraf
             amountModel = if (catalogue == ResponsibilityCatalogue.OTHER) amountModel else null,
             explicitInflationBps = if (catalogue == ResponsibilityCatalogue.OTHER) {
                 inflationField.text.trim().toDoubleOrNull()?.let { (it * 100).toInt() }
-            } else null,
+            } else {
+                null
+            },
             quantificationStatus = if (notYetQuantified && isLivingLike(catalogue)) {
                 QuantificationStatus.NOT_YET_QUANTIFIED
-            } else QuantificationStatus.QUANTIFIED,
+            } else {
+                QuantificationStatus.QUANTIFIED
+            },
         )
     }
 
@@ -161,69 +173,130 @@ private fun ResponsibilityDetailsForm(responsibility: Responsibility, onSaveDraf
         Text(text = catalogueLabel(catalogue), style = FrrTypography.titleLarge, color = colors.onSurface)
         when {
             isLivingLike(catalogue) -> {
-                FrrStableTextField(monthlyField, { monthlyField = it }, label = stringResource(R.string.details_monthly_amount),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), onFocusLost = ::save)
-                FrrStableTextField(yearsField, { yearsField = it }, label = stringResource(R.string.details_duration_years),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), onFocusLost = ::save)
+                FrrStableTextField(
+                    monthlyField,
+                    { monthlyField = it },
+                    label = stringResource(R.string.details_monthly_amount),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    onFocusLost = ::save,
+                )
+                FrrStableTextField(
+                    yearsField,
+                    { yearsField = it },
+                    label = stringResource(R.string.details_duration_years),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    onFocusLost = ::save,
+                )
                 Row(horizontalArrangement = Arrangement.spacedBy(FrrSpacing.sm)) {
-                    FilterChip(!notYetQuantified, { notYetQuantified = false; save() },
-                        label = { Text(stringResource(R.string.details_quantified)) })
-                    FilterChip(notYetQuantified, { notYetQuantified = true; save() },
-                        label = { Text(stringResource(R.string.details_not_yet_quantified)) })
+                    FilterChip(
+                        !notYetQuantified,
+                        {
+                            notYetQuantified = false
+                            save()
+                        },
+                        label = { Text(stringResource(R.string.details_quantified)) },
+                    )
+                    FilterChip(
+                        notYetQuantified,
+                        {
+                            notYetQuantified = true
+                            save()
+                        },
+                        label = { Text(stringResource(R.string.details_not_yet_quantified)) },
+                    )
                 }
             }
             isEducationLike(catalogue) -> {
-                FrrStableTextField(currentField, { currentField = it }, label = stringResource(R.string.details_current_amount),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), onFocusLost = ::save)
-                FrrStableTextField(yearsField, { yearsField = it }, label = stringResource(R.string.details_years_until),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), onFocusLost = ::save)
+                FrrStableTextField(
+                    currentField,
+                    { currentField = it },
+                    label = stringResource(R.string.details_current_amount),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    onFocusLost = ::save,
+                )
+                FrrStableTextField(
+                    yearsField,
+                    { yearsField = it },
+                    label = stringResource(R.string.details_years_until),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    onFocusLost = ::save,
+                )
             }
             isLoan(catalogue) -> {
-                FrrStableTextField(currentField, { currentField = it }, label = stringResource(R.string.details_outstanding_amount),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), onFocusLost = ::save)
+                FrrStableTextField(
+                    currentField,
+                    { currentField = it },
+                    label = stringResource(R.string.details_outstanding_amount),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    onFocusLost = ::save,
+                )
             }
             catalogue == ResponsibilityCatalogue.OTHER -> {
                 FrrStableTextField(labelField, { labelField = it }, label = stringResource(R.string.responsibilities_other_label), onFocusLost = ::save)
                 Row(horizontalArrangement = Arrangement.spacedBy(FrrSpacing.sm)) {
                     FilterChip(amountModel == ResponsibilityAmountModel.ONE_TIME, {
-                        amountModel = ResponsibilityAmountModel.ONE_TIME; save()
+                        amountModel = ResponsibilityAmountModel.ONE_TIME
+                        save()
                     }, label = { Text(stringResource(R.string.details_model_one_time)) })
                     FilterChip(amountModel == ResponsibilityAmountModel.RECURRING, {
-                        amountModel = ResponsibilityAmountModel.RECURRING; save()
+                        amountModel = ResponsibilityAmountModel.RECURRING
+                        save()
                     }, label = { Text(stringResource(R.string.details_model_recurring)) })
                 }
                 if (amountModel == ResponsibilityAmountModel.ONE_TIME) {
-                    FrrStableTextField(currentField, { currentField = it }, label = stringResource(R.string.details_current_amount),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), onFocusLost = ::save)
-                    FrrStableTextField(yearsField, { yearsField = it }, label = stringResource(R.string.details_years_until),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), onFocusLost = ::save)
+                    FrrStableTextField(
+                        currentField,
+                        { currentField = it },
+                        label = stringResource(R.string.details_current_amount),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        onFocusLost = ::save,
+                    )
+                    FrrStableTextField(
+                        yearsField,
+                        { yearsField = it },
+                        label = stringResource(R.string.details_years_until),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        onFocusLost = ::save,
+                    )
                 } else {
-                    FrrStableTextField(monthlyField, { monthlyField = it }, label = stringResource(R.string.details_monthly_amount),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), onFocusLost = ::save)
-                    FrrStableTextField(yearsField, { yearsField = it }, label = stringResource(R.string.details_duration_years),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), onFocusLost = ::save)
+                    FrrStableTextField(
+                        monthlyField,
+                        { monthlyField = it },
+                        label = stringResource(R.string.details_monthly_amount),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        onFocusLost = ::save,
+                    )
+                    FrrStableTextField(
+                        yearsField,
+                        { yearsField = it },
+                        label = stringResource(R.string.details_duration_years),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        onFocusLost = ::save,
+                    )
                 }
-                FrrStableTextField(inflationField, { inflationField = it }, label = stringResource(R.string.details_inflation_percent),
+                FrrStableTextField(
+                    inflationField,
+                    { inflationField = it },
+                    label = stringResource(R.string.details_inflation_percent),
                     supportingText = stringResource(R.string.details_inflation_hint),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), onFocusLost = ::save)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    onFocusLost = ::save,
+                )
             }
         }
         FrrSecondaryButton(stringResource(R.string.details_save_draft), ::save, Modifier.fillMaxWidth())
     }
 }
 
-private fun isLivingLike(c: ResponsibilityCatalogue) =
-    c == ResponsibilityCatalogue.ESSENTIAL_FAMILY_LIVING_EXPENSES ||
-        c == ResponsibilityCatalogue.PARENT_SUPPORT ||
-        c == ResponsibilityCatalogue.SPOUSE_OR_PARTNER_SUPPORT ||
-        c == ResponsibilityCatalogue.SPECIAL_NEEDS_DEPENDANT_SUPPORT ||
-        c == ResponsibilityCatalogue.CHILDCARE_REPLACEMENT ||
-        c == ResponsibilityCatalogue.HOUSEHOLD_CARE_REPLACEMENT
+private fun isLivingLike(c: ResponsibilityCatalogue) = c == ResponsibilityCatalogue.ESSENTIAL_FAMILY_LIVING_EXPENSES ||
+    c == ResponsibilityCatalogue.PARENT_SUPPORT ||
+    c == ResponsibilityCatalogue.SPOUSE_OR_PARTNER_SUPPORT ||
+    c == ResponsibilityCatalogue.SPECIAL_NEEDS_DEPENDANT_SUPPORT ||
+    c == ResponsibilityCatalogue.CHILDCARE_REPLACEMENT ||
+    c == ResponsibilityCatalogue.HOUSEHOLD_CARE_REPLACEMENT
 
-private fun isEducationLike(c: ResponsibilityCatalogue) =
-    c == ResponsibilityCatalogue.CHILD_HIGHER_EDUCATION ||
-        c == ResponsibilityCatalogue.CHILD_MARRIAGE_SUPPORT ||
-        c == ResponsibilityCatalogue.BUYING_OR_COMPLETING_HOUSE
+private fun isEducationLike(c: ResponsibilityCatalogue) = c == ResponsibilityCatalogue.CHILD_HIGHER_EDUCATION ||
+    c == ResponsibilityCatalogue.CHILD_MARRIAGE_SUPPORT ||
+    c == ResponsibilityCatalogue.BUYING_OR_COMPLETING_HOUSE
 
-private fun isLoan(c: ResponsibilityCatalogue) =
-    c == ResponsibilityCatalogue.HOME_LOAN_REPAYMENT || c == ResponsibilityCatalogue.OTHER_OUTSTANDING_LOANS
+private fun isLoan(c: ResponsibilityCatalogue) = c == ResponsibilityCatalogue.HOME_LOAN_REPAYMENT || c == ResponsibilityCatalogue.OTHER_OUTSTANDING_LOANS

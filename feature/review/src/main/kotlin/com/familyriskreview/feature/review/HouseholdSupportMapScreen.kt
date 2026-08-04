@@ -106,15 +106,31 @@ fun HouseholdSupportMapScreen(
             val twoPane = maxWidth >= 840.dp
             if (twoPane) {
                 Row(Modifier.fillMaxSize()) {
-                    HouseholdMapVisual(state.members, focusedId, selected?.id, onSelectMember,
-                        Modifier.weight(0.48f).fillMaxHeight().padding(end = FrrSpacing.md))
-                    HouseholdMemberEditor(selected, focusedId, onUpdateMember, onRemoveMember, onSetFocus,
-                        Modifier.weight(0.52f).fillMaxHeight().verticalScroll(rememberScrollState()))
+                    HouseholdMapVisual(
+                        state.members,
+                        focusedId,
+                        selected?.id,
+                        onSelectMember,
+                        Modifier.weight(0.48f).fillMaxHeight().padding(end = FrrSpacing.md),
+                    )
+                    HouseholdMemberEditor(
+                        selected,
+                        focusedId,
+                        onUpdateMember,
+                        onRemoveMember,
+                        onSetFocus,
+                        Modifier.weight(0.52f).fillMaxHeight().verticalScroll(rememberScrollState()),
+                    )
                 }
             } else {
                 Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-                    HouseholdMapVisual(state.members, focusedId, selected?.id, onSelectMember,
-                        Modifier.fillMaxWidth().height(280.dp))
+                    HouseholdMapVisual(
+                        state.members,
+                        focusedId,
+                        selected?.id,
+                        onSelectMember,
+                        Modifier.fillMaxWidth().height(280.dp),
+                    )
                     Spacer(Modifier.height(FrrSpacing.md))
                     HouseholdMemberEditor(selected, focusedId, onUpdateMember, onRemoveMember, onSetFocus, Modifier.fillMaxWidth())
                 }
@@ -168,8 +184,12 @@ private fun HouseholdMapVisual(
         contentAlignment = Alignment.Center,
     ) {
         if (members.isEmpty()) {
-            Text(text = stringResource(R.string.household_empty_hint), style = FrrTypography.bodyLarge,
-                color = colors.mutedText, textAlign = TextAlign.Center)
+            Text(
+                text = stringResource(R.string.household_empty_hint),
+                style = FrrTypography.bodyLarge,
+                color = colors.mutedText,
+                textAlign = TextAlign.Center,
+            )
         } else {
             BoxWithConstraints(Modifier.fillMaxSize()) {
                 val density = LocalDensity.current
@@ -199,8 +219,12 @@ private fun HouseholdMapVisual(
                     val angle = (2.0 * Math.PI * index / others.size) - Math.PI / 2
                     val ox = (orbit * cos(angle)).toFloat()
                     val oy = (orbit * sin(angle)).toFloat()
-                    MemberNode(member, false, member.id == selectedId,
-                        Modifier.align(Alignment.Center).offset { IntOffset(ox.roundToInt(), oy.roundToInt()) }.size(72.dp)) {
+                    MemberNode(
+                        member,
+                        false,
+                        member.id == selectedId,
+                        Modifier.align(Alignment.Center).offset { IntOffset(ox.roundToInt(), oy.roundToInt()) }.size(72.dp),
+                    ) {
                         onSelect(member.id)
                     }
                 }
@@ -227,15 +251,21 @@ private fun MemberNode(
             .clickable(onClick = onClick)
             .semantics {
                 contentDescription = buildString {
-                    append(label); append(", ")
+                    append(label)
+                    append(", ")
                     append(if (contributor) "income contributor" else "dependant")
                     if (focused) append(", focused")
                 }
             },
         contentAlignment = Alignment.Center,
     ) {
-        Text(text = label.take(12), style = FrrTypography.labelLarge, color = colors.elevatedSurface,
-            textAlign = TextAlign.Center, modifier = Modifier.padding(6.dp))
+        Text(
+            text = label.take(12),
+            style = FrrTypography.labelLarge,
+            color = colors.elevatedSurface,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(6.dp),
+        )
     }
 }
 
@@ -251,8 +281,12 @@ private fun HouseholdMemberEditor(
 ) {
     val colors = frrColors()
     if (member == null) {
-        Text(text = stringResource(R.string.household_select_prompt), style = FrrTypography.bodyLarge,
-            color = colors.mutedText, modifier = modifier)
+        Text(
+            text = stringResource(R.string.household_select_prompt),
+            style = FrrTypography.bodyLarge,
+            color = colors.mutedText,
+            modifier = modifier,
+        )
         return
     }
     var labelField by remember(member.id) { mutableStateOf(TextFieldValue(member.displayLabel.orEmpty())) }
@@ -269,40 +303,63 @@ private fun HouseholdMemberEditor(
         nextContribution: ContributionStatus = contribution,
         nextDependency: DependencyStatus = dependency,
     ) {
-        onUpdate(member.copy(
-            displayLabel = nextLabel, age = nextAge, relationship = nextRelationship,
-            contributionStatus = nextContribution, dependencyStatus = nextDependency,
-        ))
+        onUpdate(
+            member.copy(
+                displayLabel = nextLabel,
+                age = nextAge,
+                relationship = nextRelationship,
+                contributionStatus = nextContribution,
+                dependencyStatus = nextDependency,
+            ),
+        )
     }
 
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(FrrSpacing.sm)) {
         Text(text = stringResource(R.string.household_editor_title), style = FrrTypography.titleLarge, color = colors.onSurface)
-        FrrStableTextField(labelField, { labelField = it }, label = stringResource(R.string.household_label),
-            supportingText = stringResource(R.string.household_label_hint), onFocusLost = { persist() })
         FrrStableTextField(
-            ageField, { ageField = it; ageError = null },
+            labelField,
+            { labelField = it },
+            label = stringResource(R.string.household_label),
+            supportingText = stringResource(R.string.household_label_hint),
+            onFocusLost = { persist() },
+        )
+        FrrStableTextField(
+            ageField,
+            {
+                ageField = it
+                ageError = null
+            },
             label = stringResource(R.string.household_age),
-            isError = ageError != null, supportingText = ageError,
+            isError = ageError != null,
+            supportingText = ageError,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             onFocusLost = {
                 val raw = ageField.text.trim()
-                if (raw.isEmpty()) { ageError = null; persist(nextAge = null) }
-                else {
+                if (raw.isEmpty()) {
+                    ageError = null
+                    persist(nextAge = null)
+                } else {
                     val parsed = raw.toIntOrNull()
                     if (parsed == null || parsed !in HouseholdRules.MIN_AGE..HouseholdRules.MAX_AGE) {
                         ageError = "Age must be between ${HouseholdRules.MIN_AGE} and ${HouseholdRules.MAX_AGE}"
-                    } else { ageError = null; persist(nextAge = parsed) }
+                    } else {
+                        ageError = null
+                        persist(nextAge = parsed)
+                    }
                 }
             },
         )
         EnumDropdown(stringResource(R.string.household_relationship), relationship, FamilyMemberType.entries, { relationshipLabel(it) }) {
-            relationship = it; persist(nextRelationship = it)
+            relationship = it
+            persist(nextRelationship = it)
         }
         EnumDropdown(stringResource(R.string.household_contribution), contribution, ContributionStatus.entries, { contributionLabel(it) }) {
-            contribution = it; persist(nextContribution = it)
+            contribution = it
+            persist(nextContribution = it)
         }
         EnumDropdown(stringResource(R.string.household_dependency), dependency, DependencyStatus.entries, { dependencyLabel(it) }) {
-            dependency = it; persist(nextDependency = it)
+            dependency = it
+            persist(nextDependency = it)
         }
         if (member.id != focusedId && isIncomeContributor(contribution)) {
             FrrSecondaryButton(
@@ -341,9 +398,9 @@ private fun <T> EnumDropdown(
             label = { Text(label) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
             modifier =
-                Modifier
-                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
-                    .fillMaxWidth(),
+            Modifier
+                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                .fillMaxWidth(),
         )
         ExposedDropdownMenu(
             expanded = expanded,

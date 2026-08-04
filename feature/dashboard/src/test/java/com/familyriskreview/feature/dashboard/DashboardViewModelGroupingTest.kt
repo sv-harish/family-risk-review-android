@@ -101,17 +101,16 @@ class DashboardViewModelGroupingTest {
         step: ReviewStep,
         updatedAtMs: Long,
         mode: ReviewMode = ReviewMode.QUICK,
-    ): Review =
-        Review(
-            id = id,
-            reviewNumber = number,
-            mode = mode,
-            language = AppLanguage.ENGLISH,
-            status = status,
-            currentStep = step,
-            createdAt = Instant.fromEpochMilliseconds(updatedAtMs),
-            updatedAt = Instant.fromEpochMilliseconds(updatedAtMs),
-            calculationVersion = "test",
-            syncState = SyncState.LOCAL_ONLY,
-        )
+    ): Review = Review(
+        id = id,
+        reviewNumber = number,
+        mode = mode,
+        language = AppLanguage.ENGLISH,
+        status = status,
+        currentStep = step,
+        createdAt = Instant.fromEpochMilliseconds(updatedAtMs),
+        updatedAt = Instant.fromEpochMilliseconds(updatedAtMs),
+        calculationVersion = "test",
+        syncState = SyncState.LOCAL_ONLY,
+    )
 }
