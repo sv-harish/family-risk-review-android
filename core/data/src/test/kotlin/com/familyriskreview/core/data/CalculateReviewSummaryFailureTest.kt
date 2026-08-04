@@ -34,70 +34,68 @@ import org.junit.Test
 
 class CalculateReviewSummaryFailureTest {
     @Test
-    fun aggregateOverflow_returnsTypedCalculationFailure_notRawException() =
-        runBlocking {
-            val review =
-                Review(
-                    id = "r1",
-                    reviewNumber = "FRR-20260101-000001",
-                    mode = ReviewMode.GUIDED,
-                    language = AppLanguage.ENGLISH,
-                    status = ReviewStatus.IN_PROGRESS,
-                    currentStep = ReviewStep.AWARENESS_SUMMARY,
-                    createdAt = Instant.fromEpochMilliseconds(1),
-                    updatedAt = Instant.fromEpochMilliseconds(1),
-                    syncState = SyncState.LOCAL_ONLY,
-                    revision = 1L,
-                    calculationVersion = ResponsibilityCalculator.CALCULATION_VERSION,
-                    summaryStale = true,
-                    assumptionsJson = CalculationAssumptions.Default.toJson(),
-                )
-            // Reusable derived values large enough that checkedSum overflows Long.
-            val half = Long.MAX_VALUE / 2 + 1
-            fun loan(id: String) =
-                Responsibility(
-                    id = id,
-                    reviewId = "r1",
-                    catalogue = ResponsibilityCatalogue.HOME_LOAN_REPAYMENT,
-                    priority = ResponsibilityPriority.MUST_CONTINUE,
-                    isSelected = true,
-                    quantificationStatus = QuantificationStatus.QUANTIFIED,
-                    timing = ResponsibilityTiming(TimingKind.CURRENT_OUTSTANDING),
-                    currentAmount = MoneyAmount(100_000),
-                    futureIndicativeAmount = MoneyAmount(half),
-                    derivedMetadata =
-                        DerivedValueMetadata(
-                            sourceCurrentAmountRupees = 100_000,
-                            sourceMonthlyAmountRupees = null,
-                            sourceYears = null,
-                            sourceDurationYears = 0,
-                            inflationRateBps = 0,
-                            expectedNetReturnBps = null,
-                            assumptionVersion = CalculationAssumptions.Default.version,
-                            calculationVersion = ResponsibilityCalculator.CALCULATION_VERSION,
-                        ),
-                )
-            val useCase =
-                CalculateReviewSummaryUseCase(
-                    reviewRepository = FixedReviewRepository(review),
-                    responsibilityRepository =
-                        FixedResponsibilityRepository(listOf(loan("a"), loan("b"))),
-                    snapshotRepository = NoOpSnapshotRepository(review),
-                    clock =
-                        object : Clock {
-                            override fun now(): Instant = Instant.fromEpochMilliseconds(1)
-                        },
-                    idGenerator =
-                        object : IdGenerator {
-                            override fun newId(): String = "snap-1"
-                        },
-                )
-            val result = useCase(reviewId = "r1", expectedRevision = 1L)
-            assertThat(result).isInstanceOf(DomainResult.Failure::class.java)
-            val error = (result as DomainResult.Failure).error
-            assertThat(error).isInstanceOf(DomainError.Calculation::class.java)
-            assertThat((error as DomainError.Calculation).code).isEqualTo("CALC_AGGREGATE_OVERFLOW")
-        }
+    fun aggregateOverflow_returnsTypedCalculationFailure_notRawException() = runBlocking {
+        val review =
+            Review(
+                id = "r1",
+                reviewNumber = "FRR-20260101-000001",
+                mode = ReviewMode.GUIDED,
+                language = AppLanguage.ENGLISH,
+                status = ReviewStatus.IN_PROGRESS,
+                currentStep = ReviewStep.AWARENESS_SUMMARY,
+                createdAt = Instant.fromEpochMilliseconds(1),
+                updatedAt = Instant.fromEpochMilliseconds(1),
+                syncState = SyncState.LOCAL_ONLY,
+                revision = 1L,
+                calculationVersion = ResponsibilityCalculator.CALCULATION_VERSION,
+                summaryStale = true,
+                assumptionsJson = CalculationAssumptions.Default.toJson(),
+            )
+        // Reusable derived values large enough that checkedSum overflows Long.
+        val half = Long.MAX_VALUE / 2 + 1
+        fun loan(id: String) = Responsibility(
+            id = id,
+            reviewId = "r1",
+            catalogue = ResponsibilityCatalogue.HOME_LOAN_REPAYMENT,
+            priority = ResponsibilityPriority.MUST_CONTINUE,
+            isSelected = true,
+            quantificationStatus = QuantificationStatus.QUANTIFIED,
+            timing = ResponsibilityTiming(TimingKind.CURRENT_OUTSTANDING),
+            currentAmount = MoneyAmount(100_000),
+            futureIndicativeAmount = MoneyAmount(half),
+            derivedMetadata =
+            DerivedValueMetadata(
+                sourceCurrentAmountRupees = 100_000,
+                sourceMonthlyAmountRupees = null,
+                sourceYears = null,
+                sourceDurationYears = 0,
+                inflationRateBps = 0,
+                expectedNetReturnBps = null,
+                assumptionVersion = CalculationAssumptions.Default.version,
+                calculationVersion = ResponsibilityCalculator.CALCULATION_VERSION,
+            ),
+        )
+        val useCase =
+            CalculateReviewSummaryUseCase(
+                reviewRepository = FixedReviewRepository(review),
+                responsibilityRepository =
+                FixedResponsibilityRepository(listOf(loan("a"), loan("b"))),
+                snapshotRepository = NoOpSnapshotRepository(review),
+                clock =
+                object : Clock {
+                    override fun now(): Instant = Instant.fromEpochMilliseconds(1)
+                },
+                idGenerator =
+                object : IdGenerator {
+                    override fun newId(): String = "snap-1"
+                },
+            )
+        val result = useCase(reviewId = "r1", expectedRevision = 1L)
+        assertThat(result).isInstanceOf(DomainResult.Failure::class.java)
+        val error = (result as DomainResult.Failure).error
+        assertThat(error).isInstanceOf(DomainError.Calculation::class.java)
+        assertThat((error as DomainError.Calculation).code).isEqualTo("CALC_AGGREGATE_OVERFLOW")
+    }
 
     private class FixedReviewRepository(
         private val review: Review,
@@ -148,8 +146,7 @@ class CalculateReviewSummaryFailureTest {
     private class FixedResponsibilityRepository(
         private val items: List<Responsibility>,
     ) : ResponsibilityRepository {
-        override fun observeResponsibilities(reviewId: String): Flow<List<Responsibility>> =
-            flowOf(items)
+        override fun observeResponsibilities(reviewId: String): Flow<List<Responsibility>> = flowOf(items)
 
         override suspend fun getResponsibilities(reviewId: String): List<Responsibility> = items
 
