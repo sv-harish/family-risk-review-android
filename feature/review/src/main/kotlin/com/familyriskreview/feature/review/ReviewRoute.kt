@@ -16,12 +16,12 @@ import com.familyriskreview.core.designsystem.theme.frrColors
 import com.familyriskreview.feature.review.R
 
 /**
- * Temporary review host until the Phase 2 journey screens land.
+ * Temporary review host until the full Phase 2 journey route is wired.
  * Keeps the `ReviewRoute` import path stable for app navigation.
  */
 @Composable
 fun ReviewRoute(
-    reviewId: String,
+    @Suppress("UNUSED_PARAMETER") reviewId: String,
     onContinue: () -> Unit,
     onBackToDashboard: () -> Unit,
     modifier: Modifier = Modifier,
@@ -35,40 +35,22 @@ fun ReviewRoute(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(
-            text = stringResource(R.string.review_placeholder_title),
+            text = stringResource(R.string.phase2_boundary_title),
             style = FrrTypography.headlineMedium,
             color = colors.onSurface,
         )
         Text(
-            text = stringResource(R.string.review_placeholder_body, reviewId),
+            text = stringResource(R.string.phase2_boundary_body),
             style = FrrTypography.bodyLarge,
             color = colors.mutedText,
         )
         FrrPrimaryButton(
-            text = stringResource(R.string.review_placeholder_continue),
+            text = stringResource(R.string.review_continue),
             onClick = onContinue,
         )
         FrrSecondaryButton(
-            text = stringResource(R.string.welcome_back_dashboard),
+            text = stringResource(R.string.phase2_boundary_save_return),
             onClick = onBackToDashboard,
         )
     }
-}
-
-@Deprecated(
-    message = "Use ReviewRoute",
-    replaceWith = ReplaceWith("ReviewRoute(reviewId, onContinue, onBackToDashboard = {})"),
-)
-@Composable
-fun ReviewPlaceholderRoute(
-    reviewId: String,
-    onContinue: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    ReviewRoute(
-        reviewId = reviewId,
-        onContinue = onContinue,
-        onBackToDashboard = {},
-        modifier = modifier,
-    )
 }

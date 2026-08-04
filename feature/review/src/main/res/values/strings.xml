@@ -4,11 +4,135 @@
     <string name="welcome_supporting_line">See what your household income is expected to protect.</string>
     <string name="welcome_guided_by">Guided by</string>
     <string name="welcome_intro">This short review helps you identify which household responsibilities depend on income, when money may be required, and what may happen if that income does not continue as expected.</string>
+    <string name="welcome_mode_prompt">Choose how you would like to walk through the review.</string>
     <string name="welcome_begin_quick">Begin Quick Review</string>
+    <string name="welcome_quick_hint">About 5–8 minutes. Focus on the essentials and up to three must-continue responsibilities.</string>
     <string name="welcome_begin_guided">Begin Guided Review</string>
+    <string name="welcome_guided_hint">About 10–15 minutes. Same stages, with fuller detail where it helps the conversation.</string>
     <string name="welcome_back_dashboard">Back to dashboard</string>
-    <string name="welcome_phase0_note">Language selector and full customer journey screens arrive in Phase 3.</string>
-    <string name="review_placeholder_title">Review in progress</string>
-    <string name="review_placeholder_body">Review %1$s — household mapping and responsibility capture begin in Phase 3.</string>
-    <string name="review_placeholder_continue">Continue to summary shell</string>
+
+    <string name="review_back_dashboard">Save &amp; return to dashboard</string>
+    <string name="review_back">Back</string>
+    <string name="review_continue">Continue</string>
+    <string name="review_dismiss_error">Dismiss</string>
+    <string name="review_not_found">This review could not be found.</string>
+
+    <string name="stage_your_family">Your family</string>
+    <string name="stage_responsibilities">Responsibilities</string>
+    <string name="stage_priorities">Priorities</string>
+    <string name="stage_details">Details</string>
+    <string name="stage_timeline">Timeline</string>
+    <string name="stage_understanding_gap">Understanding the gap</string>
+    <string name="stage_summary">Summary</string>
+    <string name="stage_indicator_a11y">Journey stage: %1$s</string>
+
+    <string name="phase2_boundary_title">Later stages arrive next</string>
+    <string name="phase2_boundary_body">Your progress so far is saved. Timeline, income-risk education, and the indicative summary will follow in the next phase. You can return to the dashboard and resume this review later.</string>
+    <string name="phase2_boundary_back_step">Back to previous step</string>
+    <string name="phase2_boundary_save_return">Save &amp; return to dashboard</string>
+
+    <string name="household_title">Your family</string>
+    <string name="household_subtitle">Map who contributes income or unpaid care, and who depends on that support.</string>
+    <string name="household_empty_hint">Add household members to begin the support map.</string>
+    <string name="household_select_prompt">Select a person on the map to edit their details.</string>
+    <string name="household_editor_title">Member details</string>
+    <string name="household_label">Label (optional)</string>
+    <string name="household_label_hint">Use initials or a nickname — never a full legal name.</string>
+    <string name="household_age">Age</string>
+    <string name="household_relationship">Relationship</string>
+    <string name="household_contribution">Contribution to household income or care</string>
+    <string name="household_dependency">Dependency on household support</string>
+    <string name="household_set_focus">Set as focused income contributor</string>
+    <string name="household_is_focus">This person is the focused income contributor</string>
+    <string name="household_remove">Remove from household</string>
+    <string name="household_add_self">Add Self</string>
+    <string name="household_add_spouse">Add spouse / partner</string>
+    <string name="household_add_child">Add child</string>
+    <string name="household_add_parent">Add parent</string>
+    <string name="household_add_other">Add other dependant</string>
+    <string name="household_map_a11y">Household support map with %1$d people. Focused contributor: %2$s</string>
+    <string name="household_unlabelled">Unlabelled member</string>
+
+    <string name="relationship_self">Self</string>
+    <string name="relationship_spouse">Spouse / partner</string>
+    <string name="relationship_child">Child</string>
+    <string name="relationship_parent">Parent</string>
+    <string name="relationship_other">Other dependant</string>
+    <string name="relationship_self_short">Self</string>
+    <string name="relationship_spouse_short">Spouse</string>
+    <string name="relationship_child_short">Child</string>
+    <string name="relationship_parent_short">Parent</string>
+    <string name="relationship_other_short">Other</string>
+
+    <string name="contribution_primary">Primary income</string>
+    <string name="contribution_shared">Shared income</string>
+    <string name="contribution_supplementary">Supplementary or irregular income</string>
+    <string name="contribution_caregiver">Essential unpaid caregiver</string>
+    <string name="contribution_none">Non-contributor</string>
+
+    <string name="dependency_full">Fully dependent</string>
+    <string name="dependency_part">Partly dependent</string>
+    <string name="dependency_independent">Financially independent</string>
+    <string name="dependency_na">Not applicable</string>
+
+    <string name="responsibilities_title">Responsibilities</string>
+    <string name="responsibilities_subtitle">Choose the responsibilities that depend on household income. Suggestions are hints only — nothing is selected automatically.</string>
+    <string name="responsibilities_selected">Selected</string>
+    <string name="responsibilities_select">Select</string>
+    <string name="responsibilities_suggested">Suggested: %1$s</string>
+    <string name="responsibilities_other_label">Custom responsibility label</string>
+
+    <string name="catalogue_living">Essential family living expenses</string>
+    <string name="catalogue_education">Child higher education</string>
+    <string name="catalogue_marriage">Child marriage support</string>
+    <string name="catalogue_spouse">Spouse or partner support</string>
+    <string name="catalogue_parent">Parent support</string>
+    <string name="catalogue_home_loan">Home loan repayment</string>
+    <string name="catalogue_other_loans">Other outstanding loans</string>
+    <string name="catalogue_house">Buying or completing a house</string>
+    <string name="catalogue_special">Special-needs dependant support</string>
+    <string name="catalogue_childcare">Childcare replacement</string>
+    <string name="catalogue_household_care">Household care replacement</string>
+    <string name="catalogue_other">Other</string>
+
+    <string name="catalogue_living_explanation">Day-to-day living costs that usually continue for the household.</string>
+    <string name="catalogue_education_explanation">Future higher-education support for a child.</string>
+    <string name="catalogue_marriage_explanation">Future marriage or wedding support for a child.</string>
+    <string name="catalogue_spouse_explanation">Ongoing support for a spouse or partner.</string>
+    <string name="catalogue_parent_explanation">Ongoing support for a parent.</string>
+    <string name="catalogue_home_loan_explanation">Outstanding home-loan balance that must still be repaid.</string>
+    <string name="catalogue_other_loans_explanation">Other loans that remain outstanding.</string>
+    <string name="catalogue_house_explanation">Plans to buy or complete a house.</string>
+    <string name="catalogue_special_explanation">Support for a dependant with special needs.</string>
+    <string name="catalogue_childcare_explanation">Cost of replacing childcare if the caregiver cannot continue.</string>
+    <string name="catalogue_household_care_explanation">Cost of replacing household care work.</string>
+    <string name="catalogue_other_explanation">A custom responsibility that does not fit the catalogue.</string>
+
+    <string name="priority_title">Priorities</string>
+    <string name="priority_subtitle">Tap to place each selected responsibility where it belongs.</string>
+    <string name="priority_must">Must continue</string>
+    <string name="priority_adjustable">Important but adjustable</string>
+    <string name="priority_postponed">Can be postponed</string>
+    <string name="priority_unassigned">Still to place</string>
+    <string name="priority_zone_empty">No responsibilities in this zone yet.</string>
+    <string name="priority_must_short">Must</string>
+    <string name="priority_adjustable_short">Adjustable</string>
+    <string name="priority_postponed_short">Postpone</string>
+    <string name="priority_quick_max_hint">Quick Review allows at most 3 must-continue responsibilities.</string>
+
+    <string name="details_title">Details</string>
+    <string name="details_subtitle">Capture amounts and timing. You can save drafts and refine as you talk.</string>
+    <string name="details_none_selected">Select responsibilities first, then return here to add details.</string>
+    <string name="details_monthly_amount">Monthly amount (₹)</string>
+    <string name="details_current_amount">Current amount (₹)</string>
+    <string name="details_outstanding_amount">Outstanding amount (₹)</string>
+    <string name="details_duration_years">Duration (years)</string>
+    <string name="details_years_until">Years until required</string>
+    <string name="details_quantified">Quantified</string>
+    <string name="details_not_yet_quantified">Not yet quantified</string>
+    <string name="details_model_one_time">One-time</string>
+    <string name="details_model_recurring">Recurring</string>
+    <string name="details_inflation_percent">Inflation (% per year)</string>
+    <string name="details_inflation_hint">Custom items need an explicit inflation rate.</string>
+    <string name="details_save_draft">Save draft</string>
 </resources>

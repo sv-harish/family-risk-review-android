@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Dashboard
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.SpaceDashboard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
@@ -56,31 +56,31 @@ fun FrrAppShell(
         val showRail = widthClass == WindowWidthClass.EXPANDED
 
         if (showRail) {
-            Row(Modifier = Modifier.fillMaxSize()) {
-                NavigationRail(
-                    modifier = Modifier.fillMaxHeight(),
-                    containerColor = colors.elevatedSurface,
-                    contentColor = colors.onSurface,
-                ) {
-                    ShellRailItem(
-                        selected = selectedDestination == FrrShellDestination.Dashboard,
-                        onClick = { onDestinationSelected(FrrShellDestination.Dashboard) },
-                        icon = Icons.Outlined.Dashboard,
-                        label = dashboardLabel,
-                    )
-                    ShellRailItem(
-                        selected = selectedDestination == FrrShellDestination.Settings,
-                        onClick = { onDestinationSelected(FrrShellDestination.Settings) },
-                        icon = Icons.Outlined.Settings,
-                        label = settingsLabel,
-                    )
+            Row(Modifier.fillMaxSize()) {
+                Box(Modifier.fillMaxHeight()) {
+                    NavigationRail(
+                        containerColor = colors.elevatedSurface,
+                        contentColor = colors.onSurface,
+                    ) {
+                        ShellRailItem(
+                            selected = selectedDestination == FrrShellDestination.Dashboard,
+                            onClick = { onDestinationSelected(FrrShellDestination.Dashboard) },
+                            icon = Icons.Outlined.SpaceDashboard,
+                            label = dashboardLabel,
+                        )
+                        ShellRailItem(
+                            selected = selectedDestination == FrrShellDestination.Settings,
+                            onClick = { onDestinationSelected(FrrShellDestination.Settings) },
+                            icon = Icons.Outlined.Settings,
+                            label = settingsLabel,
+                        )
+                    }
                 }
                 Box(
-                    modifier =
-                        Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                            .padding(FrrSpacing.lg),
+                    Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .padding(FrrSpacing.lg),
                     contentAlignment = Alignment.TopCenter,
                 ) {
                     FrrContentWidth { content() }
@@ -88,10 +88,9 @@ fun FrrAppShell(
             }
         } else {
             Box(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = FrrSpacing.md, vertical = FrrSpacing.lg),
+                Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = FrrSpacing.md, vertical = FrrSpacing.lg),
                 contentAlignment = Alignment.TopCenter,
             ) {
                 FrrContentWidth { content() }
