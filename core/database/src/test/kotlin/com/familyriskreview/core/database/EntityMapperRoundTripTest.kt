@@ -40,6 +40,7 @@ class EntityMapperRoundTripTest {
                 updatedAt = Instant.fromEpochMilliseconds(20),
                 syncState = SyncState.LOCAL_ONLY,
                 revision = 3,
+                calculationVersion = "1.1.0",
                 summaryStale = true,
                 assumptionsJson = CalculationAssumptions.Default.toJson(),
             )

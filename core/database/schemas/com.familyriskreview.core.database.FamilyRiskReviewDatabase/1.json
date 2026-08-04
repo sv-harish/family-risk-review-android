@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "7e64d6ca6bb9bb773f9f1e4c4ceaf8f3",
+    "identityHash": "85b796c47ab8ef453a0b010946a9de9e",
     "entities": [
       {
         "tableName": "reviews",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `reviewNumber` TEXT NOT NULL, `mode` TEXT NOT NULL, `language` TEXT NOT NULL, `status` TEXT NOT NULL, `currentStep` TEXT NOT NULL, `createdAtEpochMs` INTEGER NOT NULL, `updatedAtEpochMs` INTEGER NOT NULL, `completedAtEpochMs` INTEGER, `focusedIncomeContributorId` TEXT, `assumptionVersion` TEXT NOT NULL, `calculationVersion` TEXT NOT NULL, `syncState` TEXT NOT NULL, `revision` INTEGER NOT NULL, `customerAcknowledged` INTEGER NOT NULL, `serverUpdatedAtEpochMs` INTEGER, `statusBeforeArchive` TEXT, `summaryStale` INTEGER NOT NULL, `assumptionsJson` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `reviewNumber` TEXT NOT NULL, `mode` TEXT NOT NULL, `language` TEXT NOT NULL, `status` TEXT NOT NULL, `currentStep` TEXT NOT NULL, `createdAtEpochMs` INTEGER NOT NULL, `updatedAtEpochMs` INTEGER NOT NULL, `completedAtEpochMs` INTEGER, `focusedIncomeContributorId` TEXT, `assumptionVersion` TEXT NOT NULL, `calculationVersion` TEXT NOT NULL, `syncState` TEXT NOT NULL, `revision` INTEGER NOT NULL, `calculationInputRevision` INTEGER NOT NULL, `customerAcknowledged` INTEGER NOT NULL, `serverUpdatedAtEpochMs` INTEGER, `statusBeforeArchive` TEXT, `summaryStale` INTEGER NOT NULL, `assumptionsJson` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -87,6 +87,12 @@
           {
             "fieldPath": "revision",
             "columnName": "revision",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "calculationInputRevision",
+            "columnName": "calculationInputRevision",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -239,7 +245,7 @@
       },
       {
         "tableName": "responsibilities",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `reviewId` TEXT NOT NULL, `catalogue` TEXT NOT NULL, `customLabel` TEXT, `priority` TEXT, `timingKind` TEXT, `yearsUntilRequired` INTEGER, `durationYears` INTEGER, `milestoneLabel` TEXT, `customTimingNote` TEXT, `currentAmountRupees` INTEGER, `monthlyAmountRupees` INTEGER, `futureIndicativeAmountRupees` INTEGER, `explicitInflationBps` INTEGER, `derivedSourceCurrentAmountRupees` INTEGER, `derivedSourceMonthlyAmountRupees` INTEGER, `derivedSourceYears` INTEGER, `derivedSourceDurationYears` INTEGER, `derivedInflationRateBps` INTEGER, `derivedExpectedNetReturnBps` INTEGER, `derivedAssumptionVersion` TEXT, `derivedCalculationVersion` TEXT, `assumptionVersion` TEXT, `calculationVersion` TEXT, `isSelected` INTEGER NOT NULL, `sortOrder` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`reviewId`) REFERENCES `reviews`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `reviewId` TEXT NOT NULL, `catalogue` TEXT NOT NULL, `customLabel` TEXT, `priority` TEXT, `timingKind` TEXT, `yearsUntilRequired` INTEGER, `durationYears` INTEGER, `milestoneLabel` TEXT, `customTimingNote` TEXT, `modellingDurationYears` INTEGER, `currentAmountRupees` INTEGER, `monthlyAmountRupees` INTEGER, `futureIndicativeAmountRupees` INTEGER, `explicitInflationBps` INTEGER, `derivedSourceCurrentAmountRupees` INTEGER, `derivedSourceMonthlyAmountRupees` INTEGER, `derivedSourceYears` INTEGER, `derivedSourceDurationYears` INTEGER, `derivedInflationRateBps` INTEGER, `derivedExpectedNetReturnBps` INTEGER, `derivedAssumptionVersion` TEXT, `derivedCalculationVersion` TEXT, `assumptionVersion` TEXT, `calculationVersion` TEXT, `isSelected` INTEGER NOT NULL, `sortOrder` INTEGER NOT NULL, `excludedFromNumericCalculation` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`reviewId`) REFERENCES `reviews`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -293,6 +299,11 @@
             "fieldPath": "customTimingNote",
             "columnName": "customTimingNote",
             "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "modellingDurationYears",
+            "columnName": "modellingDurationYears",
+            "affinity": "INTEGER"
           },
           {
             "fieldPath": "currentAmountRupees",
@@ -373,6 +384,12 @@
           {
             "fieldPath": "sortOrder",
             "columnName": "sortOrder",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "excludedFromNumericCalculation",
+            "columnName": "excludedFromNumericCalculation",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -456,7 +473,7 @@
       },
       {
         "tableName": "calculation_snapshots",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `reviewId` TEXT NOT NULL, `reviewRevision` INTEGER NOT NULL, `assumptionVersion` TEXT NOT NULL, `calculationVersion` TEXT NOT NULL, `scenarioKind` TEXT NOT NULL, `assumptionsJson` TEXT NOT NULL, `mustContinueTotalRupees` INTEGER NOT NULL, `adjustableTotalRupees` INTEGER NOT NULL, `postponedTotalRupees` INTEGER NOT NULL, `perResponsibilityJson` TEXT NOT NULL, `generatedAtEpochMs` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`reviewId`) REFERENCES `reviews`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `reviewId` TEXT NOT NULL, `reviewRevision` INTEGER NOT NULL, `calculationInputRevision` INTEGER NOT NULL, `assumptionVersion` TEXT NOT NULL, `calculationVersion` TEXT NOT NULL, `scenarioKind` TEXT NOT NULL, `assumptionsJson` TEXT NOT NULL, `mustContinueTotalRupees` INTEGER NOT NULL, `adjustableTotalRupees` INTEGER NOT NULL, `postponedTotalRupees` INTEGER NOT NULL, `perResponsibilityJson` TEXT NOT NULL, `generatedAtEpochMs` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`reviewId`) REFERENCES `reviews`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -473,6 +490,12 @@
           {
             "fieldPath": "reviewRevision",
             "columnName": "reviewRevision",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "calculationInputRevision",
+            "columnName": "calculationInputRevision",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -548,14 +571,14 @@
             "createSql": "CREATE INDEX IF NOT EXISTS `index_calculation_snapshots_reviewId` ON `${TABLE_NAME}` (`reviewId`)"
           },
           {
-            "name": "index_calculation_snapshots_reviewId_reviewRevision",
+            "name": "index_calculation_snapshots_reviewId_calculationInputRevision",
             "unique": false,
             "columnNames": [
               "reviewId",
-              "reviewRevision"
+              "calculationInputRevision"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_calculation_snapshots_reviewId_reviewRevision` ON `${TABLE_NAME}` (`reviewId`, `reviewRevision`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_calculation_snapshots_reviewId_calculationInputRevision` ON `${TABLE_NAME}` (`reviewId`, `calculationInputRevision`)"
           }
         ],
         "foreignKeys": [
@@ -575,7 +598,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7e64d6ca6bb9bb773f9f1e4c4ceaf8f3')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '85b796c47ab8ef453a0b010946a9de9e')"
     ]
   }
 }

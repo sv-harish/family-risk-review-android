@@ -6,11 +6,6 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.familyriskreview.core.model.ScenarioKind
 
-/**
- * Persisted calculation snapshot for a review revision.
- * Soft-deleting a review does not physically cascade-delete rows while the
- * review row remains as a tombstone; FK CASCADE only applies to hard deletes.
- */
 @Entity(
     tableName = "calculation_snapshots",
     foreignKeys = [
@@ -23,13 +18,14 @@ import com.familyriskreview.core.model.ScenarioKind
     ],
     indices = [
         Index("reviewId"),
-        Index(value = ["reviewId", "reviewRevision"]),
+        Index(value = ["reviewId", "calculationInputRevision"]),
     ],
 )
 data class CalculationSnapshotEntity(
     @PrimaryKey val id: String,
     val reviewId: String,
     val reviewRevision: Long,
+    val calculationInputRevision: Long,
     val assumptionVersion: String,
     val calculationVersion: String,
     val scenarioKind: ScenarioKind,

@@ -11,6 +11,7 @@ import com.familyriskreview.core.model.AppLanguage
 import com.familyriskreview.core.model.ContributionStatus
 import com.familyriskreview.core.model.DependencyStatus
 import com.familyriskreview.core.model.FamilyMemberType
+import com.familyriskreview.core.model.FocusUpdate
 import com.familyriskreview.core.model.HouseholdMember
 import com.familyriskreview.core.model.Responsibility
 import com.familyriskreview.core.model.ResponsibilityCatalogue
@@ -37,6 +38,7 @@ import org.robolectric.annotation.Config
 @Config(sdk = [34])
 class ReviewRepositoryRobolectricTest {
     private lateinit var db: FamilyRiskReviewDatabase
+    private lateinit var syncClient: FakeSyncClient
     private lateinit var repository: DefaultReviewRepository
     private lateinit var householdRepository: DefaultHouseholdRepository
     private lateinit var responsibilityRepository: DefaultResponsibilityRepository
@@ -52,6 +54,7 @@ class ReviewRepositoryRobolectricTest {
                 .inMemoryDatabaseBuilder(context, FamilyRiskReviewDatabase::class.java)
                 .allowMainThreadQueries()
                 .build()
+        syncClient = FakeSyncClient()
         val clock =
             object : Clock {
                 override fun now(): Instant = Instant.fromEpochMilliseconds(nowMs)
@@ -68,7 +71,7 @@ class ReviewRepositoryRobolectricTest {
             DefaultReviewRepository(
                 db = db,
                 reviewDao = db.reviewDao(),
-                syncClient = FakeSyncClient(),
+                syncClient = syncClient,
                 clock = clock,
                 idGenerator = ids,
                 reviewNumberProvider = numbers,
@@ -78,7 +81,7 @@ class ReviewRepositoryRobolectricTest {
                 db = db,
                 dao = db.householdMemberDao(),
                 reviewDao = db.reviewDao(),
-                syncClient = FakeSyncClient(),
+                syncClient = syncClient,
                 clock = clock,
             )
         responsibilityRepository =
@@ -86,7 +89,7 @@ class ReviewRepositoryRobolectricTest {
                 db = db,
                 dao = db.responsibilityDao(),
                 reviewDao = db.reviewDao(),
-                syncClient = FakeSyncClient(),
+                syncClient = syncClient,
                 clock = clock,
             )
     }
@@ -109,6 +112,7 @@ class ReviewRepositoryRobolectricTest {
         assertThat(repository.getReview(quick.id)?.reviewNumber).isEqualTo(quick.reviewNumber)
         assertThat(quick.reviewNumber).isNotEqualTo(guided.reviewNumber)
         assertThat(quick.summaryStale).isTrue()
+        assertThat(quick.calculationVersion).isEqualTo("1.1.0")
     }
 
     @Test
@@ -156,8 +160,11 @@ class ReviewRepositoryRobolectricTest {
             )
         val afterMember =
             (
-                householdRepository.saveMember(member, focusedIncomeContributorId = "m1", expectedRevision = created.revision)
-                    as DomainResult.Success
+                householdRepository.saveMember(
+                    member,
+                    expectedRevision = created.revision,
+                    focusUpdate = FocusUpdate.Set("m1"),
+                ) as DomainResult.Success
                 ).value
         val deleted =
             (repository.softDeleteReview(created.id, afterMember.revision) as DomainResult.Success).value
@@ -183,6 +190,22 @@ class ReviewRepositoryRobolectricTest {
                     as DomainResult.Success
                 ).value
         assertThat(updated.revision).isEqualTo(created.revision + 1)
+        assertThat(updated.calculationInputRevision).isEqualTo(created.calculationInputRevision + 1)
         assertThat(updated.summaryStale).isTrue()
+    }
+
+    @Test
+    fun reopenCompleted_clearsCompletedAt() = runBlocking {
+        val created =
+            (repository.createReview(ReviewMode.QUICK, AppLanguage.ENGLISH) as DomainResult.Success).value
+        val completed =
+            (
+                repository.completeReview(created.id, created.revision, customerAcknowledged = true)
+                    as DomainResult.Success
+                ).value
+        val reopened =
+            (repository.reopenReview(completed.id, completed.revision) as DomainResult.Success).value
+        assertThat(reopened.status).isEqualTo(ReviewStatus.IN_PROGRESS)
+        assertThat(reopened.completedAt).isNull()
     }
 }

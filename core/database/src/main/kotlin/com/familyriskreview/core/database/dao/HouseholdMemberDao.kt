@@ -28,6 +28,9 @@ interface HouseholdMemberDao {
     @Query("DELETE FROM household_members WHERE id = :id")
     suspend fun deleteById(id: String)
 
+    @Query("SELECT * FROM household_members WHERE id = :id LIMIT 1")
+    suspend fun getById(id: String): HouseholdMemberEntity?
+
     @Query("DELETE FROM household_members WHERE reviewId = :reviewId")
     suspend fun deleteForReview(reviewId: String)
 }

@@ -6,6 +6,8 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.familyriskreview.core.database.entity.ReviewEntity
+import com.familyriskreview.core.model.AppLanguage
+import com.familyriskreview.core.model.ReviewMode
 import com.familyriskreview.core.model.ReviewStatus
 import com.familyriskreview.core.model.ReviewStep
 import com.familyriskreview.core.model.SyncState
@@ -43,9 +45,6 @@ interface ReviewDao {
     @Update
     suspend fun update(entity: ReviewEntity)
 
-    /**
-     * Optimistic concurrency update. Returns rows updated (0 = conflict).
-     */
     @Query(
         """
         UPDATE reviews SET
@@ -61,6 +60,7 @@ interface ReviewDao {
             calculationVersion = :calculationVersion,
             syncState = :syncState,
             revision = :newRevision,
+            calculationInputRevision = :calculationInputRevision,
             customerAcknowledged = :customerAcknowledged,
             statusBeforeArchive = :statusBeforeArchive,
             summaryStale = :summaryStale,
@@ -73,8 +73,8 @@ interface ReviewDao {
         expectedRevision: Long,
         newRevision: Long,
         reviewNumber: String,
-        mode: com.familyriskreview.core.model.ReviewMode,
-        language: com.familyriskreview.core.model.AppLanguage,
+        mode: ReviewMode,
+        language: AppLanguage,
         status: ReviewStatus,
         currentStep: ReviewStep,
         updatedAtEpochMs: Long,
@@ -83,6 +83,7 @@ interface ReviewDao {
         assumptionVersion: String,
         calculationVersion: String,
         syncState: SyncState,
+        calculationInputRevision: Long,
         customerAcknowledged: Boolean,
         statusBeforeArchive: ReviewStatus?,
         summaryStale: Boolean,
@@ -96,7 +97,8 @@ interface ReviewDao {
             statusBeforeArchive = :statusBeforeArchive,
             updatedAtEpochMs = :updatedAtEpochMs,
             revision = :newRevision,
-            syncState = :syncState
+            syncState = :syncState,
+            completedAtEpochMs = :completedAtEpochMs
         WHERE id = :id AND revision = :expectedRevision
         """,
     )
@@ -108,6 +110,7 @@ interface ReviewDao {
         statusBeforeArchive: ReviewStatus?,
         updatedAtEpochMs: Long,
         syncState: SyncState,
+        completedAtEpochMs: Long? = null,
     ): Int
 
     @Query(
@@ -129,6 +132,10 @@ interface ReviewDao {
         syncState: SyncState,
     ): Int
 
+    /**
+     * Calculation-input mutation: bumps aggregate revision and input fingerprint,
+     * marks summary stale.
+     */
     @Query(
         """
         UPDATE reviews SET
@@ -136,6 +143,7 @@ interface ReviewDao {
             summaryStale = 1,
             updatedAtEpochMs = :updatedAtEpochMs,
             revision = :newRevision,
+            calculationInputRevision = :newInputRevision,
             syncState = :syncState
         WHERE id = :id AND revision = :expectedRevision
         """,
@@ -144,6 +152,7 @@ interface ReviewDao {
         id: String,
         expectedRevision: Long,
         newRevision: Long,
+        newInputRevision: Long,
         focusedIncomeContributorId: String?,
         updatedAtEpochMs: Long,
         syncState: SyncState,

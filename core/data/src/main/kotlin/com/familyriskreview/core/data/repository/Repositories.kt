@@ -5,6 +5,7 @@ import com.familyriskreview.core.model.AppLanguage
 import com.familyriskreview.core.model.CalculationAssumptions
 import com.familyriskreview.core.model.CalculationScenario
 import com.familyriskreview.core.model.CalculationSnapshot
+import com.familyriskreview.core.model.FocusUpdate
 import com.familyriskreview.core.model.HouseholdMember
 import com.familyriskreview.core.model.Responsibility
 import com.familyriskreview.core.model.Review
@@ -15,12 +16,6 @@ import com.familyriskreview.core.model.UserPreferences
 import com.familyriskreview.core.model.result.DomainResult
 import kotlinx.coroutines.flow.Flow
 
-/**
- * Aggregate-oriented review persistence.
- *
- * Child writes go through transactional APIs that bump parent [Review.revision],
- * [Review.updatedAt], sync pending, and mark [Review.summaryStale].
- */
 interface ReviewRepository {
     fun observeActiveReviews(): Flow<List<Review>>
 
@@ -32,11 +27,6 @@ interface ReviewRepository {
 
     suspend fun getReview(id: String): Review?
 
-    /**
-     * Creates a review with collision-bounded review-number retry.
-     * Does not use System.currentTimeMillis / UUID / SecureRandom directly —
-     * those are injected via Clock / IdGenerator / ReviewNumberProvider.
-     */
     suspend fun createReview(
         mode: ReviewMode,
         language: AppLanguage,
@@ -64,6 +54,12 @@ interface ReviewRepository {
         expectedRevision: Long,
     ): DomainResult<Review>
 
+    /** COMPLETED → IN_PROGRESS. Clears completedAt; preserves calculation snapshots. */
+    suspend fun reopenReview(
+        id: String,
+        expectedRevision: Long,
+    ): DomainResult<Review>
+
     suspend fun softDeleteReview(
         id: String,
         expectedRevision: Long,
@@ -81,11 +77,10 @@ interface HouseholdRepository {
 
     suspend fun getMembers(reviewId: String): List<HouseholdMember>
 
-    /** Transactional save: validates + upserts member + bumps parent revision. */
     suspend fun saveMember(
         member: HouseholdMember,
-        focusedIncomeContributorId: String?,
         expectedRevision: Long,
+        focusUpdate: FocusUpdate = FocusUpdate.Unchanged,
     ): DomainResult<Review>
 
     suspend fun removeMember(
@@ -112,6 +107,10 @@ interface ResponsibilityRepository {
     ): DomainResult<Review>
 }
 
+/**
+ * Advisor references are intentionally **local-only** (ADR-017).
+ * They do not bump review revision or enqueue SyncClient intents.
+ */
 interface AdvisorReferenceRepository {
     fun observe(reviewId: String): Flow<AdvisorReference?>
 
@@ -133,7 +132,10 @@ interface CalculationSnapshotRepository {
         markSummaryFresh: Boolean = true,
     ): DomainResult<Review>
 
-    suspend fun isStale(review: Review): Boolean
+    suspend fun isStale(
+        review: Review,
+        authoritativeCalculationVersion: String,
+    ): Boolean
 }
 
 interface UserPreferencesRepository {
@@ -152,7 +154,6 @@ interface UserPreferencesRepository {
     suspend fun setSyncEnabled(enabled: Boolean)
 }
 
-/** Bundled calculate+persist request. */
 data class CalculateSummaryRequest(
     val reviewId: String,
     val expectedRevision: Long,

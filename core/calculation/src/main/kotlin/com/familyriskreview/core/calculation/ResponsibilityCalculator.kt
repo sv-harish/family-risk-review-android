@@ -12,6 +12,7 @@ import com.familyriskreview.core.model.ResponsibilityPriority
 import com.familyriskreview.core.model.ScenarioKind
 import com.familyriskreview.core.model.TimingKind
 import com.familyriskreview.core.model.defaultInflationKind
+import com.familyriskreview.core.model.validation.ResponsibilityRules
 import java.math.BigDecimal
 import java.math.MathContext
 import java.math.RoundingMode
@@ -127,28 +128,53 @@ object ResponsibilityCalculator {
         }
     }
 
+    /**
+     * Indicative amount for a calculable responsibility.
+     * Excluded / non-quantified items must not call this — use [optionalIndicativeAmount].
+     */
     fun indicativeAmount(
         responsibility: Responsibility,
         assumptions: CalculationAssumptions = CalculationAssumptions.Default,
     ): Long {
+        require(!responsibility.excludedFromNumericCalculation) {
+            "Excluded responsibilities must not contribute a numeric indicative amount"
+        }
         if (canReuseDerived(responsibility, assumptions)) {
             return responsibility.futureIndicativeAmount!!.amountRupees
         }
         return computeIndicative(responsibility, assumptions).amountRupees
     }
 
+    /** Null when excluded from numeric totals — never silently treat as ₹0. */
+    fun optionalIndicativeAmount(
+        responsibility: Responsibility,
+        assumptions: CalculationAssumptions = CalculationAssumptions.Default,
+    ): Long? {
+        if (responsibility.excludedFromNumericCalculation) return null
+        if (!responsibility.isSelected) return null
+        return indicativeAmount(responsibility, assumptions)
+    }
+
     fun computeIndicative(
         responsibility: Responsibility,
         assumptions: CalculationAssumptions = CalculationAssumptions.Default,
     ): MoneyAmount {
+        require(!responsibility.excludedFromNumericCalculation) {
+            "Cannot compute indicative amount for a non-quantified responsibility"
+        }
         val inflation = resolveInflation(responsibility, assumptions)
-        val timing = responsibility.timing
+        val timing =
+            responsibility.timing
+                ?: error("Timing is required for calculation-ready responsibilities")
+
         val monthly = responsibility.monthlyAmount?.amountRupees
         if (monthly != null && monthly > 0L) {
             val duration =
-                timing?.durationYears
-                    ?: timing?.yearsUntilRequired
-                    ?: 0
+                ResponsibilityRules.resolveCalculableDurationYears(timing)
+                    ?: error(
+                        "Calculable duration is required for recurring support " +
+                            "(timing=${timing.kind}); do not default to zero",
+                    )
             val value =
                 recurringSupportIndicative(
                     monthlyAmountRupees = monthly,
@@ -159,11 +185,18 @@ object ResponsibilityCalculator {
             return MoneyAmount(value)
         }
 
-        val current = responsibility.currentAmount?.amountRupees ?: return MoneyAmount(0)
+        val current =
+            responsibility.currentAmount?.amountRupees
+                ?: error("A calculable amount is required")
         val years =
-            when (timing?.kind) {
-                TimingKind.CURRENT_OUTSTANDING, null -> 0
-                else -> timing.yearsUntilRequired ?: timing.durationYears ?: 0
+            when (timing.kind) {
+                TimingKind.CURRENT_OUTSTANDING -> 0
+                else ->
+                    ResponsibilityRules.resolveCalculableDurationYears(timing)
+                        ?: error(
+                            "Calculable horizon is required for timing ${timing.kind}; " +
+                                "do not default to zero",
+                        )
             }
         if (years <= 0 || inflation == AnnualRateBps.ZERO) {
             return MoneyAmount(current)
@@ -177,11 +210,12 @@ object ResponsibilityCalculator {
         calculated: MoneyAmount,
     ): DerivedValueMetadata {
         val inflation = resolveInflation(responsibility, assumptions)
+        val duration = responsibility.timing?.let(ResponsibilityRules::resolveCalculableDurationYears)
         return DerivedValueMetadata(
             sourceCurrentAmountRupees = responsibility.currentAmount?.amountRupees,
             sourceMonthlyAmountRupees = responsibility.monthlyAmount?.amountRupees,
             sourceYears = responsibility.timing?.yearsUntilRequired,
-            sourceDurationYears = responsibility.timing?.durationYears,
+            sourceDurationYears = duration,
             inflationRateBps = inflation.value,
             expectedNetReturnBps = assumptions.expectedNetReturn?.value,
             assumptionVersion = assumptions.version,
@@ -193,6 +227,7 @@ object ResponsibilityCalculator {
         responsibility: Responsibility,
         assumptions: CalculationAssumptions,
     ): Boolean {
+        if (responsibility.excludedFromNumericCalculation) return false
         val derived = responsibility.futureIndicativeAmount ?: return false
         val meta = responsibility.derivedMetadata ?: return false
         if (meta.assumptionVersion != assumptions.version) return false
@@ -200,13 +235,13 @@ object ResponsibilityCalculator {
         if (meta.sourceCurrentAmountRupees != responsibility.currentAmount?.amountRupees) return false
         if (meta.sourceMonthlyAmountRupees != responsibility.monthlyAmount?.amountRupees) return false
         if (meta.sourceYears != responsibility.timing?.yearsUntilRequired) return false
-        if (meta.sourceDurationYears != responsibility.timing?.durationYears) return false
+        val duration = responsibility.timing?.let(ResponsibilityRules::resolveCalculableDurationYears)
+        if (meta.sourceDurationYears != duration) return false
         val inflation =
             runCatching { resolveInflation(responsibility, assumptions) }.getOrNull()
                 ?: return false
         if (meta.inflationRateBps != inflation.value) return false
         if (meta.expectedNetReturnBps != assumptions.expectedNetReturn?.value) return false
-        // Sanity: derived amount present
         return derived.amountRupees >= 0
     }
 
@@ -218,7 +253,7 @@ object ResponsibilityCalculator {
         fun sumFor(priority: ResponsibilityPriority): Long = checkedSum(
             responsibilities
                 .asSequence()
-                .filter { it.isSelected && it.priority == priority }
+                .filter { it.isIncludedInNumericTotal() && it.priority == priority }
                 .map { indicativeAmount(it, assumptions) },
         )
 

@@ -22,6 +22,7 @@ class CustomerSummaryMapperTest {
             currentStep = ReviewStep.AWARENESS_SUMMARY,
             createdAt = Instant.fromEpochMilliseconds(1),
             updatedAt = Instant.fromEpochMilliseconds(1),
+            calculationVersion = "1.1.0",
             assumptionsJson = CalculationAssumptions.Default.toJson(),
         )
 
@@ -36,7 +37,6 @@ class CustomerSummaryMapperTest {
             )
         val projection = CustomerSummaryMapper.project(review, ref)
         assertThat(projection.reviewNumber).isEqualTo("FRR-1")
-        // No customerDisplayLabel field exists — advisor data cannot leak.
         assertThat(projection.reviewId).isEqualTo("id-1")
     }
 }

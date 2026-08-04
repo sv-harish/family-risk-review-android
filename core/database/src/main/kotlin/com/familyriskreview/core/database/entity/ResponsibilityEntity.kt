@@ -31,6 +31,7 @@ data class ResponsibilityEntity(
     val durationYears: Int?,
     val milestoneLabel: String?,
     val customTimingNote: String?,
+    val modellingDurationYears: Int?,
     val currentAmountRupees: Long?,
     val monthlyAmountRupees: Long?,
     val futureIndicativeAmountRupees: Long?,
@@ -47,4 +48,5 @@ data class ResponsibilityEntity(
     val calculationVersion: String?,
     val isSelected: Boolean,
     val sortOrder: Int,
+    val excludedFromNumericCalculation: Boolean,
 )

@@ -28,6 +28,9 @@ interface ResponsibilityDao {
     @Query("DELETE FROM responsibilities WHERE id = :id")
     suspend fun deleteById(id: String)
 
+    @Query("SELECT * FROM responsibilities WHERE id = :id LIMIT 1")
+    suspend fun getById(id: String): ResponsibilityEntity?
+
     @Query("DELETE FROM responsibilities WHERE reviewId = :reviewId")
     suspend fun deleteForReview(reviewId: String)
 }

@@ -31,6 +31,7 @@ fun ReviewEntity.toDomain(): Review = Review(
     calculationVersion = calculationVersion,
     syncState = syncState,
     revision = revision,
+    calculationInputRevision = calculationInputRevision,
     customerAcknowledged = customerAcknowledged,
     statusBeforeArchive = statusBeforeArchive,
     summaryStale = summaryStale,
@@ -52,6 +53,7 @@ fun Review.toEntity(serverUpdatedAtEpochMs: Long? = null): ReviewEntity = Review
     calculationVersion = calculationVersion,
     syncState = syncState,
     revision = revision,
+    calculationInputRevision = calculationInputRevision,
     customerAcknowledged = customerAcknowledged,
     serverUpdatedAtEpochMs = serverUpdatedAtEpochMs,
     statusBeforeArchive = statusBeforeArchive,
@@ -95,6 +97,7 @@ fun ResponsibilityEntity.toDomain(): Responsibility = Responsibility(
             durationYears = durationYears,
             milestoneLabel = milestoneLabel,
             customNote = customTimingNote,
+            modellingDurationYears = modellingDurationYears,
         )
     },
     currentAmount = currentAmountRupees?.let(::MoneyAmount),
@@ -106,6 +109,7 @@ fun ResponsibilityEntity.toDomain(): Responsibility = Responsibility(
     calculationVersion = calculationVersion,
     isSelected = isSelected,
     sortOrder = sortOrder,
+    excludedFromNumericCalculation = excludedFromNumericCalculation,
 )
 
 private fun ResponsibilityEntity.toDerivedMetadata(): DerivedValueMetadata? {
@@ -135,6 +139,7 @@ fun Responsibility.toEntity(): ResponsibilityEntity = ResponsibilityEntity(
     durationYears = timing?.durationYears,
     milestoneLabel = timing?.milestoneLabel,
     customTimingNote = timing?.customNote,
+    modellingDurationYears = timing?.modellingDurationYears,
     currentAmountRupees = currentAmount?.amountRupees,
     monthlyAmountRupees = monthlyAmount?.amountRupees,
     futureIndicativeAmountRupees = futureIndicativeAmount?.amountRupees,
@@ -151,6 +156,7 @@ fun Responsibility.toEntity(): ResponsibilityEntity = ResponsibilityEntity(
     calculationVersion = calculationVersion,
     isSelected = isSelected,
     sortOrder = sortOrder,
+    excludedFromNumericCalculation = excludedFromNumericCalculation,
 )
 
 fun AdvisorReferenceEntity.toDomain(): AdvisorReference = AdvisorReference(
@@ -171,6 +177,7 @@ fun CalculationSnapshotEntity.toDomain(): CalculationSnapshot = CalculationSnaps
     id = id,
     reviewId = reviewId,
     reviewRevision = reviewRevision,
+    calculationInputRevision = calculationInputRevision,
     assumptionVersion = assumptionVersion,
     calculationVersion = calculationVersion,
     scenarioKind = scenarioKind,
@@ -186,6 +193,7 @@ fun CalculationSnapshot.toEntity(): CalculationSnapshotEntity = CalculationSnaps
     id = id,
     reviewId = reviewId,
     reviewRevision = reviewRevision,
+    calculationInputRevision = calculationInputRevision,
     assumptionVersion = assumptionVersion,
     calculationVersion = calculationVersion,
     scenarioKind = scenarioKind,

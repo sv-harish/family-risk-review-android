@@ -37,13 +37,8 @@ fun ResponsibilityCatalogue.defaultInflationKind(): InflationAssumptionKind = wh
 
 @Serializable
 enum class ResponsibilityPriority {
-    /** Included in the primary Indicative Gross Responsibility Value. */
     MUST_CONTINUE,
-
-    /** Shown separately; amount/timing/scale could change. */
     IMPORTANT_BUT_ADJUSTABLE,
-
-    /** Desirable but not essential to immediate continuity. */
     CAN_BE_POSTPONED_OR_REDUCED,
 }
 
@@ -57,6 +52,15 @@ enum class TimingKind {
     CUSTOM,
 }
 
+/**
+ * Timing for a responsibility.
+ *
+ * For [TimingKind.AS_LONG_AS_REQUIRED], [TimingKind.UNTIL_MILESTONE], and
+ * [TimingKind.CUSTOM], either a calculable horizon
+ * ([modellingDurationYears] / [yearsUntilRequired] / [durationYears]) must be
+ * set, or the parent responsibility must be marked
+ * [Responsibility.excludedFromNumericCalculation].
+ */
 @Serializable
 data class ResponsibilityTiming(
     val kind: TimingKind,
@@ -64,12 +68,13 @@ data class ResponsibilityTiming(
     val durationYears: Int? = null,
     val milestoneLabel: String? = null,
     val customNote: String? = null,
+    /**
+     * Explicit modelling horizon (years) used for awareness calculations when
+     * the conceptual duration is open-ended (e.g. “as long as required”).
+     */
+    val modellingDurationYears: Int? = null,
 )
 
-/**
- * Monetary amounts are stored as whole rupees (Long).
- * Formatted display strings are never the source of truth.
- */
 @Serializable
 data class MoneyAmount(
     val amountRupees: Long,
@@ -96,4 +101,11 @@ data class Responsibility(
     val calculationVersion: String? = null,
     val isSelected: Boolean = false,
     val sortOrder: Int = 0,
-)
+    /**
+     * When true, the item is shown as “Duration not yet quantified” and is
+     * excluded from numeric totals (never silently treated as ₹0).
+     */
+    val excludedFromNumericCalculation: Boolean = false,
+) {
+    fun isIncludedInNumericTotal(): Boolean = isSelected && !excludedFromNumericCalculation
+}

@@ -55,6 +55,7 @@ class ReviewDaoRobolectricTest {
                 calculationVersion = "1.1.0",
                 syncState = SyncState.LOCAL_ONLY,
                 revision = 1L,
+                calculationInputRevision = 1L,
                 customerAcknowledged = false,
                 summaryStale = true,
                 assumptionsJson = CalculationAssumptions.Default.toJson(),
@@ -82,6 +83,7 @@ class ReviewDaoRobolectricTest {
                 calculationVersion = "1.1.0",
                 syncState = SyncState.LOCAL_ONLY,
                 revision = 1L,
+                calculationInputRevision = 1L,
                 customerAcknowledged = false,
                 summaryStale = true,
                 assumptionsJson = CalculationAssumptions.Default.toJson(),
@@ -96,6 +98,7 @@ class ReviewDaoRobolectricTest {
                 statusBeforeArchive = null,
                 updatedAtEpochMs = 5L,
                 syncState = SyncState.PENDING,
+                completedAtEpochMs = null,
             )
         assertThat(rows).isEqualTo(1)
         val loaded = db.reviewDao().getById("id-2")
@@ -119,6 +122,7 @@ class ReviewDaoRobolectricTest {
                 calculationVersion = "1.1.0",
                 syncState = SyncState.LOCAL_ONLY,
                 revision = 1L,
+                calculationInputRevision = 1L,
                 customerAcknowledged = false,
                 summaryStale = true,
                 assumptionsJson = CalculationAssumptions.Default.toJson(),

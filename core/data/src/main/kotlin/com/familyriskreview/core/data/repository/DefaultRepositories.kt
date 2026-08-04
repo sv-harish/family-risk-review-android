@@ -15,6 +15,7 @@ import com.familyriskreview.core.model.AdvisorReference
 import com.familyriskreview.core.model.AppLanguage
 import com.familyriskreview.core.model.CalculationAssumptions
 import com.familyriskreview.core.model.CalculationSnapshot
+import com.familyriskreview.core.model.FocusUpdate
 import com.familyriskreview.core.model.HouseholdMember
 import com.familyriskreview.core.model.Responsibility
 import com.familyriskreview.core.model.Review
@@ -22,6 +23,7 @@ import com.familyriskreview.core.model.ReviewMode
 import com.familyriskreview.core.model.ReviewStatus
 import com.familyriskreview.core.model.ReviewStep
 import com.familyriskreview.core.model.SyncState
+import com.familyriskreview.core.model.lifecycle.ReviewEditability
 import com.familyriskreview.core.model.lifecycle.ReviewLifecycle
 import com.familyriskreview.core.model.result.DomainError
 import com.familyriskreview.core.model.result.DomainResult
@@ -81,6 +83,7 @@ constructor(
                     calculationVersion = ResponsibilityCalculator.CALCULATION_VERSION,
                     syncState = SyncState.LOCAL_ONLY,
                     revision = 1L,
+                    calculationInputRevision = 1L,
                     summaryStale = true,
                     assumptionsJson = assumptions.toJson(),
                 )
@@ -88,8 +91,17 @@ constructor(
                 reviewDao.insert(review.toEntity())
                 syncClient.enqueueUpsert(review.id)
                 return DomainResult.success(review)
-            } catch (_: SQLiteConstraintException) {
-                // Unique reviewNumber collision — retry with a new number.
+            } catch (ex: SQLiteConstraintException) {
+                when (classifyConstraint(ex)) {
+                    ConstraintKind.REVIEW_NUMBER -> Unit // retry with new number+id
+                    ConstraintKind.PRIMARY_KEY -> Unit // retry with new id
+                    ConstraintKind.OTHER ->
+                        return DomainResult.failure(
+                            DomainError.Persistence(
+                                "Unexpected constraint while creating review: ${ex.message}",
+                            ),
+                        )
+                }
             }
         }
         return DomainResult.failure(
@@ -127,6 +139,7 @@ constructor(
                 assumptionVersion = updated.assumptionVersion,
                 calculationVersion = updated.calculationVersion,
                 syncState = updated.syncState,
+                calculationInputRevision = updated.calculationInputRevision,
                 customerAcknowledged = updated.customerAcknowledged,
                 statusBeforeArchive = updated.statusBeforeArchive,
                 summaryStale = updated.summaryStale,
@@ -190,6 +203,7 @@ constructor(
                 statusBeforeArchive = prior,
                 updatedAtEpochMs = now.toEpochMilliseconds(),
                 syncState = SyncState.PENDING,
+                completedAtEpochMs = existing.completedAt?.toEpochMilliseconds(),
             )
         val updated =
             existing.copy(
@@ -219,6 +233,8 @@ constructor(
         if (transition is DomainResult.Failure) return transition
         val now = clock.now()
         val newRevision = expectedRevision + 1
+        val completedAt =
+            if (target == ReviewStatus.COMPLETED) existing.completedAt else null
         val rows =
             reviewDao.updateStatusCas(
                 id = id,
@@ -228,11 +244,52 @@ constructor(
                 statusBeforeArchive = null,
                 updatedAtEpochMs = now.toEpochMilliseconds(),
                 syncState = SyncState.PENDING,
+                completedAtEpochMs = completedAt?.toEpochMilliseconds(),
             )
         val updated =
             existing.copy(
                 status = target,
                 statusBeforeArchive = null,
+                completedAt = completedAt,
+                updatedAt = now,
+                revision = newRevision,
+                syncState = SyncState.PENDING,
+            )
+        return casResult(id, expectedRevision, rows, updated)
+    }
+
+    override suspend fun reopenReview(
+        id: String,
+        expectedRevision: Long,
+    ): DomainResult<Review> {
+        val existing =
+            reviewDao.getById(id)?.toDomain()
+                ?: return DomainResult.failure(DomainError.NotFound("Review $id not found"))
+        if (existing.status != ReviewStatus.COMPLETED) {
+            return DomainResult.failure(
+                DomainError.Transition("Only completed reviews can be reopened"),
+            )
+        }
+        val transition = ReviewLifecycle.transition(existing.status, ReviewStatus.IN_PROGRESS)
+        if (transition is DomainResult.Failure) return transition
+        val now = clock.now()
+        val newRevision = expectedRevision + 1
+        // Policy: clear completedAt on reopen; preserve historical calculation snapshots.
+        val rows =
+            reviewDao.updateStatusCas(
+                id = id,
+                expectedRevision = expectedRevision,
+                newRevision = newRevision,
+                status = ReviewStatus.IN_PROGRESS,
+                statusBeforeArchive = existing.statusBeforeArchive,
+                updatedAtEpochMs = now.toEpochMilliseconds(),
+                syncState = SyncState.PENDING,
+                completedAtEpochMs = null,
+            )
+        val updated =
+            existing.copy(
+                status = ReviewStatus.IN_PROGRESS,
+                completedAt = null,
                 updatedAt = now,
                 revision = newRevision,
                 syncState = SyncState.PENDING,
@@ -260,18 +317,20 @@ constructor(
                 statusBeforeArchive = existing.statusBeforeArchive,
                 updatedAtEpochMs = now.toEpochMilliseconds(),
                 syncState = SyncState.PENDING,
+                completedAtEpochMs = existing.completedAt?.toEpochMilliseconds(),
             )
-        if (rows == 1) {
-            syncClient.enqueueDelete(id)
+        if (rows != 1) {
+            return conflict(id, expectedRevision)
         }
-        val updated =
+        syncClient.enqueueDelete(id)
+        return DomainResult.success(
             existing.copy(
                 status = ReviewStatus.DELETED,
                 updatedAt = now,
                 revision = newRevision,
                 syncState = SyncState.PENDING,
-            )
-        return casResult(id, expectedRevision, rows, updated, enqueueUpsert = false)
+            ),
+        )
     }
 
     override suspend fun completeReview(
@@ -315,26 +374,37 @@ constructor(
         expectedRevision: Long,
         rows: Int,
         updated: Review,
-        enqueueUpsert: Boolean = true,
     ): DomainResult<Review> {
-        if (rows != 1) {
-            val current = reviewDao.getById(id)?.revision
-            return DomainResult.failure(
-                DomainError.Conflict(
-                    message = "Revision conflict for review $id (expected $expectedRevision)",
-                    currentRevision = current,
-                ),
-            )
-        }
-        if (enqueueUpsert) {
-            syncClient.enqueueUpsert(id)
-        }
+        if (rows != 1) return conflict(id, expectedRevision)
+        syncClient.enqueueUpsert(id)
         return DomainResult.success(updated)
     }
 
+    private suspend fun conflict(
+        id: String,
+        expectedRevision: Long,
+    ): DomainResult.Failure = DomainResult.Failure(
+        DomainError.Conflict(
+            message = "Revision conflict for review $id (expected $expectedRevision)",
+            currentRevision = reviewDao.getById(id)?.revision,
+        ),
+    )
+
     companion object {
         const val MAX_REVIEW_NUMBER_ATTEMPTS: Int = 8
+
+        internal fun classifyConstraint(ex: SQLiteConstraintException): ConstraintKind {
+            val msg = ex.message.orEmpty()
+            return when {
+                "reviewNumber" in msg -> ConstraintKind.REVIEW_NUMBER
+                "UNIQUE constraint failed: reviews.reviewNumber" in msg -> ConstraintKind.REVIEW_NUMBER
+                "reviews.id" in msg || "PRIMARY KEY" in msg.uppercase() -> ConstraintKind.PRIMARY_KEY
+                else -> ConstraintKind.OTHER
+            }
+        }
     }
+
+    internal enum class ConstraintKind { REVIEW_NUMBER, PRIMARY_KEY, OTHER }
 }
 
 @Singleton
@@ -353,88 +423,136 @@ constructor(
 
     override suspend fun saveMember(
         member: HouseholdMember,
-        focusedIncomeContributorId: String?,
         expectedRevision: Long,
-    ): DomainResult<Review> = db.withTransaction {
-        val review =
-            reviewDao.getById(member.reviewId)?.toDomain()
-                ?: return@withTransaction DomainResult.failure(
-                    DomainError.NotFound("Review ${member.reviewId} not found"),
-                )
-        if (review.status == ReviewStatus.DELETED) {
-            return@withTransaction DomainResult.failure(
-                DomainError.IllegalState("Cannot mutate a deleted review"),
-            )
-        }
-        val existing = dao.getForReview(member.reviewId).map { it.toDomain() }
-        val others = existing.filter { it.id != member.id } + member
-        val validation =
-            HouseholdRules.validateMember(member, existing, focusedIncomeContributorId) +
-                HouseholdRules.validateHousehold(others, focusedIncomeContributorId)
-        if (!validation.isValid) {
-            return@withTransaction DomainResult.failure(DomainError.Validation(validation.errors))
-        }
-        dao.upsert(member.toEntity())
-        touchParent(
-            review = review,
-            expectedRevision = expectedRevision,
-            focusedIncomeContributorId = focusedIncomeContributorId ?: review.focusedIncomeContributorId,
+        focusUpdate: FocusUpdate,
+    ): DomainResult<Review> = try {
+        val updated =
+            db.withTransaction {
+                val review =
+                    reviewDao.getById(member.reviewId)?.toDomain()
+                        ?: throw AbortDomainException(
+                            DomainError.NotFound("Review ${member.reviewId} not found"),
+                        )
+                ReviewEditability.requireEditable(review.status).throwIfFailure()
+                val existing = dao.getForReview(member.reviewId).map { it.toDomain() }
+                val projected = existing.filter { it.id != member.id } + member
+                val effectiveFocus =
+                    when (focusUpdate) {
+                        FocusUpdate.Unchanged -> review.focusedIncomeContributorId
+                        FocusUpdate.Clear -> null
+                        is FocusUpdate.Set -> focusUpdate.memberId
+                    }
+                if (focusUpdate is FocusUpdate.Set) {
+                    val focusMember = projected.find { it.id == focusUpdate.memberId }
+                    if (focusMember == null) {
+                        throw AbortDomainException(
+                            DomainError.Validation(
+                                listOf(
+                                    com.familyriskreview.core.model.result.ValidationIssue(
+                                        code = "HOUSEHOLD_FOCUS_MISSING",
+                                        message =
+                                        "Focused income contributor must belong to this review",
+                                        field = "focusedIncomeContributorId",
+                                    ),
+                                ),
+                            ),
+                        )
+                    }
+                }
+                val validation =
+                    HouseholdRules.validateMember(member, existing, effectiveFocus) +
+                        HouseholdRules.validateHousehold(projected, effectiveFocus)
+                if (!validation.isValid) {
+                    throw AbortDomainException(DomainError.Validation(validation.errors))
+                }
+                dao.upsert(member.toEntity())
+                touchParentOrThrow(review, expectedRevision, effectiveFocus)
+            }
+        syncClient.enqueueUpsert(updated.id)
+        DomainResult.success(updated)
+    } catch (ex: AggregateCasConflictException) {
+        DomainResult.failure(
+            DomainError.Conflict(
+                message = ex.message ?: "Revision conflict",
+                currentRevision = ex.currentRevision,
+            ),
         )
+    } catch (ex: AbortDomainException) {
+        DomainResult.failure(ex.error)
     }
 
     override suspend fun removeMember(
         memberId: String,
         reviewId: String,
         expectedRevision: Long,
-    ): DomainResult<Review> = db.withTransaction {
-        val review =
-            reviewDao.getById(reviewId)?.toDomain()
-                ?: return@withTransaction DomainResult.failure(
-                    DomainError.NotFound("Review $reviewId not found"),
-                )
-        dao.deleteById(memberId)
-        val focus =
-            if (review.focusedIncomeContributorId == memberId) {
-                null
-            } else {
-                review.focusedIncomeContributorId
+    ): DomainResult<Review> = try {
+        val updated =
+            db.withTransaction {
+                val review =
+                    reviewDao.getById(reviewId)?.toDomain()
+                        ?: throw AbortDomainException(
+                            DomainError.NotFound("Review $reviewId not found"),
+                        )
+                ReviewEditability.requireEditable(review.status).throwIfFailure()
+                dao.deleteById(memberId)
+                val focus =
+                    if (review.focusedIncomeContributorId == memberId) {
+                        null
+                    } else {
+                        review.focusedIncomeContributorId
+                    }
+                val remaining = dao.getForReview(reviewId).map { it.toDomain() }
+                val validation = HouseholdRules.validateHousehold(remaining, focus)
+                if (!validation.isValid) {
+                    throw AbortDomainException(DomainError.Validation(validation.errors))
+                }
+                touchParentOrThrow(review, expectedRevision, focus)
             }
-        touchParent(review, expectedRevision, focus)
+        syncClient.enqueueUpsert(updated.id)
+        DomainResult.success(updated)
+    } catch (ex: AggregateCasConflictException) {
+        DomainResult.failure(
+            DomainError.Conflict(
+                message = ex.message ?: "Revision conflict",
+                currentRevision = ex.currentRevision,
+            ),
+        )
+    } catch (ex: AbortDomainException) {
+        DomainResult.failure(ex.error)
     }
 
-    private suspend fun touchParent(
+    private suspend fun touchParentOrThrow(
         review: Review,
         expectedRevision: Long,
         focusedIncomeContributorId: String?,
-    ): DomainResult<Review> {
+    ): Review {
         val now = clock.now()
         val newRevision = expectedRevision + 1
+        val newInputRevision = review.calculationInputRevision + 1
         val rows =
             reviewDao.touchAggregateCas(
                 id = review.id,
                 expectedRevision = expectedRevision,
                 newRevision = newRevision,
+                newInputRevision = newInputRevision,
                 focusedIncomeContributorId = focusedIncomeContributorId,
                 updatedAtEpochMs = now.toEpochMilliseconds(),
                 syncState = SyncState.PENDING,
             )
         if (rows != 1) {
-            return DomainResult.failure(
-                DomainError.Conflict(
-                    "Revision conflict for review ${review.id}",
-                    reviewDao.getById(review.id)?.revision,
-                ),
+            throw AggregateCasConflictException(
+                reviewId = review.id,
+                expectedRevision = expectedRevision,
+                currentRevision = reviewDao.getById(review.id)?.revision,
             )
         }
-        syncClient.enqueueUpsert(review.id)
-        return DomainResult.success(
-            review.copy(
-                focusedIncomeContributorId = focusedIncomeContributorId,
-                summaryStale = true,
-                updatedAt = now,
-                revision = newRevision,
-                syncState = SyncState.PENDING,
-            ),
+        return review.copy(
+            focusedIncomeContributorId = focusedIncomeContributorId,
+            summaryStale = true,
+            updatedAt = now,
+            revision = newRevision,
+            calculationInputRevision = newInputRevision,
+            syncState = SyncState.PENDING,
         )
     }
 }
@@ -456,66 +574,92 @@ constructor(
     override suspend fun saveResponsibility(
         responsibility: Responsibility,
         expectedRevision: Long,
-    ): DomainResult<Review> = db.withTransaction {
-        val review =
-            reviewDao.getById(responsibility.reviewId)?.toDomain()
-                ?: return@withTransaction DomainResult.failure(
-                    DomainError.NotFound("Review ${responsibility.reviewId} not found"),
-                )
-        if (review.status == ReviewStatus.DELETED) {
-            return@withTransaction DomainResult.failure(
-                DomainError.IllegalState("Cannot mutate a deleted review"),
-            )
-        }
-        dao.upsert(responsibility.toEntity())
-        touchParent(review, expectedRevision)
+    ): DomainResult<Review> = try {
+        val updated =
+            db.withTransaction {
+                val review =
+                    reviewDao.getById(responsibility.reviewId)?.toDomain()
+                        ?: throw AbortDomainException(
+                            DomainError.NotFound(
+                                "Review ${responsibility.reviewId} not found",
+                            ),
+                        )
+                ReviewEditability.requireEditable(review.status).throwIfFailure()
+                dao.upsert(responsibility.toEntity())
+                touchParentOrThrow(review, expectedRevision)
+            }
+        syncClient.enqueueUpsert(updated.id)
+        DomainResult.success(updated)
+    } catch (ex: AggregateCasConflictException) {
+        DomainResult.failure(
+            DomainError.Conflict(
+                message = ex.message ?: "Revision conflict",
+                currentRevision = ex.currentRevision,
+            ),
+        )
+    } catch (ex: AbortDomainException) {
+        DomainResult.failure(ex.error)
     }
 
     override suspend fun removeResponsibility(
         responsibilityId: String,
         reviewId: String,
         expectedRevision: Long,
-    ): DomainResult<Review> = db.withTransaction {
-        val review =
-            reviewDao.getById(reviewId)?.toDomain()
-                ?: return@withTransaction DomainResult.failure(
-                    DomainError.NotFound("Review $reviewId not found"),
-                )
-        dao.deleteById(responsibilityId)
-        touchParent(review, expectedRevision)
+    ): DomainResult<Review> = try {
+        val updated =
+            db.withTransaction {
+                val review =
+                    reviewDao.getById(reviewId)?.toDomain()
+                        ?: throw AbortDomainException(
+                            DomainError.NotFound("Review $reviewId not found"),
+                        )
+                ReviewEditability.requireEditable(review.status).throwIfFailure()
+                dao.deleteById(responsibilityId)
+                touchParentOrThrow(review, expectedRevision)
+            }
+        syncClient.enqueueUpsert(updated.id)
+        DomainResult.success(updated)
+    } catch (ex: AggregateCasConflictException) {
+        DomainResult.failure(
+            DomainError.Conflict(
+                message = ex.message ?: "Revision conflict",
+                currentRevision = ex.currentRevision,
+            ),
+        )
+    } catch (ex: AbortDomainException) {
+        DomainResult.failure(ex.error)
     }
 
-    private suspend fun touchParent(
+    private suspend fun touchParentOrThrow(
         review: Review,
         expectedRevision: Long,
-    ): DomainResult<Review> {
+    ): Review {
         val now = clock.now()
         val newRevision = expectedRevision + 1
+        val newInputRevision = review.calculationInputRevision + 1
         val rows =
             reviewDao.touchAggregateCas(
                 id = review.id,
                 expectedRevision = expectedRevision,
                 newRevision = newRevision,
+                newInputRevision = newInputRevision,
                 focusedIncomeContributorId = review.focusedIncomeContributorId,
                 updatedAtEpochMs = now.toEpochMilliseconds(),
                 syncState = SyncState.PENDING,
             )
         if (rows != 1) {
-            return DomainResult.failure(
-                DomainError.Conflict(
-                    "Revision conflict for review ${review.id}",
-                    reviewDao.getById(review.id)?.revision,
-                ),
+            throw AggregateCasConflictException(
+                reviewId = review.id,
+                expectedRevision = expectedRevision,
+                currentRevision = reviewDao.getById(review.id)?.revision,
             )
         }
-        syncClient.enqueueUpsert(review.id)
-        return DomainResult.success(
-            review.copy(
-                summaryStale = true,
-                updatedAt = now,
-                revision = newRevision,
-                syncState = SyncState.PENDING,
-            ),
+        return review.copy(
+            summaryStale = true,
+            updatedAt = now,
+            revision = newRevision,
+            calculationInputRevision = newInputRevision,
+            syncState = SyncState.PENDING,
         )
     }
 }
@@ -559,52 +703,80 @@ constructor(
         snapshot: CalculationSnapshot,
         expectedReviewRevision: Long,
         markSummaryFresh: Boolean,
-    ): DomainResult<Review> = db.withTransaction {
-        val review =
-            reviewDao.getById(snapshot.reviewId)?.toDomain()
-                ?: return@withTransaction DomainResult.failure(
-                    DomainError.NotFound("Review ${snapshot.reviewId} not found"),
+    ): DomainResult<Review> = try {
+        val updated =
+            db.withTransaction {
+                val review =
+                    reviewDao.getById(snapshot.reviewId)?.toDomain()
+                        ?: throw AbortDomainException(
+                            DomainError.NotFound("Review ${snapshot.reviewId} not found"),
+                        )
+                ReviewEditability.requireCalculable(review.status).throwIfFailure()
+                val now = clock.now()
+                val newRevision = expectedReviewRevision + 1
+                val stored =
+                    snapshot.copy(
+                        reviewRevision = newRevision,
+                        calculationInputRevision = review.calculationInputRevision,
+                    )
+                snapshotDao.upsert(stored.toEntity())
+                val rows =
+                    reviewDao.updateAfterCalculationCas(
+                        id = review.id,
+                        expectedRevision = expectedReviewRevision,
+                        newRevision = newRevision,
+                        summaryStale = !markSummaryFresh,
+                        updatedAtEpochMs = now.toEpochMilliseconds(),
+                        syncState = SyncState.PENDING,
+                        completedAtEpochMs = review.completedAt?.toEpochMilliseconds(),
+                        status = review.status,
+                        customerAcknowledged = review.customerAcknowledged,
+                    )
+                if (rows != 1) {
+                    throw AggregateCasConflictException(
+                        reviewId = review.id,
+                        expectedRevision = expectedReviewRevision,
+                        currentRevision = reviewDao.getById(review.id)?.revision,
+                    )
+                }
+                review.copy(
+                    summaryStale = !markSummaryFresh,
+                    updatedAt = now,
+                    revision = newRevision,
+                    syncState = SyncState.PENDING,
                 )
-        val now = clock.now()
-        val newRevision = expectedReviewRevision + 1
-        val stored = snapshot.copy(reviewRevision = newRevision)
-        snapshotDao.upsert(stored.toEntity())
-        val rows =
-            reviewDao.updateAfterCalculationCas(
-                id = review.id,
-                expectedRevision = expectedReviewRevision,
-                newRevision = newRevision,
-                summaryStale = !markSummaryFresh,
-                updatedAtEpochMs = now.toEpochMilliseconds(),
-                syncState = SyncState.PENDING,
-                completedAtEpochMs = review.completedAt?.toEpochMilliseconds(),
-                status = review.status,
-                customerAcknowledged = review.customerAcknowledged,
-            )
-        if (rows != 1) {
-            return@withTransaction DomainResult.failure(
-                DomainError.Conflict(
-                    "Revision conflict for review ${review.id}",
-                    reviewDao.getById(review.id)?.revision,
-                ),
-            )
-        }
-        syncClient.enqueueUpsert(review.id)
-        DomainResult.success(
-            review.copy(
-                summaryStale = !markSummaryFresh,
-                updatedAt = now,
-                revision = newRevision,
-                syncState = SyncState.PENDING,
+            }
+        syncClient.enqueueUpsert(updated.id)
+        DomainResult.success(updated)
+    } catch (ex: AggregateCasConflictException) {
+        DomainResult.failure(
+            DomainError.Conflict(
+                message = ex.message ?: "Revision conflict",
+                currentRevision = ex.currentRevision,
             ),
         )
+    } catch (ex: AbortDomainException) {
+        DomainResult.failure(ex.error)
     }
 
-    override suspend fun isStale(review: Review): Boolean {
+    override suspend fun isStale(
+        review: Review,
+        authoritativeCalculationVersion: String,
+    ): Boolean {
         if (review.summaryStale) return true
         val latest = snapshotDao.getLatest(review.id)?.toDomain() ?: return true
+        if (latest.calculationInputRevision != review.calculationInputRevision) return true
         if (latest.assumptionVersion != review.assumptionVersion) return true
         if (latest.calculationVersion != review.calculationVersion) return true
-        return latest.calculationVersion != ResponsibilityCalculator.CALCULATION_VERSION
+        return latest.calculationVersion != authoritativeCalculationVersion
     }
+}
+
+/** Domain abort inside a transaction before/without relying on Room rollback for validation. */
+internal class AbortDomainException(
+    val error: DomainError,
+) : RuntimeException(error.toString())
+
+private fun DomainResult<Unit>.throwIfFailure() {
+    if (this is DomainResult.Failure) throw AbortDomainException(error)
 }
