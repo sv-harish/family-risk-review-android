@@ -4,11 +4,11 @@
 
 | Gate | Status |
 |------|--------|
-| `./gradlew spotlessCheck` | Pending local run this revision |
-| `./gradlew lintDebug` | Pending local run this revision |
-| `./gradlew test` | Pending local run this revision |
-| `./gradlew assembleDebug` | Pending local run this revision |
-| `./gradlew :app:verifyPhase1` | Pending local run this revision |
+| `./gradlew spotlessCheck` | **Passed** |
+| `./gradlew lintDebug` | **Passed** (0 errors; warnings present — see unresolved) |
+| `./gradlew test` | **Passed** |
+| `./gradlew assembleDebug` | **Passed** |
+| `./gradlew :app:verifyPhase1` | **Passed** |
 
 ## Phase 1.2 final domain corrections
 
@@ -46,7 +46,7 @@ On PR #2 (draft) before merge:
 
 ## Unresolved warnings / gaps
 
-- Android Lint informational/warning findings; no lint errors expected.
+- Android Lint informational/warning findings; no lint errors.
 - kotlinx-datetime `Instant` deprecation warnings.
 - Fonts / Dareus One logo / advisor portrait still placeholders.
 - Emulator IME / device recreation QA not run.
@@ -58,6 +58,6 @@ Do not claim device testing without running it. Do not claim PR verification pas
 
 ## CI status
 
-Phase 1.1 was green. Phase 1.2 CI status will be recorded after push of this revision.
+Phase 1.2 local gates **passed**. GitHub Actions status will be recorded after the final push of this revision is green.
 
 **PR #2 remains a draft** until Phase 1.2 final review is complete.
