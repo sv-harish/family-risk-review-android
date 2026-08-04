@@ -86,12 +86,12 @@ class DashboardViewModelGroupingTest {
     }
 
     @Test
-    fun userMessage_surfacesDomainErrorText() {
-        val message =
-            DashboardReviewGrouping.userMessage(
+    fun userMessageCode_mapsPersistenceToStableCode() {
+        val code =
+            DashboardReviewGrouping.userMessageCode(
                 DomainError.Persistence("Disk full while creating review"),
             )
-        assertThat(message).isEqualTo("Disk full while creating review")
+        assertThat(code).isEqualTo("PERSISTENCE")
     }
 
     private fun review(

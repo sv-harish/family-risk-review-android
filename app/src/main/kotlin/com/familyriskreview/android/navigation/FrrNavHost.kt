@@ -40,9 +40,11 @@ import com.familyriskreview.feature.dashboard.DashboardRoute
 import com.familyriskreview.feature.review.ReviewRoute
 import com.familyriskreview.feature.review.WelcomeRoute
 import com.familyriskreview.feature.settings.SettingsRoute
-import com.familyriskreview.feature.summary.SummaryRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -52,7 +54,7 @@ import javax.inject.Inject
 sealed interface StartReviewUiResult {
     data class Success(val reviewId: String) : StartReviewUiResult
 
-    data class Failure(val message: String) : StartReviewUiResult
+    data class Failure(val messageResHint: String) : StartReviewUiResult
 }
 
 @HiltViewModel
@@ -72,25 +74,39 @@ constructor(
             .map { it.reducedMotion }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
+    private val _isCreating = MutableStateFlow(false)
+    val isCreating: StateFlow<Boolean> = _isCreating.asStateFlow()
+
+    /**
+     * Creates a review once. Concurrent / rapid taps are ignored while [isCreating] is true.
+     */
     suspend fun startReview(mode: ReviewMode): StartReviewUiResult {
-        val language = preferencesRepository.preferences.first().defaultLanguage
-        return when (val result = createReview(mode = mode, language = language)) {
-            is DomainResult.Success -> StartReviewUiResult.Success(result.value.id)
-            is DomainResult.Failure -> StartReviewUiResult.Failure(userMessage(result.error))
+        if (_isCreating.value) {
+            return StartReviewUiResult.Failure("CREATING")
+        }
+        _isCreating.value = true
+        return try {
+            val language = preferencesRepository.preferences.first().defaultLanguage
+            when (val result = createReview(mode = mode, language = language)) {
+                is DomainResult.Success -> StartReviewUiResult.Success(result.value.id)
+                is DomainResult.Failure ->
+                    StartReviewUiResult.Failure(errorCode(result.error))
+            }
+        } finally {
+            _isCreating.value = false
         }
     }
 
-    private fun userMessage(error: DomainError): String = when (error) {
-        is DomainError.Validation ->
-            error.issues.firstOrNull()?.message ?: "Unable to create review."
-        is DomainError.Transition -> error.message
-        is DomainError.Conflict -> error.message
-        is DomainError.NotFound -> error.message
-        is DomainError.CollisionExhausted -> error.message
-        is DomainError.IllegalState -> error.message
-        is DomainError.CorruptData -> error.message
-        is DomainError.Persistence -> error.message
-        is DomainError.Calculation -> error.message
+    private fun errorCode(error: DomainError): String = when (error) {
+        is DomainError.Validation -> error.issues.firstOrNull()?.code ?: "VALIDATION"
+        is DomainError.Transition -> "TRANSITION"
+        is DomainError.Conflict -> "CONFLICT"
+        is DomainError.NotFound -> "NOT_FOUND"
+        is DomainError.CollisionExhausted -> "COLLISION_EXHAUSTED"
+        is DomainError.IllegalState -> "ILLEGAL_STATE"
+        is DomainError.CorruptData -> error.code
+        is DomainError.Persistence -> "PERSISTENCE"
+        is DomainError.Calculation -> error.code
     }
 }
 
@@ -102,7 +118,8 @@ fun FrrNavHost(
     val navController = rememberNavController()
     val scope = rememberCoroutineScope()
     val reducedMotion by shellViewModel.reducedMotion.collectAsStateWithLifecycle()
-    var welcomeCreateError by remember { mutableStateOf<String?>(null) }
+    val isCreating by shellViewModel.isCreating.collectAsStateWithLifecycle()
+    var welcomeCreateErrorCode by remember { mutableStateOf<String?>(null) }
 
     NavHost(
         navController = navController,
@@ -125,47 +142,46 @@ fun FrrNavHost(
                 onOpenReview = { reviewId ->
                     navController.navigate(FrrRoutes.Review(reviewId))
                 },
+                onStartWelcome = { mode ->
+                    navController.navigate(FrrRoutes.Welcome(mode.name))
+                },
                 onOpenSettings = {
                     navController.navigate(FrrRoutes.Settings)
                 },
             )
         }
 
-        composable<FrrRoutes.Welcome> {
+        composable<FrrRoutes.Welcome> { entry ->
+            val route = entry.toRoute<FrrRoutes.Welcome>()
+            val preferredMode =
+                route.mode?.let { runCatching { ReviewMode.valueOf(it) }.getOrNull() }
             Column {
                 WelcomeRoute(
-                    onBeginQuickReview = {
+                    preferredMode = preferredMode,
+                    isCreating = isCreating,
+                    onConfirm = { mode ->
                         scope.launch {
-                            when (val result = shellViewModel.startReview(ReviewMode.QUICK)) {
+                            when (val result = shellViewModel.startReview(mode)) {
                                 is StartReviewUiResult.Success -> {
-                                    welcomeCreateError = null
-                                    navController.navigate(FrrRoutes.Review(result.reviewId))
+                                    welcomeCreateErrorCode = null
+                                    navController.navigate(FrrRoutes.Review(result.reviewId)) {
+                                        popUpTo(FrrRoutes.Dashboard) { inclusive = false }
+                                    }
                                 }
                                 is StartReviewUiResult.Failure -> {
-                                    welcomeCreateError = result.message
-                                }
-                            }
-                        }
-                    },
-                    onBeginGuidedReview = {
-                        scope.launch {
-                            when (val result = shellViewModel.startReview(ReviewMode.GUIDED)) {
-                                is StartReviewUiResult.Success -> {
-                                    welcomeCreateError = null
-                                    navController.navigate(FrrRoutes.Review(result.reviewId))
-                                }
-                                is StartReviewUiResult.Failure -> {
-                                    welcomeCreateError = result.message
+                                    if (result.messageResHint != "CREATING") {
+                                        welcomeCreateErrorCode = result.messageResHint
+                                    }
                                 }
                             }
                         }
                     },
                     onBackToDashboard = {
-                        welcomeCreateError = null
+                        welcomeCreateErrorCode = null
                         navController.popBackStack(FrrRoutes.Dashboard, inclusive = false)
                     },
                 )
-                welcomeCreateError?.let { message ->
+                welcomeCreateErrorCode?.let { code ->
                     val colors = frrColors()
                     Column(
                         modifier =
@@ -176,14 +192,14 @@ fun FrrNavHost(
                             .padding(16.dp),
                     ) {
                         Text(
-                            text = message,
+                            text = stringResource(createErrorStringRes(code)),
                             style = FrrTypography.bodyMedium,
                             color = colors.blockingError,
                         )
                         Spacer(Modifier.height(4.dp))
                         FrrTextAction(
                             text = stringResource(R.string.welcome_create_error_dismiss),
-                            onClick = { welcomeCreateError = null },
+                            onClick = { welcomeCreateErrorCode = null },
                         )
                     }
                 }
@@ -194,34 +210,24 @@ fun FrrNavHost(
             val route = entry.toRoute<FrrRoutes.Review>()
             ReviewRoute(
                 reviewId = route.reviewId,
-                onContinue = {
-                    navController.navigate(FrrRoutes.Summary(route.reviewId))
-                },
                 onBackToDashboard = {
                     navController.popBackStack(FrrRoutes.Dashboard, inclusive = false)
                 },
             )
         }
 
-        composable<FrrRoutes.Summary> { entry ->
-            val route = entry.toRoute<FrrRoutes.Summary>()
-            SummaryRoute(
-                reviewId = route.reviewId,
-                onFinishSession = {
-                    navController.navigate(FrrRoutes.Dashboard) {
-                        popUpTo(FrrRoutes.Dashboard) { inclusive = true }
-                    }
-                },
-                onBackToDashboard = {
-                    navController.popBackStack(FrrRoutes.Dashboard, inclusive = false)
-                },
-            )
-        }
-
+        // Summary route retained for Phase 3 — intentionally not linked from Phase 2 UI.
         composable<FrrRoutes.Settings> {
             SettingsRoute(
                 onBack = { navController.popBackStack() },
             )
         }
     }
+}
+
+@androidx.annotation.StringRes
+private fun createErrorStringRes(code: String): Int = when (code) {
+    "PERSISTENCE" -> R.string.domain_error_persistence
+    "CONFLICT" -> R.string.domain_error_fallback
+    else -> R.string.domain_error_fallback
 }

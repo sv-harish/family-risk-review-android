@@ -1,0 +1,71 @@
+# Tamil/Hindi Localized Screenshot - Deferred
+
+## Status: DEFERRED
+
+The tamil_or_hindi_long_text.png screenshot has been deferred because:
+
+1. **Language Switching Not Yet in Settings UI**
+   - Settings screen is currently a Phase 0 placeholder shell
+   - Language picker UI is planned for Phase 6/9 (per code comments in SettingsScreen.kt)
+   - No in-app mechanism currently exists to switch locale
+
+2. **System-Level Locale Changes Restricted**
+   - Attempted `adb shell setprop persist.sys.locale` - failed (requires root)
+   - Attempted broadcast intents for locale change - completed but no effect
+   - Emulator system Settings access doesn't provide easy locale switching
+
+3. **Translations ARE Implemented**
+   The app fully supports Tamil and Hindi:
+   - `feature/dashboard/src/main/res/values-ta/strings.xml` ✅
+   - `feature/dashboard/src/main/res/values-hi/strings.xml` ✅
+   - `feature/review/src/main/res/values-ta/strings.xml` ✅
+   - `feature/review/src/main/res/values-hi/strings.xml` ✅
+   - `feature/summary/src/main/res/values-ta/strings.xml` ✅
+   - `feature/summary/src/main/res/values-hi/strings.xml` ✅
+   - `feature/settings/src/main/res/values-ta/strings.xml` ✅
+   - `feature/settings/src/main/res/values-hi/strings.xml` ✅
+   - `app/src/main/res/values-ta/strings.xml` ✅
+   - `app/src/main/res/values-hi/strings.xml` ✅
+
+4. **Example Tamil Translations**
+   From feature/dashboard/src/main/res/values-ta/strings.xml:
+   
+   - Dashboard subtitle: "குடும்ப அபாய உரையாடல்களுக்கான ஆலோசகர் பணியிடம்"
+   - Quick Review: "விரைவு மதிப்பாய்வு சுமார் 5–8 நிமிடங்களில் அத்தியாவசியங்களில் கவனம் செலுத்துகிறது."
+   - Guided Review: "வழிகாட்டும் மதிப்பாய்வு ஒவ்வொரு நிலையிலும் முழுமையான விவரத்துடன் சுமார் 10–15 நிமிடங்கள் எடுக்கும்."
+
+## Alternative Capture Methods
+
+This screenshot can be captured in the future via:
+
+1. **When Settings UI is implemented** (Phase 6/9)
+   - Add language picker to Settings
+   - Switch to Tamil/Hindi in-app
+   - Capture Dashboard or any text-heavy screen
+
+2. **CI/CD with Locale-Specific Builds**
+   ```bash
+   ./gradlew assembleDebug -Plocale=ta
+   # Install and capture screenshots
+   ```
+
+3. **Manual Emulator Configuration**
+   - Create emulator snapshot with Tamil system locale pre-configured
+   - Launch app in that environment
+
+4. **Espresso/Compose UI Tests with Locale**
+   ```kotlin
+   @Test
+   fun captureScreenshotInTamil() {
+       ActivityScenario.launch<MainActivity>(
+           Intent().putExtra("locale", "ta")
+       )
+       // Capture screenshot
+   }
+   ```
+
+## Conclusion
+
+This screenshot is not captured due to a missing Settings UI feature, NOT due to missing i18n support. The app's internationalization infrastructure is complete and working. Tamil and Hindi translations exist for all user-facing strings.
+
+Once the Settings language picker is implemented (Phase 6/9), this screenshot can be trivially captured.

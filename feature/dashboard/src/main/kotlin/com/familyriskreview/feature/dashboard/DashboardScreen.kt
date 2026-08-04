@@ -15,7 +15,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,20 +34,16 @@ import com.familyriskreview.core.model.ReviewStep
 import com.familyriskreview.core.ui.shell.FrrAppShell
 import com.familyriskreview.core.ui.shell.FrrShellDestination
 import com.familyriskreview.feature.dashboard.R
-import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun DashboardRoute(
     onOpenReview: (String) -> Unit,
+    onStartWelcome: (ReviewMode) -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DashboardViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-    LaunchedEffect(viewModel) {
-        viewModel.createdReviewId.collectLatest(onOpenReview)
-    }
 
     FrrAppShell(
         selectedDestination = FrrShellDestination.Dashboard,
@@ -64,8 +59,8 @@ fun DashboardRoute(
     ) {
         DashboardScreen(
             uiState = uiState,
-            onStartQuick = viewModel::startQuick,
-            onStartGuided = viewModel::startGuided,
+            onStartQuick = { onStartWelcome(ReviewMode.QUICK) },
+            onStartGuided = { onStartWelcome(ReviewMode.GUIDED) },
             onResume = onOpenReview,
             onOpenSettings = onOpenSettings,
             onClearError = viewModel::clearError,

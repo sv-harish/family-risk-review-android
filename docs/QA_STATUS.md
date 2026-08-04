@@ -2,39 +2,34 @@
 
 ## Phase status
 
-**Phase 1 complete — Phase 2 product experience in progress**
+**Phase 1 complete — Phase 2.1 reliability pass in progress on PR #3**
 
 Branch: `cursor/phase-2-product-experience-1a7a`
 
-## Phase 2 gates (local)
+## Phase 2.1 reliability gates (local)
 
 | Gate | Status |
 |------|--------|
 | `./gradlew spotlessCheck` | **Passed** |
 | `./gradlew lintDebug` | **Passed** |
-| `./gradlew test` | **Passed** (~149 tests) |
+| `./gradlew test` | **Passed** |
 | `./gradlew assembleDebug` | **Passed** |
+| `./gradlew :app:verifyPhase1` | **Passed** |
+| Managed-device UI test (`frrTabletApi30DebugAndroidTest`) | **Wired in CI** (KVM + aosp-atd API 30) |
 
-## Screens implemented
+## Phase 2.1 corrections delivered
 
-- Splash (Dareus One credit only here; reduced-motion aware)
-- Welcome / introduction
-- Dashboard (Quick/Guided start, in-progress / completed / archived separation, resume)
-- Review shell with visible journey stages
-- Household support map + member editor
-- Responsibility selection (suggestions never auto-select)
-- Prioritisation (Quick must-continue limit surfaced)
-- Responsibility detail forms (catalogue-sensitive; draft save)
-- Phase 2 boundary screen for later domain steps
-
-## Known limitations
-
-- Font files still placeholders (Manrope / Source Sans / Noto pending under assets/fonts)
-- Dareus One logo asset still placeholder text on splash
-- Advisor portrait still placeholder
-- Timeline / gross-responsibility / summary polish deferred to later phases
-- Emulator portrait/landscape screenshot capture may be limited in CI agents
-- Tamil/Hindi resources exist for implemented journey; professional translation review recommended
+1. Serial mutation coordinator (`Mutex`) — no `mutateJob?.cancel()` on new actions
+2. Editable drafts in `SavedStateHandle` (`ReviewEditableDraftState`)
+3. Robolectric Compose caret tests + instrumented `StableTextFieldInstrumentedTest` on managed device
+4. Quantification UI from `ResponsibilityRules.mayRemainNonQuantified` for all catalogues
+5. Welcome reachable: Splash → Dashboard → Welcome(mode) → create on confirm; no Phase 2 → Summary navigation
+6. Conflict recovery: Reload latest + Return to dashboard
+7. Localised validation / suggestion / a11y (en/ta/hi) via `DomainMessageMapper`
+8. Other responsibility identity by ID + Add another custom
+9. `isCreating` guards rapid double-create on Welcome confirmation
+10. `ReviewSaveState` surfaced in fixed-height save indicator
+11. Screenshots under `docs/screenshots/phase-2/`
 
 ## Honesty rule
 
@@ -42,9 +37,8 @@ Do not claim device testing without running it. Do not claim PR verification pas
 
 ## CI status
 
-Phase 2 GitHub Actions **passed** on branch `cursor/phase-2-product-experience-1a7a` (head `6abc0b8`):
+Awaiting green Actions on the Phase 2.1 head. **PR #3 remains a draft** until this reliability pass is reviewed.
 
-- push run: https://github.com/sv-harish/family-risk-review-android/actions/runs/30874030964
-- pull_request run: https://github.com/sv-harish/family-risk-review-android/actions/runs/30874033022
+## Out of scope (Phase 3+)
 
-**PR #3 remains a draft** until Phase 2 review is complete.
+Summary polish, PDF, printing, and sharing are not started.

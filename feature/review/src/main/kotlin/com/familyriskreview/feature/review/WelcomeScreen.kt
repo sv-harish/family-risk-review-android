@@ -14,16 +14,21 @@ import com.familyriskreview.core.designsystem.component.FrrSecondaryButton
 import com.familyriskreview.core.designsystem.theme.FrrTypography
 import com.familyriskreview.core.designsystem.theme.frrColors
 import com.familyriskreview.core.model.AdvisorIdentity
+import com.familyriskreview.core.model.ReviewMode
 import com.familyriskreview.core.ui.layout.TwoPaneJourneyLayout
 
 /**
- * Welcome / language / mode selection. Review creation happens after Quick or Guided.
+ * Welcome / language / mode selection.
+ *
+ * Preferred flow: Dashboard navigates here with an optional [preferredMode];
+ * this screen confirms, then [onConfirm] creates the review.
  */
 @Composable
 fun WelcomeRoute(
-    onBeginQuickReview: () -> Unit,
-    onBeginGuidedReview: () -> Unit,
+    onConfirm: (ReviewMode) -> Unit,
     onBackToDashboard: () -> Unit,
+    preferredMode: ReviewMode? = null,
+    isCreating: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     val colors = frrColors()
@@ -77,19 +82,38 @@ fun WelcomeRoute(
                     style = FrrTypography.titleMedium,
                     color = colors.onSurface,
                 )
-                FrrPrimaryButton(
-                    text = stringResource(R.string.welcome_begin_quick),
-                    onClick = onBeginQuickReview,
-                )
+                val quickIsPrimary = preferredMode != ReviewMode.GUIDED
+                if (quickIsPrimary) {
+                    FrrPrimaryButton(
+                        text = stringResource(R.string.welcome_begin_quick),
+                        onClick = { onConfirm(ReviewMode.QUICK) },
+                        enabled = !isCreating,
+                    )
+                } else {
+                    FrrSecondaryButton(
+                        text = stringResource(R.string.welcome_begin_quick),
+                        onClick = { onConfirm(ReviewMode.QUICK) },
+                        enabled = !isCreating,
+                    )
+                }
                 Text(
                     text = stringResource(R.string.welcome_quick_hint),
                     style = FrrTypography.bodyMedium,
                     color = colors.mutedText,
                 )
-                FrrSecondaryButton(
-                    text = stringResource(R.string.welcome_begin_guided),
-                    onClick = onBeginGuidedReview,
-                )
+                if (quickIsPrimary) {
+                    FrrSecondaryButton(
+                        text = stringResource(R.string.welcome_begin_guided),
+                        onClick = { onConfirm(ReviewMode.GUIDED) },
+                        enabled = !isCreating,
+                    )
+                } else {
+                    FrrPrimaryButton(
+                        text = stringResource(R.string.welcome_begin_guided),
+                        onClick = { onConfirm(ReviewMode.GUIDED) },
+                        enabled = !isCreating,
+                    )
+                }
                 Text(
                     text = stringResource(R.string.welcome_guided_hint),
                     style = FrrTypography.bodyMedium,
@@ -98,6 +122,7 @@ fun WelcomeRoute(
                 FrrSecondaryButton(
                     text = stringResource(R.string.welcome_back_dashboard),
                     onClick = onBackToDashboard,
+                    enabled = !isCreating,
                 )
             }
         },

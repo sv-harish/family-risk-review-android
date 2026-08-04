@@ -3,23 +3,16 @@ package com.familyriskreview.feature.dashboard
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.familyriskreview.core.data.repository.ReviewReader
-import com.familyriskreview.core.data.repository.UserPreferencesRepository
-import com.familyriskreview.core.data.usecase.CreateReviewUseCase
 import com.familyriskreview.core.model.Review
 import com.familyriskreview.core.model.ReviewMode
 import com.familyriskreview.core.model.ReviewStatus
 import com.familyriskreview.core.model.ReviewStep
 import com.familyriskreview.core.model.result.DomainError
-import com.familyriskreview.core.model.result.DomainResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
@@ -77,17 +70,16 @@ object DashboardReviewGrouping {
         return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).format(zoned)
     }
 
-    fun userMessage(error: DomainError): String = when (error) {
-        is DomainError.Validation ->
-            error.issues.firstOrNull()?.message ?: "Unable to create review."
-        is DomainError.Transition -> error.message
-        is DomainError.Conflict -> error.message
-        is DomainError.NotFound -> error.message
-        is DomainError.CollisionExhausted -> error.message
-        is DomainError.IllegalState -> error.message
-        is DomainError.CorruptData -> error.message
-        is DomainError.Persistence -> error.message
-        is DomainError.Calculation -> error.message
+    fun userMessageCode(error: DomainError): String = when (error) {
+        is DomainError.Validation -> error.issues.firstOrNull()?.code ?: "VALIDATION"
+        is DomainError.Transition -> "TRANSITION"
+        is DomainError.Conflict -> "CONFLICT"
+        is DomainError.NotFound -> "NOT_FOUND"
+        is DomainError.CollisionExhausted -> "COLLISION_EXHAUSTED"
+        is DomainError.IllegalState -> "ILLEGAL_STATE"
+        is DomainError.CorruptData -> error.code
+        is DomainError.Persistence -> "PERSISTENCE"
+        is DomainError.Calculation -> error.code
     }
 }
 
@@ -96,14 +88,9 @@ class DashboardViewModel
 @Inject
 constructor(
     private val reviewReader: ReviewReader,
-    private val createReview: CreateReviewUseCase,
-    private val preferencesRepository: UserPreferencesRepository,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(DashboardUiState())
     val uiState: StateFlow<DashboardUiState> = _uiState.asStateFlow()
-
-    private val _createdReviewId = MutableSharedFlow<String>(extraBufferCapacity = 1)
-    val createdReviewId: SharedFlow<String> = _createdReviewId.asSharedFlow()
 
     init {
         viewModelScope.launch {
@@ -126,25 +113,7 @@ constructor(
         }
     }
 
-    fun startQuick() = startReview(ReviewMode.QUICK)
-
-    fun startGuided() = startReview(ReviewMode.GUIDED)
-
     fun clearError() {
         _uiState.update { it.copy(createError = null) }
-    }
-
-    private fun startReview(mode: ReviewMode) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(createError = null) }
-            val language = preferencesRepository.preferences.first().defaultLanguage
-            when (val result = createReview(mode = mode, language = language)) {
-                is DomainResult.Success -> _createdReviewId.emit(result.value.id)
-                is DomainResult.Failure ->
-                    _uiState.update {
-                        it.copy(createError = DashboardReviewGrouping.userMessage(result.error))
-                    }
-            }
-        }
     }
 }

@@ -49,13 +49,15 @@ fun PrioritisationScreen(
     val adjustable = selected.filter { it.priority == ResponsibilityPriority.IMPORTANT_BUT_ADJUSTABLE }
     val postponed = selected.filter { it.priority == ResponsibilityPriority.CAN_BE_POSTPONED_OR_REDUCED }
     val unassigned = selected.filter { it.priority == null }
+    val quickLimitIssue =
+        state.validationIssues.firstOrNull { it.code == "RESP_QUICK_MUST_CONTINUE_LIMIT" }
     val quickLimitMessage =
-        state.validationIssues.firstOrNull { it.code == "RESP_QUICK_MUST_CONTINUE_LIMIT" }?.message
-            ?: if (state.review?.mode == ReviewMode.QUICK && must.size >= 3) {
+        when {
+            quickLimitIssue != null -> localizedValidationMessage(quickLimitIssue)
+            state.review?.mode == ReviewMode.QUICK && must.size >= 3 ->
                 stringResource(R.string.priority_quick_max_hint)
-            } else {
-                null
-            }
+            else -> null
+        }
 
     Column(modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Text(text = stringResource(R.string.priority_title), style = FrrTypography.headlineMedium, color = colors.onSurface)
@@ -77,7 +79,7 @@ fun PrioritisationScreen(
         }
         state.validationIssues.filter { it.code != "RESP_QUICK_MUST_CONTINUE_LIMIT" }.forEach { issue ->
             Text(
-                text = issue.message,
+                text = localizedValidationMessage(issue),
                 style = FrrTypography.bodyMedium,
                 color = colors.blockingError,
                 modifier = Modifier.padding(bottom = FrrSpacing.xs),

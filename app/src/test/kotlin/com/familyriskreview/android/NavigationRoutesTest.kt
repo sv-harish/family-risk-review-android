@@ -12,14 +12,14 @@ class NavigationRoutesTest {
         assertThat(review.reviewId).isEqualTo("abc")
         assertThat(summary.reviewId).isEqualTo("abc")
         assertThat(FrrRoutes.Splash).isEqualTo(FrrRoutes.Splash)
-        assertThat(FrrRoutes.Welcome).isEqualTo(FrrRoutes.Welcome)
         assertThat(FrrRoutes.Dashboard).isEqualTo(FrrRoutes.Dashboard)
+        assertThat(FrrRoutes.Welcome(mode = "QUICK").mode).isEqualTo("QUICK")
+        assertThat(FrrRoutes.Welcome().mode).isNull()
     }
 
     @Test
-    fun quickVersusGuided_areDistinctModes() {
-        // Mode preservation is enforced by ReviewRepository.createReview;
-        // destinations themselves only carry reviewId after creation.
+    fun welcomeCarriesPreferredMode_beforeReviewCreation() {
+        assertThat(FrrRoutes.Welcome("GUIDED").mode).isEqualTo("GUIDED")
         assertThat(FrrRoutes.Review("q").reviewId).isNotEqualTo("")
     }
 }

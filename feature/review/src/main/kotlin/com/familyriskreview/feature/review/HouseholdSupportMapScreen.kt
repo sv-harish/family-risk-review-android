@@ -34,7 +34,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -48,7 +47,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -64,6 +62,7 @@ import com.familyriskreview.core.model.ContributionStatus
 import com.familyriskreview.core.model.DependencyStatus
 import com.familyriskreview.core.model.FamilyMemberType
 import com.familyriskreview.core.model.HouseholdMember
+import com.familyriskreview.core.model.result.ValidationIssue
 import com.familyriskreview.core.model.validation.HouseholdRules
 import kotlin.math.cos
 import kotlin.math.roundToInt
@@ -75,6 +74,7 @@ fun HouseholdSupportMapScreen(
     state: ReviewUiState,
     onAddMember: (FamilyMemberType) -> Unit,
     onUpdateMember: (HouseholdMember) -> Unit,
+    onUpdateHouseholdDraft: (HouseholdMemberDraft) -> Unit,
     onRemoveMember: (String) -> Unit,
     onSetFocus: (String) -> Unit,
     onSelectMember: (String) -> Unit,
@@ -97,9 +97,14 @@ fun HouseholdSupportMapScreen(
         )
         state.validationIssues.forEach { issue ->
             Text(
-                text = issue.message,
+                text = localizedValidationMessage(issue),
                 style = FrrTypography.bodyMedium,
-                color = if (issue.severity.name == "WARNING") colors.caution else colors.blockingError,
+                color =
+                if (issue.severity == ValidationIssue.Severity.WARNING) {
+                    colors.caution
+                } else {
+                    colors.blockingError
+                },
             )
         }
         BoxWithConstraints(modifier = Modifier.weight(1f).fillMaxWidth()) {
@@ -114,12 +119,14 @@ fun HouseholdSupportMapScreen(
                         Modifier.weight(0.48f).fillMaxHeight().padding(end = FrrSpacing.md),
                     )
                     HouseholdMemberEditor(
-                        selected,
-                        focusedId,
-                        onUpdateMember,
-                        onRemoveMember,
-                        onSetFocus,
-                        Modifier.weight(0.52f).fillMaxHeight().verticalScroll(rememberScrollState()),
+                        member = selected,
+                        focusedId = focusedId,
+                        draft = selected?.let { householdDraftFor(it, state) },
+                        onUpdateDraft = onUpdateHouseholdDraft,
+                        onUpdateMember = onUpdateMember,
+                        onRemoveMember = onRemoveMember,
+                        onSetFocus = onSetFocus,
+                        modifier = Modifier.weight(0.52f).fillMaxHeight().verticalScroll(rememberScrollState()),
                     )
                 }
             } else {
@@ -132,7 +139,16 @@ fun HouseholdSupportMapScreen(
                         Modifier.fillMaxWidth().height(280.dp),
                     )
                     Spacer(Modifier.height(FrrSpacing.md))
-                    HouseholdMemberEditor(selected, focusedId, onUpdateMember, onRemoveMember, onSetFocus, Modifier.fillMaxWidth())
+                    HouseholdMemberEditor(
+                        member = selected,
+                        focusedId = focusedId,
+                        draft = selected?.let { householdDraftFor(it, state) },
+                        onUpdateDraft = onUpdateHouseholdDraft,
+                        onUpdateMember = onUpdateMember,
+                        onRemoveMember = onRemoveMember,
+                        onSetFocus = onSetFocus,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                 }
             }
         }
@@ -148,6 +164,16 @@ fun HouseholdSupportMapScreen(
         FrrPrimaryButton(stringResource(R.string.review_continue), onAdvance, Modifier.fillMaxWidth())
     }
 }
+
+private fun householdDraftFor(member: HouseholdMember, state: ReviewUiState): HouseholdMemberDraft = state.drafts.householdDrafts[member.id]
+    ?: HouseholdMemberDraft(
+        memberId = member.id,
+        label = TextDraft.of(member.displayLabel.orEmpty()),
+        age = TextDraft.of(member.age?.toString().orEmpty()),
+        relationshipName = member.relationship.name,
+        contributionName = member.contributionStatus.name,
+        dependencyName = member.dependencyStatus.name,
+    )
 
 @Composable
 private fun AddChip(label: String, onClick: () -> Unit) {
@@ -245,6 +271,13 @@ private fun MemberNode(
     val contributor = isIncomeContributor(member.contributionStatus)
     val fill: Color = if (contributor) colors.contributor else colors.dependant
     val label = member.displayLabel?.takeIf { it.isNotBlank() } ?: relationshipShort(member.relationship)
+    val roleLabel =
+        if (contributor) {
+            stringResource(R.string.household_a11y_income_contributor)
+        } else {
+            stringResource(R.string.household_a11y_dependant)
+        }
+    val focusedLabel = stringResource(R.string.household_a11y_focused)
     Box(
         modifier = modifier.clip(CircleShape).background(fill.copy(alpha = if (focused) 0.95f else 0.8f))
             .then(if (selected) Modifier.border(3.dp, colors.onSurface, CircleShape) else Modifier)
@@ -253,8 +286,11 @@ private fun MemberNode(
                 contentDescription = buildString {
                     append(label)
                     append(", ")
-                    append(if (contributor) "income contributor" else "dependant")
-                    if (focused) append(", focused")
+                    append(roleLabel)
+                    if (focused) {
+                        append(", ")
+                        append(focusedLabel)
+                    }
                 }
             },
         contentAlignment = Alignment.Center,
@@ -274,13 +310,15 @@ private fun MemberNode(
 private fun HouseholdMemberEditor(
     member: HouseholdMember?,
     focusedId: String?,
-    onUpdate: (HouseholdMember) -> Unit,
-    onRemove: (String) -> Unit,
+    draft: HouseholdMemberDraft?,
+    onUpdateDraft: (HouseholdMemberDraft) -> Unit,
+    onUpdateMember: (HouseholdMember) -> Unit,
+    onRemoveMember: (String) -> Unit,
     onSetFocus: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = frrColors()
-    if (member == null) {
+    if (member == null || draft == null) {
         Text(
             text = stringResource(R.string.household_select_prompt),
             style = FrrTypography.bodyLarge,
@@ -289,23 +327,45 @@ private fun HouseholdMemberEditor(
         )
         return
     }
-    var labelField by remember(member.id) { mutableStateOf(TextFieldValue(member.displayLabel.orEmpty())) }
-    var ageField by remember(member.id) { mutableStateOf(TextFieldValue(member.age?.toString().orEmpty())) }
-    var relationship by remember(member.id) { mutableStateOf(member.relationship) }
-    var contribution by remember(member.id) { mutableStateOf(member.contributionStatus) }
-    var dependency by remember(member.id) { mutableStateOf(member.dependencyStatus) }
-    var ageError by remember { mutableStateOf<String?>(null) }
+
+    val labelField = draft.label.toTextFieldValue()
+    val ageField = draft.age.toTextFieldValue()
+    val relationship =
+        draft.relationshipName?.let { runCatching { FamilyMemberType.valueOf(it) }.getOrNull() }
+            ?: member.relationship
+    val contribution =
+        draft.contributionName?.let { runCatching { ContributionStatus.valueOf(it) }.getOrNull() }
+            ?: member.contributionStatus
+    val dependency =
+        draft.dependencyName?.let { runCatching { DependencyStatus.valueOf(it) }.getOrNull() }
+            ?: member.dependencyStatus
+    val ageErrorText =
+        if (draft.showAgeValidation) {
+            stringResource(
+                R.string.household_age_range_error,
+                HouseholdRules.MIN_AGE,
+                HouseholdRules.MAX_AGE,
+            )
+        } else {
+            null
+        }
 
     fun persist(
-        nextLabel: String? = labelField.text.trim().ifBlank { null },
-        nextAge: Int? = ageField.text.trim().toIntOrNull(),
+        nextDraft: HouseholdMemberDraft = draft,
         nextRelationship: FamilyMemberType = relationship,
         nextContribution: ContributionStatus = contribution,
         nextDependency: DependencyStatus = dependency,
     ) {
-        onUpdate(
+        val nextAgeRaw = nextDraft.age.text.trim()
+        val nextAge =
+            if (nextAgeRaw.isEmpty()) {
+                null
+            } else {
+                nextAgeRaw.toIntOrNull()
+            }
+        onUpdateMember(
             member.copy(
-                displayLabel = nextLabel,
+                displayLabel = nextDraft.label.text.trim().ifBlank { null },
                 age = nextAge,
                 relationship = nextRelationship,
                 contributionStatus = nextContribution,
@@ -317,49 +377,55 @@ private fun HouseholdMemberEditor(
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(FrrSpacing.sm)) {
         Text(text = stringResource(R.string.household_editor_title), style = FrrTypography.titleLarge, color = colors.onSurface)
         FrrStableTextField(
-            labelField,
-            { labelField = it },
+            value = labelField,
+            onValueChange = { value ->
+                onUpdateDraft(draft.copy(label = TextDraft.from(value)))
+            },
             label = stringResource(R.string.household_label),
             supportingText = stringResource(R.string.household_label_hint),
             onFocusLost = { persist() },
         )
         FrrStableTextField(
-            ageField,
-            {
-                ageField = it
-                ageError = null
+            value = ageField,
+            onValueChange = { value ->
+                onUpdateDraft(draft.copy(age = TextDraft.from(value), showAgeValidation = false))
             },
             label = stringResource(R.string.household_age),
-            isError = ageError != null,
-            supportingText = ageError,
+            isError = ageErrorText != null,
+            supportingText = ageErrorText,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             onFocusLost = {
-                val raw = ageField.text.trim()
+                val raw = draft.age.text.trim()
                 if (raw.isEmpty()) {
-                    ageError = null
-                    persist(nextAge = null)
+                    onUpdateDraft(draft.copy(showAgeValidation = false))
+                    persist(nextDraft = draft.copy(showAgeValidation = false))
                 } else {
                     val parsed = raw.toIntOrNull()
                     if (parsed == null || parsed !in HouseholdRules.MIN_AGE..HouseholdRules.MAX_AGE) {
-                        ageError = "Age must be between ${HouseholdRules.MIN_AGE} and ${HouseholdRules.MAX_AGE}"
+                        onUpdateDraft(draft.copy(showAgeValidation = true))
                     } else {
-                        ageError = null
-                        persist(nextAge = parsed)
+                        val cleared = draft.copy(showAgeValidation = false)
+                        onUpdateDraft(cleared)
+                        persist(nextDraft = cleared)
                     }
                 }
             },
         )
-        EnumDropdown(stringResource(R.string.household_relationship), relationship, FamilyMemberType.entries, { relationshipLabel(it) }) {
-            relationship = it
-            persist(nextRelationship = it)
+        EnumDropdown(stringResource(R.string.household_relationship), relationship, FamilyMemberType.entries, { relationshipLabel(it) }) { next ->
+            // Preserve unsaved label/age draft text when enum fields change.
+            val nextDraft = draft.copy(relationshipName = next.name)
+            onUpdateDraft(nextDraft)
+            persist(nextDraft = nextDraft, nextRelationship = next)
         }
-        EnumDropdown(stringResource(R.string.household_contribution), contribution, ContributionStatus.entries, { contributionLabel(it) }) {
-            contribution = it
-            persist(nextContribution = it)
+        EnumDropdown(stringResource(R.string.household_contribution), contribution, ContributionStatus.entries, { contributionLabel(it) }) { next ->
+            val nextDraft = draft.copy(contributionName = next.name)
+            onUpdateDraft(nextDraft)
+            persist(nextDraft = nextDraft, nextContribution = next)
         }
-        EnumDropdown(stringResource(R.string.household_dependency), dependency, DependencyStatus.entries, { dependencyLabel(it) }) {
-            dependency = it
-            persist(nextDependency = it)
+        EnumDropdown(stringResource(R.string.household_dependency), dependency, DependencyStatus.entries, { dependencyLabel(it) }) { next ->
+            val nextDraft = draft.copy(dependencyName = next.name)
+            onUpdateDraft(nextDraft)
+            persist(nextDraft = nextDraft, nextDependency = next)
         }
         if (member.id != focusedId && isIncomeContributor(contribution)) {
             FrrSecondaryButton(
@@ -372,7 +438,7 @@ private fun HouseholdMemberEditor(
         }
         FrrTextAction(
             text = stringResource(R.string.household_remove),
-            onClick = { onRemove(member.id) },
+            onClick = { onRemoveMember(member.id) },
         )
     }
 }

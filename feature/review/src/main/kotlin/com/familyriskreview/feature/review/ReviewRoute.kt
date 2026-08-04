@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familyriskreview.core.designsystem.component.FrrSecondaryButton
@@ -33,7 +34,6 @@ import com.familyriskreview.core.model.ReviewStep
 @Composable
 fun ReviewRoute(
     @Suppress("UNUSED_PARAMETER") reviewId: String,
-    onContinue: () -> Unit,
     onBackToDashboard: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ReviewViewModel = hiltViewModel(),
@@ -65,19 +65,43 @@ fun ReviewRoute(
         state.review?.currentStep?.toJourneyStage()?.let { stage ->
             JourneyStageIndicator(current = stage, modifier = Modifier.fillMaxWidth())
         }
-        Spacer(Modifier.height(FrrSpacing.md))
-        state.errorMessage?.let { message ->
+        Spacer(Modifier.height(FrrSpacing.xs))
+        SaveStateIndicator(saveState = state.saveState, modifier = Modifier.fillMaxWidth())
+        Spacer(Modifier.height(FrrSpacing.sm))
+
+        if (state.conflictActive || state.saveState is ReviewSaveState.Conflict) {
+            ConflictRecoveryBanner(
+                onReload = viewModel::reloadConflict,
+                onReturnToDashboard = onBackToDashboard,
+            )
+        } else {
+            state.errorCode?.let { code ->
+                Text(
+                    text = stringResource(DomainMessageMapper.errorCodeRes(code)),
+                    style = FrrTypography.bodyMedium,
+                    color = colors.blockingError,
+                    modifier = Modifier.padding(bottom = FrrSpacing.xs),
+                )
+                FrrTextAction(
+                    text = stringResource(R.string.review_dismiss_error),
+                    onClick = viewModel::clearError,
+                )
+            }
+        }
+
+        if (state.draftDiscardedAfterConflict) {
             Text(
-                text = message,
+                text = stringResource(R.string.conflict_draft_discarded),
                 style = FrrTypography.bodyMedium,
-                color = colors.blockingError,
-                modifier = Modifier.padding(bottom = FrrSpacing.sm),
+                color = colors.caution,
+                modifier = Modifier.padding(bottom = FrrSpacing.xs),
             )
             FrrTextAction(
                 text = stringResource(R.string.review_dismiss_error),
-                onClick = viewModel::clearError,
+                onClick = viewModel::acknowledgeDraftDiscarded,
             )
         }
+
         when {
             state.loading -> {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -109,6 +133,7 @@ fun ReviewRoute(
                             state = state,
                             onAddMember = viewModel::addMember,
                             onUpdateMember = { viewModel.updateMember(it) },
+                            onUpdateHouseholdDraft = viewModel::updateHouseholdDraft,
                             onRemoveMember = viewModel::removeMember,
                             onSetFocus = viewModel::setFocus,
                             onSelectMember = viewModel::selectMemberForEdit,
@@ -119,6 +144,9 @@ fun ReviewRoute(
                         ResponsibilitySelectionScreen(
                             state = state,
                             onToggle = viewModel::toggleResponsibility,
+                            onUpdateOtherLabelDraft = viewModel::updateOtherLabelDraft,
+                            onSaveActiveOtherLabel = viewModel::saveActiveOtherLabel,
+                            onAddAnotherCustomResponsibility = viewModel::addAnotherCustomResponsibility,
                             onAdvance = viewModel::advance,
                             onBack = viewModel::goBack,
                             modifier = Modifier.fillMaxSize(),
@@ -134,7 +162,10 @@ fun ReviewRoute(
                     ReviewStep.RESPONSIBILITY_DETAILS ->
                         ResponsibilityDetailsScreen(
                             state = state,
+                            onUpdateDraft = viewModel::updateDetailsDraft,
                             onSaveDraft = viewModel::saveDetailsDraft,
+                            onSelectResponsibility = viewModel::selectResponsibilityForEdit,
+                            mayRemainNonQuantified = viewModel::mayRemainNonQuantified,
                             onAdvance = viewModel::advance,
                             onBack = viewModel::goBack,
                             modifier = Modifier.fillMaxSize(),
@@ -142,12 +173,79 @@ fun ReviewRoute(
                     else ->
                         Phase2BoundaryScreen(
                             onBackToDashboard = onBackToDashboard,
-                            onContinue = onContinue,
                             onBack = viewModel::goBack,
                             modifier = Modifier.fillMaxSize(),
                         )
                 }
             }
+        }
+    }
+}
+
+/** Fixed-height save-state slot so status changes never shift layout. */
+@Composable
+private fun SaveStateIndicator(
+    saveState: ReviewSaveState,
+    modifier: Modifier = Modifier,
+) {
+    val colors = frrColors()
+    Box(
+        modifier = modifier.height(SaveStateSlotHeight),
+        contentAlignment = Alignment.CenterStart,
+    ) {
+        val (text, color) =
+            when (saveState) {
+                ReviewSaveState.Idle -> null to colors.mutedText
+                ReviewSaveState.Saving ->
+                    stringResource(R.string.save_state_saving) to colors.mutedText
+                ReviewSaveState.Saved ->
+                    stringResource(R.string.save_state_saved) to colors.primaryAction
+                is ReviewSaveState.ValidationFailure ->
+                    stringResource(R.string.save_state_validation) to colors.blockingError
+                is ReviewSaveState.PersistenceFailure ->
+                    stringResource(R.string.save_state_persistence) to colors.blockingError
+                is ReviewSaveState.Conflict ->
+                    stringResource(R.string.save_state_conflict) to colors.blockingError
+            }
+        if (text != null) {
+            Text(text = text, style = FrrTypography.labelLarge, color = color)
+        }
+    }
+}
+
+@Composable
+private fun ConflictRecoveryBanner(
+    onReload: () -> Unit,
+    onReturnToDashboard: () -> Unit,
+) {
+    val colors = frrColors()
+    Column(
+        modifier =
+        Modifier
+            .fillMaxWidth()
+            .background(colors.blockingError.copy(alpha = 0.08f))
+            .padding(FrrSpacing.sm),
+        verticalArrangement = Arrangement.spacedBy(FrrSpacing.xs),
+    ) {
+        Text(
+            text = stringResource(R.string.conflict_title),
+            style = FrrTypography.titleMedium,
+            color = colors.blockingError,
+        )
+        Text(
+            text = stringResource(R.string.conflict_body),
+            style = FrrTypography.bodyMedium,
+            color = colors.onSurface,
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(FrrSpacing.sm)) {
+            FrrSecondaryButton(
+                text = stringResource(R.string.conflict_reload),
+                onClick = onReload,
+            )
+            FrrTextAction(
+                text = stringResource(R.string.conflict_return_dashboard),
+                onClick = onReturnToDashboard,
+            )
         }
     }
 }
@@ -186,7 +284,6 @@ private fun JourneyStageIndicator(current: ReviewJourneyStage, modifier: Modifie
 @Composable
 fun Phase2BoundaryScreen(
     onBackToDashboard: () -> Unit,
-    onContinue: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -214,9 +311,7 @@ fun Phase2BoundaryScreen(
             text = stringResource(R.string.phase2_boundary_save_return),
             onClick = onBackToDashboard,
         )
-        FrrTextAction(
-            text = stringResource(R.string.review_continue),
-            onClick = onContinue,
-        )
     }
 }
+
+private val SaveStateSlotHeight = 24.dp

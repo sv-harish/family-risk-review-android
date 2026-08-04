@@ -16,39 +16,56 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import com.familyriskreview.core.designsystem.component.FrrPrimaryButton
 import com.familyriskreview.core.designsystem.component.FrrSecondaryButton
 import com.familyriskreview.core.designsystem.component.FrrStableTextField
 import com.familyriskreview.core.designsystem.theme.FrrSpacing
 import com.familyriskreview.core.designsystem.theme.FrrTypography
 import com.familyriskreview.core.designsystem.theme.frrColors
-import com.familyriskreview.core.model.MoneyAmount
-import com.familyriskreview.core.model.QuantificationStatus
 import com.familyriskreview.core.model.Responsibility
 import com.familyriskreview.core.model.ResponsibilityAmountModel
 import com.familyriskreview.core.model.ResponsibilityCatalogue
-import com.familyriskreview.core.model.ResponsibilityTiming
-import com.familyriskreview.core.model.TimingKind
+import com.familyriskreview.core.model.ResponsibilityPriority
+import com.familyriskreview.core.model.ReviewMode
+import com.familyriskreview.core.model.result.ValidationIssue
 
 @Composable
 fun ResponsibilityDetailsScreen(
     state: ReviewUiState,
+    onUpdateDraft: (ResponsibilityDetailsDraft) -> Unit,
     onSaveDraft: (Responsibility) -> Unit,
+    onSelectResponsibility: (String) -> Unit,
+    mayRemainNonQuantified: (ResponsibilityPriority?) -> Boolean,
     onAdvance: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = frrColors()
     val items = state.responsibilities.filter { it.isSelected }
-    var selectedId by rememberSaveable { mutableStateOf(items.firstOrNull()?.id) }
+    val selectedFromState = state.selectedResponsibilityId
+    var fallbackSelectedId by rememberSaveable { mutableStateOf<String?>(null) }
+    val selectedId =
+        selectedFromState
+            ?: fallbackSelectedId
+            ?: items.firstOrNull()?.id
     val current = items.find { it.id == selectedId } ?: items.firstOrNull()
+    val mode = state.review?.mode ?: ReviewMode.QUICK
+
+    fun draftFor(responsibility: Responsibility): ResponsibilityDetailsDraft = state.drafts.detailsDrafts[responsibility.id]
+        ?: ReviewViewModel.detailsDraftFrom(responsibility)
+
+    fun flushCurrent() {
+        val responsibility = current ?: return
+        val draft = draftFor(responsibility)
+        onSaveDraft(
+            ReviewViewModel.applyDraftToResponsibility(responsibility, draft, mode),
+        )
+    }
 
     Column(modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Text(text = stringResource(R.string.details_title), style = FrrTypography.headlineMedium, color = colors.onSurface)
@@ -60,243 +77,257 @@ fun ResponsibilityDetailsScreen(
         )
         state.validationIssues.forEach { issue ->
             Text(
-                text = issue.message,
+                text = localizedValidationMessage(issue),
                 style = FrrTypography.bodyMedium,
-                color = colors.blockingError,
+                color = if (issue.severity == ValidationIssue.Severity.WARNING) colors.caution else colors.blockingError,
                 modifier = Modifier.padding(bottom = FrrSpacing.xs),
             )
         }
         if (items.isEmpty()) {
-            Text(text = stringResource(R.string.details_none_selected), style = FrrTypography.bodyLarge, color = colors.mutedText)
+            Text(
+                text = stringResource(R.string.details_none_selected),
+                style = FrrTypography.bodyLarge,
+                color = colors.mutedText,
+            )
         } else {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(FrrSpacing.xs)) {
                 items.forEach { item ->
                     val label = item.customLabel?.takeIf { it.isNotBlank() } ?: catalogueLabel(item.catalogue)
                     FilterChip(
                         selected = item.id == current?.id,
-                        onClick = { selectedId = item.id },
+                        onClick = {
+                            fallbackSelectedId = item.id
+                            onSelectResponsibility(item.id)
+                        },
                         label = { Text(label.take(18)) },
                     )
                 }
             }
             Spacer(Modifier.height(FrrSpacing.md))
-            current?.let { ResponsibilityDetailsForm(it, onSaveDraft) }
+            current?.let { responsibility ->
+                ResponsibilityDetailsForm(
+                    responsibility = responsibility,
+                    draft = draftFor(responsibility),
+                    allowNonQuantified = mayRemainNonQuantified(responsibility.priority),
+                    mode = mode,
+                    onUpdateDraft = onUpdateDraft,
+                    onSaveDraft = onSaveDraft,
+                )
+            }
         }
         Spacer(Modifier.height(FrrSpacing.lg))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(FrrSpacing.sm)) {
             FrrSecondaryButton(stringResource(R.string.review_back), onBack, Modifier.weight(1f))
-            FrrPrimaryButton(stringResource(R.string.review_continue), onAdvance, Modifier.weight(1f))
+            FrrPrimaryButton(
+                text = stringResource(R.string.review_continue),
+                onClick = {
+                    flushCurrent()
+                    onAdvance()
+                },
+                modifier = Modifier.weight(1f),
+            )
         }
     }
 }
 
 @Composable
-private fun ResponsibilityDetailsForm(responsibility: Responsibility, onSaveDraft: (Responsibility) -> Unit) {
+private fun ResponsibilityDetailsForm(
+    responsibility: Responsibility,
+    draft: ResponsibilityDetailsDraft,
+    allowNonQuantified: Boolean,
+    mode: ReviewMode,
+    onUpdateDraft: (ResponsibilityDetailsDraft) -> Unit,
+    onSaveDraft: (Responsibility) -> Unit,
+) {
     val colors = frrColors()
     val catalogue = responsibility.catalogue
-    var labelField by remember(responsibility.id) { mutableStateOf(TextFieldValue(responsibility.customLabel.orEmpty())) }
-    var monthlyField by remember(responsibility.id) {
-        mutableStateOf(TextFieldValue(MoneyInputFormatter.formatOrEmpty(responsibility.monthlyAmount?.amountRupees)))
+    val labelField = draft.label.toTextFieldValue()
+    val monthlyField = draft.monthlyAmount.toTextFieldValue()
+    val currentField = draft.currentAmount.toTextFieldValue()
+    val yearsField = draft.years.toTextFieldValue()
+    val inflationField = draft.inflationPercent.toTextFieldValue()
+    val amountModel =
+        draft.amountModelName?.let { runCatching { ResponsibilityAmountModel.valueOf(it) }.getOrNull() }
+            ?: responsibility.amountModel
+            ?: ResponsibilityAmountModel.ONE_TIME
+    val notYetQuantified = draft.notYetQuantified
+
+    fun update(transform: (ResponsibilityDetailsDraft) -> ResponsibilityDetailsDraft) {
+        onUpdateDraft(transform(draft))
     }
-    var currentField by remember(responsibility.id) {
-        mutableStateOf(TextFieldValue(MoneyInputFormatter.formatOrEmpty(responsibility.currentAmount?.amountRupees)))
-    }
-    var yearsField by remember(responsibility.id) {
-        mutableStateOf(
-            TextFieldValue(
-                (responsibility.timing?.yearsUntilRequired ?: responsibility.timing?.durationYears)?.toString().orEmpty(),
-            ),
+
+    fun saveFrom(next: ResponsibilityDetailsDraft = draft) {
+        val formatted =
+            next.copy(
+                monthlyAmount =
+                TextDraft.of(
+                    MoneyInputFormatter.formatOrEmpty(
+                        MoneyInputFormatter.parseRupees(next.monthlyAmount.text),
+                    ),
+                ),
+                currentAmount =
+                TextDraft.of(
+                    MoneyInputFormatter.formatOrEmpty(
+                        MoneyInputFormatter.parseRupees(next.currentAmount.text),
+                    ),
+                ),
+            )
+        onUpdateDraft(formatted.copy(dirty = true))
+        onSaveDraft(
+            ReviewViewModel.applyDraftToResponsibility(responsibility, formatted, mode),
         )
-    }
-    var inflationField by remember(responsibility.id) {
-        mutableStateOf(TextFieldValue(responsibility.explicitInflationBps?.let { (it / 100.0).toString() }.orEmpty()))
-    }
-    var amountModel by remember(responsibility.id) {
-        mutableStateOf(responsibility.amountModel ?: ResponsibilityAmountModel.ONE_TIME)
-    }
-    var notYetQuantified by remember(responsibility.id) {
-        mutableStateOf(responsibility.quantificationStatus == QuantificationStatus.NOT_YET_QUANTIFIED)
-    }
-
-    fun moneyOrNull(field: TextFieldValue): MoneyAmount? = MoneyInputFormatter.parseRupees(field.text)?.let { MoneyAmount(it) }
-
-    fun buildDraft(): Responsibility {
-        val timing = when {
-            isLivingLike(catalogue) ->
-                ResponsibilityTiming(TimingKind.RECURRING_DURATION, durationYears = yearsField.text.trim().toIntOrNull())
-            isEducationLike(catalogue) ->
-                ResponsibilityTiming(TimingKind.ONE_TIME_IN_YEARS, yearsUntilRequired = yearsField.text.trim().toIntOrNull())
-            isLoan(catalogue) -> ResponsibilityTiming(TimingKind.CURRENT_OUTSTANDING)
-            catalogue == ResponsibilityCatalogue.OTHER ->
-                when (amountModel) {
-                    ResponsibilityAmountModel.ONE_TIME ->
-                        ResponsibilityTiming(TimingKind.ONE_TIME_IN_YEARS, yearsUntilRequired = yearsField.text.trim().toIntOrNull())
-                    ResponsibilityAmountModel.RECURRING ->
-                        ResponsibilityTiming(TimingKind.RECURRING_DURATION, durationYears = yearsField.text.trim().toIntOrNull())
-                }
-            else -> responsibility.timing
-        }
-        return responsibility.copy(
-            customLabel = if (catalogue == ResponsibilityCatalogue.OTHER) labelField.text.trim().ifBlank { null } else responsibility.customLabel,
-            monthlyAmount = when {
-                isLivingLike(catalogue) -> moneyOrNull(monthlyField)
-                catalogue == ResponsibilityCatalogue.OTHER && amountModel == ResponsibilityAmountModel.RECURRING -> moneyOrNull(monthlyField)
-                else -> null
-            },
-            currentAmount = when {
-                isEducationLike(catalogue) || isLoan(catalogue) -> moneyOrNull(currentField)
-                catalogue == ResponsibilityCatalogue.OTHER && amountModel == ResponsibilityAmountModel.ONE_TIME -> moneyOrNull(currentField)
-                else -> null
-            },
-            timing = timing,
-            amountModel = if (catalogue == ResponsibilityCatalogue.OTHER) amountModel else null,
-            explicitInflationBps = if (catalogue == ResponsibilityCatalogue.OTHER) {
-                inflationField.text.trim().toDoubleOrNull()?.let { (it * 100).toInt() }
-            } else {
-                null
-            },
-            quantificationStatus = if (notYetQuantified && isLivingLike(catalogue)) {
-                QuantificationStatus.NOT_YET_QUANTIFIED
-            } else {
-                QuantificationStatus.QUANTIFIED
-            },
-        )
-    }
-
-    fun save() {
-        monthlyField = TextFieldValue(MoneyInputFormatter.formatOrEmpty(MoneyInputFormatter.parseRupees(monthlyField.text)))
-        currentField = TextFieldValue(MoneyInputFormatter.formatOrEmpty(MoneyInputFormatter.parseRupees(currentField.text)))
-        onSaveDraft(buildDraft())
     }
 
     Column(verticalArrangement = Arrangement.spacedBy(FrrSpacing.sm)) {
         Text(text = catalogueLabel(catalogue), style = FrrTypography.titleLarge, color = colors.onSurface)
         when {
-            isLivingLike(catalogue) -> {
+            ReviewViewModel.isLivingLike(catalogue) -> {
                 FrrStableTextField(
-                    monthlyField,
-                    { monthlyField = it },
+                    value = monthlyField,
+                    onValueChange = { value -> update { d -> d.copy(monthlyAmount = TextDraft.from(value)) } },
                     label = stringResource(R.string.details_monthly_amount),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    onFocusLost = ::save,
+                    onFocusLost = { saveFrom() },
                 )
                 FrrStableTextField(
-                    yearsField,
-                    { yearsField = it },
+                    value = yearsField,
+                    onValueChange = { value -> update { d -> d.copy(years = TextDraft.from(value)) } },
                     label = stringResource(R.string.details_duration_years),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    onFocusLost = ::save,
+                    onFocusLost = { saveFrom() },
                 )
-                Row(horizontalArrangement = Arrangement.spacedBy(FrrSpacing.sm)) {
-                    FilterChip(
-                        !notYetQuantified,
-                        {
-                            notYetQuantified = false
-                            save()
-                        },
-                        label = { Text(stringResource(R.string.details_quantified)) },
-                    )
-                    FilterChip(
-                        notYetQuantified,
-                        {
-                            notYetQuantified = true
-                            save()
-                        },
-                        label = { Text(stringResource(R.string.details_not_yet_quantified)) },
-                    )
-                }
             }
-            isEducationLike(catalogue) -> {
+            ReviewViewModel.isEducationLike(catalogue) -> {
                 FrrStableTextField(
-                    currentField,
-                    { currentField = it },
+                    value = currentField,
+                    onValueChange = { value -> update { d -> d.copy(currentAmount = TextDraft.from(value)) } },
                     label = stringResource(R.string.details_current_amount),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    onFocusLost = ::save,
+                    onFocusLost = { saveFrom() },
                 )
                 FrrStableTextField(
-                    yearsField,
-                    { yearsField = it },
+                    value = yearsField,
+                    onValueChange = { value -> update { d -> d.copy(years = TextDraft.from(value)) } },
                     label = stringResource(R.string.details_years_until),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    onFocusLost = ::save,
+                    onFocusLost = { saveFrom() },
                 )
             }
-            isLoan(catalogue) -> {
+            ReviewViewModel.isLoan(catalogue) -> {
                 FrrStableTextField(
-                    currentField,
-                    { currentField = it },
+                    value = currentField,
+                    onValueChange = { value -> update { d -> d.copy(currentAmount = TextDraft.from(value)) } },
                     label = stringResource(R.string.details_outstanding_amount),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    onFocusLost = ::save,
+                    onFocusLost = { saveFrom() },
                 )
             }
             catalogue == ResponsibilityCatalogue.OTHER -> {
-                FrrStableTextField(labelField, { labelField = it }, label = stringResource(R.string.responsibilities_other_label), onFocusLost = ::save)
+                FrrStableTextField(
+                    value = labelField,
+                    onValueChange = { value -> update { d -> d.copy(label = TextDraft.from(value)) } },
+                    label = stringResource(R.string.responsibilities_other_label),
+                    onFocusLost = { saveFrom() },
+                )
                 Row(horizontalArrangement = Arrangement.spacedBy(FrrSpacing.sm)) {
-                    FilterChip(amountModel == ResponsibilityAmountModel.ONE_TIME, {
-                        amountModel = ResponsibilityAmountModel.ONE_TIME
-                        save()
-                    }, label = { Text(stringResource(R.string.details_model_one_time)) })
-                    FilterChip(amountModel == ResponsibilityAmountModel.RECURRING, {
-                        amountModel = ResponsibilityAmountModel.RECURRING
-                        save()
-                    }, label = { Text(stringResource(R.string.details_model_recurring)) })
+                    FilterChip(
+                        selected = amountModel == ResponsibilityAmountModel.ONE_TIME,
+                        onClick = {
+                            val next = draft.copy(amountModelName = ResponsibilityAmountModel.ONE_TIME.name)
+                            update { next }
+                            saveFrom(next)
+                        },
+                        label = { Text(stringResource(R.string.details_model_one_time)) },
+                    )
+                    FilterChip(
+                        selected = amountModel == ResponsibilityAmountModel.RECURRING,
+                        onClick = {
+                            val next = draft.copy(amountModelName = ResponsibilityAmountModel.RECURRING.name)
+                            update { next }
+                            saveFrom(next)
+                        },
+                        label = { Text(stringResource(R.string.details_model_recurring)) },
+                    )
                 }
                 if (amountModel == ResponsibilityAmountModel.ONE_TIME) {
                     FrrStableTextField(
-                        currentField,
-                        { currentField = it },
+                        value = currentField,
+                        onValueChange = { value -> update { d -> d.copy(currentAmount = TextDraft.from(value)) } },
                         label = stringResource(R.string.details_current_amount),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        onFocusLost = ::save,
+                        onFocusLost = { saveFrom() },
                     )
                     FrrStableTextField(
-                        yearsField,
-                        { yearsField = it },
+                        value = yearsField,
+                        onValueChange = { value -> update { d -> d.copy(years = TextDraft.from(value)) } },
                         label = stringResource(R.string.details_years_until),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        onFocusLost = ::save,
+                        onFocusLost = { saveFrom() },
                     )
                 } else {
                     FrrStableTextField(
-                        monthlyField,
-                        { monthlyField = it },
+                        value = monthlyField,
+                        onValueChange = { value -> update { d -> d.copy(monthlyAmount = TextDraft.from(value)) } },
                         label = stringResource(R.string.details_monthly_amount),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        onFocusLost = ::save,
+                        onFocusLost = { saveFrom() },
                     )
                     FrrStableTextField(
-                        yearsField,
-                        { yearsField = it },
+                        value = yearsField,
+                        onValueChange = { value -> update { d -> d.copy(years = TextDraft.from(value)) } },
                         label = stringResource(R.string.details_duration_years),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        onFocusLost = ::save,
+                        onFocusLost = { saveFrom() },
                     )
                 }
                 FrrStableTextField(
-                    inflationField,
-                    { inflationField = it },
+                    value = inflationField,
+                    onValueChange = { value -> update { d -> d.copy(inflationPercent = TextDraft.from(value)) } },
                     label = stringResource(R.string.details_inflation_percent),
                     supportingText = stringResource(R.string.details_inflation_hint),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    onFocusLost = ::save,
+                    onFocusLost = { saveFrom() },
                 )
             }
         }
-        FrrSecondaryButton(stringResource(R.string.details_save_draft), ::save, Modifier.fillMaxWidth())
+
+        if (allowNonQuantified) {
+            Text(
+                text =
+                if (notYetQuantified) {
+                    stringResource(R.string.details_quantification_status_not_yet)
+                } else {
+                    stringResource(R.string.details_quantified)
+                },
+                style = FrrTypography.bodyMedium,
+                color = if (notYetQuantified) colors.caution else colors.primaryAction,
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(FrrSpacing.sm)) {
+                FilterChip(
+                    selected = !notYetQuantified,
+                    onClick = {
+                        val next = draft.copy(notYetQuantified = false)
+                        update { next }
+                        saveFrom(next)
+                    },
+                    label = { Text(stringResource(R.string.details_quantified)) },
+                )
+                FilterChip(
+                    selected = notYetQuantified,
+                    onClick = {
+                        val next = draft.copy(notYetQuantified = true)
+                        update { next }
+                        saveFrom(next)
+                    },
+                    label = { Text(stringResource(R.string.details_not_yet_quantified)) },
+                )
+            }
+        }
+
+        FrrSecondaryButton(
+            text = stringResource(R.string.details_save_draft),
+            onClick = { saveFrom() },
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
 }
-
-private fun isLivingLike(c: ResponsibilityCatalogue) = c == ResponsibilityCatalogue.ESSENTIAL_FAMILY_LIVING_EXPENSES ||
-    c == ResponsibilityCatalogue.PARENT_SUPPORT ||
-    c == ResponsibilityCatalogue.SPOUSE_OR_PARTNER_SUPPORT ||
-    c == ResponsibilityCatalogue.SPECIAL_NEEDS_DEPENDANT_SUPPORT ||
-    c == ResponsibilityCatalogue.CHILDCARE_REPLACEMENT ||
-    c == ResponsibilityCatalogue.HOUSEHOLD_CARE_REPLACEMENT
-
-private fun isEducationLike(c: ResponsibilityCatalogue) = c == ResponsibilityCatalogue.CHILD_HIGHER_EDUCATION ||
-    c == ResponsibilityCatalogue.CHILD_MARRIAGE_SUPPORT ||
-    c == ResponsibilityCatalogue.BUYING_OR_COMPLETING_HOUSE
-
-private fun isLoan(c: ResponsibilityCatalogue) = c == ResponsibilityCatalogue.HOME_LOAN_REPAYMENT || c == ResponsibilityCatalogue.OTHER_OUTSTANDING_LOANS
