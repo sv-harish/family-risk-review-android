@@ -72,14 +72,26 @@ Both modes share the same ordered `ReviewStep` list starting at `HOUSEHOLD_SUPPO
 
 ## Aggregate revision & sync
 
-Every mutating write that changes calculation inputs:
+Every mutating write:
 
 1. bumps `revision` (CAS: `WHERE id=? AND revision=?`)
 2. updates `updatedAt`
-3. sets `syncState = PENDING`
-4. sets `summaryStale = true`
+3. sets `syncState = PENDING` (for synced aggregates)
 
-Conflict → `DomainError.Conflict`. Review numbers are unique with bounded collision retry on create.
+Calculation-input mutations additionally:
+
+4. bump `calculationInputRevision`
+5. set `summaryStale = true`
+
+Conflict → throw inside the Room transaction (full rollback) → `DomainError.Conflict`.  
+`SyncClient.enqueue*` runs **only after** a successful commit.
+
+Non-financial writes (archive, step advance, reopen) bump `revision` but not `calculationInputRevision`, so a fresh summary stays current.
+
+## Advisor references (local-only)
+
+Advisor initials/CRM/notes are Room-persisted but intentionally outside sync/revision tracking (ADR-017).
+
 
 ## Calculation snapshots
 

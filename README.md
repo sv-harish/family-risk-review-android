@@ -9,9 +9,9 @@ Native Android tablet application for advisor-led household risk awareness sessi
 
 ## Status
 
-**Phase 1 — Domain / application / calculation / persistence foundation** (current)
+**Phase 1.1 — Correctness hardening** (current, on PR #2)
 
-Review aggregate lifecycle, household & responsibility rules, conditional suggestions, calculation snapshots, transactional Room persistence with CAS revision, use cases, and advisor-only data isolation. No polished customer UI in this phase.
+Phase 1 domain/application/persistence foundation with transactional CAS rollback, progression gates, Quick/Guided policies, calculable timing contracts, and fail-closed assumptions. No polished customer UI.
 
 ## Toolchain matrix
 

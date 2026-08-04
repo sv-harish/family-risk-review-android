@@ -1,6 +1,6 @@
 # QA status — Family Risk Review
 
-## Phase 1 gates (local)
+## Phase 1.1 gates (local)
 
 | Gate | Status |
 |------|--------|
@@ -10,51 +10,50 @@
 | `./gradlew assembleDebug` | **Passed** |
 | `./gradlew :app:verifyPhase1` | **Passed** |
 
+## Phase 1.1 correctness hardening
+
+Repaired before PR #2 merge:
+
+- CAS conflict rolls back child writes / snapshots (Room abort exception)
+- Sync enqueue only after commit
+- Progression gates validate before advancing
+- Explicit `ReviewModePolicy` Quick vs Guided differences
+- Open-ended timing requires modelling horizon or numeric exclusion
+- Catalogue-specific amount rules
+- Assumption corruption fails closed (`CorruptData`)
+- Lifecycle editability + explicit reopen
+- Focused-contributor integrity (`FocusUpdate`)
+- Review-number collision classification
+- Explicit `calculationVersion` + `calculationInputRevision` staleness
+
 ## Test inventory
 
-| Kind | Count | Notes |
-|------|------:|-------|
-| JVM unit tests | ~47 | model lifecycle/validation/suggestions, calculation, mappers, sync, nav |
-| Robolectric unit tests | ~9 | DAO CAS, repository lifecycle/transactions, DataStore (`@Config(sdk=[34])`) |
-| Instrumentation tests executed | 0 | Not run in this environment |
-| Instrumentation tests compiled | present stubs only | — |
+| Kind | Notes |
+|------|-------|
+| JVM unit tests | lifecycle, progression gates, validation, calculation, assumptions parse |
+| Robolectric | CAS rollback asserts persisted DB state + sync intents; lifecycle; focus |
+| Instrumentation executed | 0 |
 
-**Unique tests executed:** ~56 (0 failures) after Phase 1 additions.
+### Representative regression tests
 
-### Representative test names
-
-- `ResponsibilityCalculatorTest` (education/marriage/loan/recurring/derived/scenario/overflow/checkedSum…)
-- `IndianCurrencyFormatterTest`
-- `ReviewNumberGeneratorTest`
-- `ReviewLifecycleTest`
-- `HouseholdRulesTest` / `ResponsibilityRulesTest`
-- `ResponsibilitySuggestionEngineTest`
-- `EntityMapperRoundTripTest`
-- `ReviewDaoRobolectricTest` (CAS conflict / soft delete)
-- `ReviewRepositoryRobolectricTest` (create, CAS, archive/restore, soft delete + children, revision bump)
-- `UserPreferencesDataSourceTest`
-- `CustomerSummaryMapperTest` (advisor fields never projected)
-- `FakeSyncClientTest`
-- `NavigationRoutesTest`
+- `Phase11HardeningRobolectricTest` (rollback, sync-after-commit, editability, focus, staleness)
+- `ProgressionGatesTest`
+- `ResponsibilityRulesTest` (timing/amount/Quick vs Guided)
+- `ResponsibilityCalculatorTest` (no silent zero; exclusion omitted from totals)
+- `ReviewLifecycleTest` (reopen + mode policies)
 
 ## Unresolved warnings / gaps
 
-- Android Lint reports informational/warning findings (including dependency target-api notes); no lint errors.
-- kotlinx-datetime `Instant` deprecation warnings toward `kotlin.time.Instant` (migrate in a later hardening pass).
+- Android Lint informational/warning findings; no lint errors.
+- kotlinx-datetime `Instant` deprecation warnings.
 - Fonts / Dareus One logo / advisor portrait still placeholders.
 - Emulator IME / device recreation QA not run.
 - Polished customer UI intentionally deferred (Phase 2+).
-- GitHub Actions CI status must be confirmed green on the Phase 1 PR before merge claim.
 
 ## Honesty rule
 
-Do not claim device testing without running it. Do not claim PR verification passed until GitHub Actions completes successfully.
+Do not claim device testing without running it. Do not claim PR verification passed until GitHub Actions completes successfully on the final PR head.
 
 ## CI status
 
-Phase 1 GitHub Actions **passed** on branch `cursor/phase-1-domain-engine-1a7a`:
-
-- push run: success — https://github.com/sv-harish/family-risk-review-android/actions/runs/30862405323
-- pull_request run: success — https://github.com/sv-harish/family-risk-review-android/actions/runs/30862410867
-
-**PR #2 is ready to merge** from a Phase 1 foundation perspective.
+Will be updated after the Phase 1.1 push on PR #2 completes green.

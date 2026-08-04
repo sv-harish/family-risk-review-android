@@ -76,4 +76,25 @@
 ## ADR-016 — Quick vs Guided scope
 
 **Status:** Accepted  
-**Decision:** Same ordered `ReviewStep` list for both modes. Quick enforces `MAX_MUST_CONTINUE = 3`; Guided has no hard must-continue cap in v1.
+**Decision:** Same ordered `ReviewStep` list for both modes. Scope differences live in `ReviewModePolicy` (max must-continue, detail requirements for adjustable/postponed, multi-scenario allowance). Repositories must not scatter `if (mode == QUICK)` checks.
+
+## ADR-017 — Advisor references are local-only
+
+**Status:** Accepted  
+**Decision:** Advisor-only initials/CRM/notes persist in Room but do **not** bump review revision and do **not** enqueue `SyncClient` intents. Customer projections never include them. Remote sync of advisor notes is explicitly out of scope until a future ADR revisits the policy.
+
+## ADR-018 — CAS conflict aborts Room transactions
+
+**Status:** Accepted  
+**Decision:** Child writes that fail parent CAS throw an internal `AggregateCasConflictException` inside `withTransaction` so Room rolls back. Sync enqueue happens only after the transaction commits. Validation/domain aborts use `AbortDomainException` (also rolls back).
+
+## ADR-019 — Calculation input fingerprint
+
+**Status:** Accepted  
+**Decision:** `Review.calculationInputRevision` bumps only when calculation inputs change. Aggregate `revision` bumps on all writes (including archive/step). Snapshots bind to `calculationInputRevision`. Non-financial revisions (archive, step) do not stale a fresh summary.
+
+## ADR-020 — Open-ended timing requires modelling horizon or exclusion
+
+**Status:** Accepted  
+**Decision:** `AS_LONG_AS_REQUIRED`, `UNTIL_MILESTONE`, and `CUSTOM` require a calculable horizon (`modellingDurationYears` / years / duration) or `excludedFromNumericCalculation=true`. Excluded items are omitted from totals (never silent ₹0).
+
