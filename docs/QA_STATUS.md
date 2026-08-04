@@ -4,13 +4,37 @@
 
 **Phase 1 complete — Phase 2 product experience in progress**
 
-Phase 1 (PR #2) is merged. This document tracks Phase 2 product-experience work on `cursor/phase-2-product-experience-1a7a`.
+Branch: `cursor/phase-2-product-experience-1a7a`
 
-## Phase 2 scope (in progress)
+## Phase 2 gates (local)
 
-Brand and design system, adaptive shell, splash, welcome, dashboard, review creation, household stage, responsibility selection / prioritisation / details, persistence and resume, localisation structure, accessibility foundations, input-stability tests.
+| Gate | Status |
+|------|--------|
+| `./gradlew spotlessCheck` | **Passed** |
+| `./gradlew lintDebug` | **Passed** |
+| `./gradlew test` | **Passed** (~149 tests) |
+| `./gradlew assembleDebug` | **Passed** |
 
-Out of scope for Phase 2: final educational animations, complete gross-responsibility summary UI, customer PDF, printing/sharing, production sync, auth, CRM, analytics, Play Store release.
+## Screens implemented
+
+- Splash (Dareus One credit only here; reduced-motion aware)
+- Welcome / introduction
+- Dashboard (Quick/Guided start, in-progress / completed / archived separation, resume)
+- Review shell with visible journey stages
+- Household support map + member editor
+- Responsibility selection (suggestions never auto-select)
+- Prioritisation (Quick must-continue limit surfaced)
+- Responsibility detail forms (catalogue-sensitive; draft save)
+- Phase 2 boundary screen for later domain steps
+
+## Known limitations
+
+- Font files still placeholders (Manrope / Source Sans / Noto pending under assets/fonts)
+- Dareus One logo asset still placeholder text on splash
+- Advisor portrait still placeholder
+- Timeline / gross-responsibility / summary polish deferred to later phases
+- Emulator portrait/landscape screenshot capture may be limited in CI agents
+- Tamil/Hindi resources exist for implemented journey; professional translation review recommended
 
 ## Honesty rule
 
@@ -18,4 +42,4 @@ Do not claim device testing without running it. Do not claim PR verification pas
 
 ## CI status
 
-Pending Phase 2 implementation push.
+Pending draft PR push verification.
